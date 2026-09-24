@@ -243,13 +243,6 @@ export default function Profil({
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <div ref={headerRef} className="max-w-3xl">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-600 animate-pulse" />
-              Tentang Kami
-            </span>
-          </div>
-
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl dark:text-black">
             Profil{" "}
             <span className="text-red-600 dark:text-red-500">

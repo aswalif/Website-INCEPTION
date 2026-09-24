@@ -18,6 +18,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import kulinerImage from "../assets/kuliner.png";
+
 gsap.registerPlugin(ScrollTrigger);
 
 /* -------------------------------------------------------------------------- */
@@ -132,9 +134,10 @@ const JURUSAN_DATA: JurusanData[] = [
       "Food & Beverage Entrepreneur",
       "Catering Manager",
     ],
-    image:
-      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1600&auto=format&fit=crop",
-    icon: ChefHat,
+
+    // ...field lain tetap sama
+    image: kulinerImage, // ganti dari URL Unsplash
+    icon: Server,
   },
 ];
 
@@ -511,25 +514,26 @@ const Jurusan: React.FC = () => {
         },
       );
 
-      /* ---------- Cards entrance: staggered reveal ---------- */
+      /* ---------- Cards entrance: slide kiri/kanan bergantian (zig-zag) ---------- */
       const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
 
-      gsap.fromTo(
-        cards,
-        { y: 80, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power3.out",
-          stagger: 0.15,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 70%",
-            toggleActions: "play none none reverse",
+      cards.forEach((card, i) => {
+        gsap.fromTo(
+          card,
+          { x: i % 2 === 0 ? -80 : 80, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
           },
-        },
-      );
+        );
+      });
     }, sectionRef);
 
     return () => ctx.revert();
