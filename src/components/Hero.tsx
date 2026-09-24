@@ -3,6 +3,17 @@ import { useState, useEffect } from 'react';
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Load font "Montserrat Alternates" khusus untuk Hero Section
+  useEffect(() => {
+    if (!document.getElementById('hero-montserrat-alternates-font')) {
+      const link = document.createElement('link');
+      link.id = 'hero-montserrat-alternates-font';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600;700;800;900&display=swap';
+      document.head.appendChild(link);
+    }
+  }, []);
+
   const slides = [
     // Slide 1: Pendaftaran
     {
@@ -44,7 +55,11 @@ export default function Hero() {
   }, [currentSlide]);
 
   return (
-    <section id="hero" className="relative w-screen h-screen min-h-screen overflow-hidden select-none bg-black">
+    <section
+      id="hero"
+      className="relative w-screen h-screen min-h-screen overflow-hidden select-none bg-black"
+      style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
+    >
       
       {/* Carousel Gambar Background dengan Animasi Pergerakan (Zoom & Scale Effect) */}
       {slides.map((slide, index) => (
