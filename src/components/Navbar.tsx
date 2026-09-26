@@ -43,56 +43,46 @@ const MENU: NavEntry[] = [
       { label: 'Fasilitas', href: '#fasilitas' },
     ],
   },
-  {
-    type: 'group',
-    id: 'program',
-    label: 'Program',
-    items: [
-      { label: 'PPLG & Game Dev', href: '#pplg' },
-      { label: 'TJKT & Network', href: '#tjkt' },
-      { label: 'DKV & Animation', href: '#dkv' },
-    ],
-  },
+  { type: 'link', label: 'Jurusan', href: '#jurusan' },
   { type: 'link', label: 'Alumni', href: '#alumni' },
   { type: 'link', label: 'Kontak', href: '#kontak' },
-  {
-    type: 'group',
-    id: 'perpus',
-    label: 'Perpustakaan Elektronik',
-    items: [
-      { label: 'E-Book Erlangga', href: '#ebook' },
-      { label: 'SLIMS Library', href: '#slims' },
-    ],
-  },
 ];
 
 // Menu dengan label panjang memakai indikator yang lebih lebar
 const WIDE_LABEL_LENGTH = 12;
 
-// Batas scroll untuk berpindah dari transparan ke putih
+// Batas scroll untuk berpindah dari transparan ke solid
 const SCROLL_THRESHOLD = 20;
 
-// Semua id section yang dipantau oleh IntersectionObserver
+// Semua id section yang dipantau oleh IntersectionObserver (hanya link dalam halaman yang berupa hash "#...")
 const SECTION_IDS: string[] = MENU.flatMap((entry) =>
   entry.type === 'link' ? [entry.href] : entry.items.map((item) => item.href),
-).map((href) => href.slice(1));
+)
+  .filter((href) => href.startsWith('#'))
+  .map((href) => href.slice(1));
 
 const FOCUS_RING =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400';
 
 // Bayangan teks tipis agar menu tetap terbaca di atas gambar Hero
-const TEXT_SHADOW = '[text-shadow:0_1px_8px_rgba(0,0,0,0.45)]';
+const TEXT_SHADOW = '[text-shadow:0_1px_10px_rgba(0,0,0,0.5)]';
+
+// Font khas untuk Navbar (dimuat via Google Fonts, sama dengan Hero agar konsisten)
+const FONT_ID = 'app-plus-jakarta-sans-font';
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';
+const FONT_STACK = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
 
 /**
  * Warna teks menu level atas.
- * onDark = navbar transparan di atas Hero (teks putih).
- * Selain itu navbar putih (teks abu-abu gelap).
+ * onDark = navbar kaca transparan di atas Hero (teks putih).
+ * Selain itu navbar kaca lebih solid (teks abu-abu gelap).
  */
 function topLevelTone(onDark: boolean, active: boolean, open: boolean): string {
   if (onDark) {
-    return `${open ? 'text-red-500' : 'text-white'} hover:text-red-500 ${TEXT_SHADOW}`;
+    return `${open ? 'text-red-300' : 'text-white'} hover:text-red-300 ${TEXT_SHADOW}`;
   }
-  return `${active || open ? 'text-red-600' : 'text-gray-800'} hover:text-red-600`;
+  return `${active || open ? 'text-red-600' : 'text-slate-700'} hover:text-red-600`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -119,7 +109,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 /**
- * Indikator ┴ merah. Hanya muncul saat hover (atau fokus keyboard).
+ * Indikator ┴ merah bercahaya lembut. Hanya muncul saat hover (atau fokus keyboard).
  * - Garis horizontal tumbuh dari titik tengah ke kiri dan kanan.
  * - Garis vertikal tumbuh dari atas ke bawah dan menyentuh garis horizontal.
  *
@@ -134,15 +124,15 @@ function HoverIndicator({
   onDark: boolean;
 }) {
   const color = onDark
-    ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]'
-    : 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.6)]';
+    ? 'bg-gradient-to-r from-red-300 to-red-400 shadow-[0_0_10px_rgba(252,165,165,0.8)]'
+    : 'bg-gradient-to-r from-red-500 to-red-600 shadow-[0_0_10px_rgba(220,38,38,0.55)]';
 
   return (
     <>
       {/* Garis vertikal: bawahnya (-6px) tepat di atas garis horizontal */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute -bottom-[6px] left-1/2 -ml-px h-2.5 w-0.5 origin-top scale-y-0 transition-transform duration-200 ease-out group-hover:scale-y-100 peer-focus-visible:scale-y-100 motion-reduce:transition-none ${color}`}
+        className={`pointer-events-none absolute -bottom-[6px] left-1/2 -ml-px h-2.5 w-0.5 origin-top scale-y-0 rounded-full transition-transform duration-200 ease-out group-hover:scale-y-100 peer-focus-visible:scale-y-100 motion-reduce:transition-none ${color}`}
       />
       {/* Garis horizontal: tebal 2px, dipusatkan terhadap menu */}
       <span
@@ -219,7 +209,7 @@ function DesktopGroup({
             onOpen();
           }
         }}
-        className={`peer inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
+        className={`peer inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
           onDark,
           isActive,
           isOpen,
@@ -236,9 +226,9 @@ function DesktopGroup({
           isOpen ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
       >
-        {/* Dropdown selalu putih, apa pun kondisi navbar */}
+        {/* Panel kaca (glass) selalu terang, apa pun kondisi navbar */}
         <div
-          className={`relative rounded-xl border border-gray-200 bg-white py-2 shadow-xl shadow-black/15 transition-all duration-200 ease-out motion-reduce:transition-none ${
+          className={`relative rounded-2xl border border-white/60 bg-white/85 py-2 shadow-2xl shadow-slate-900/20 backdrop-blur-2xl ring-1 ring-inset ring-white/40 transition-all duration-200 ease-out motion-reduce:transition-none ${
             isOpen
               ? 'visible translate-y-0 opacity-100'
               : 'invisible -translate-y-2 opacity-0'
@@ -246,7 +236,7 @@ function DesktopGroup({
         >
           <span
             aria-hidden="true"
-            className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 rounded-sm border-l border-t border-gray-200 bg-white"
+            className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 rounded-sm border-l border-t border-white/60 bg-white/85 backdrop-blur-2xl"
           />
           <ul id={panelId} aria-labelledby={triggerId} className="relative flex flex-col">
             {group.items.map((item) => {
@@ -256,8 +246,8 @@ function DesktopGroup({
                   <a
                     href={item.href}
                     onClick={onNavigate}
-                    className={`mx-2 block rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 ${
-                      current ? 'bg-red-50 text-red-600' : 'text-gray-800'
+                    className={`mx-2 block rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-150 hover:bg-red-500/10 hover:text-red-600 focus-visible:bg-red-500/10 focus-visible:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400 ${
+                      current ? 'bg-red-500/10 text-red-600' : 'text-slate-700'
                     }`}
                   >
                     {item.label}
@@ -300,8 +290,8 @@ function MobileGroup({
         aria-expanded={expanded}
         aria-controls={panelId}
         onClick={onToggle}
-        className={`flex min-h-12 w-full items-center justify-between rounded-lg px-4 text-left text-base font-medium transition-colors duration-200 hover:bg-red-50 hover:text-red-600 ${FOCUS_RING} ${
-          isActive || expanded ? 'text-red-600' : 'text-gray-800'
+        className={`flex min-h-12 w-full items-center justify-between rounded-xl px-4 text-left text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
+          isActive || expanded ? 'text-red-600' : 'text-slate-700'
         }`}
       >
         {group.label}
@@ -317,7 +307,7 @@ function MobileGroup({
           <ul
             id={panelId}
             aria-labelledby={buttonId}
-            className={`ml-6 mt-1 flex flex-col gap-0.5 border-l border-gray-200 pl-2 transition-[visibility] duration-300 ${
+            className={`ml-6 mt-1 flex flex-col gap-0.5 border-l border-slate-200/70 pl-2 transition-[visibility] duration-300 ${
               expanded ? 'visible' : 'invisible'
             }`}
           >
@@ -328,8 +318,8 @@ function MobileGroup({
                   <a
                     href={item.href}
                     onClick={onNavigate}
-                    className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 hover:bg-red-50 hover:text-red-600 ${FOCUS_RING} ${
-                      current ? 'text-red-600' : 'text-gray-600'
+                    className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
+                      current ? 'text-red-600' : 'text-slate-500'
                     }`}
                   >
                     {item.label}
@@ -365,6 +355,17 @@ export default function Navbar() {
     setActiveDropdown(null);
     setMobileOpen(false);
     setMobileExpanded(null);
+  }, []);
+
+  // Muat font "Plus Jakarta Sans" (dibagi dengan Hero Section agar tipografi konsisten)
+  useEffect(() => {
+    if (!document.getElementById(FONT_ID)) {
+      const link = document.createElement('link');
+      link.id = FONT_ID;
+      link.rel = 'stylesheet';
+      link.href = FONT_HREF;
+      document.head.appendChild(link);
+    }
   }, []);
 
   // Efek scroll (dibatasi requestAnimationFrame) + tutup dropdown desktop saat scroll
@@ -461,9 +462,9 @@ export default function Navbar() {
     return () => query.removeEventListener('change', onChange);
   }, []);
 
-  // Navbar putih jika sudah scroll atau menu mobile terbuka (panel mobile berwarna putih)
+  // Navbar lebih solid jika sudah scroll atau menu mobile terbuka
   const solid = scrolled || mobileOpen;
-  // Navbar transparan di atas Hero -> teks putih
+  // Navbar kaca transparan di atas Hero -> teks putih
   const onDark = !solid;
 
   const toggleMobile = () => {
@@ -476,15 +477,26 @@ export default function Navbar() {
     <nav
       ref={navRef}
       aria-label="Navigasi utama"
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-in-out ${
-        solid
-          ? 'border-gray-200/70 bg-white/95 shadow-lg shadow-black/10 backdrop-blur-md'
-          : 'border-transparent bg-white/0 shadow-none'
-      }`}
+      style={{ fontFamily: FONT_STACK }}
+      className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4"
     >
+      <style>{`
+        @keyframes nav-fade-in {
+          from { opacity: 0; transform: translateY(-14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-nav-in { animation: nav-fade-in 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-nav-in { animation: none; }
+        }
+      `}</style>
+
+      {/* Bar navigasi mengambang (floating glass bar) */}
       <div
-        className={`mx-auto flex max-w-7xl items-center justify-between px-4 transition-all duration-300 ease-in-out sm:px-6 ${
-          solid ? 'h-16' : 'h-20'
+        className={`animate-nav-in mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-4 transition-all duration-500 ease-out sm:px-5 ${
+          solid
+            ? 'h-16 border-white/60 bg-white/70 shadow-lg shadow-slate-900/10 backdrop-blur-2xl'
+            : 'h-20 border-white/20 bg-white/10 shadow-lg shadow-black/10 backdrop-blur-2xl'
         }`}
       >
         {/* Logo */}
@@ -497,11 +509,9 @@ export default function Navbar() {
           <img
             src="/logo-telkom.png"
             alt="Logo SMK Telkom Medan"
-            className={`w-auto rounded-xl border bg-white/95 object-contain p-1 transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-[0_0_16px_rgba(220,38,38,0.25)] ${
-              onDark
-                ? 'border-white/40 shadow-md shadow-black/20'
-                : 'border-gray-200 shadow-none'
-            } ${solid ? 'h-10' : 'h-12'}`}
+            className={`w-auto rounded-xl object-contain transition-all duration-300 ease-in-out group-hover:scale-105 ${
+              solid ? 'h-10' : 'h-12'
+            }`}
           />
         </a>
 
@@ -539,7 +549,7 @@ export default function Navbar() {
                   href={entry.href}
                   onClick={closeAll}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`peer inline-flex items-center rounded-md px-3 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
+                  className={`peer inline-flex items-center rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
                     onDark,
                     isActive,
                     false,
@@ -561,10 +571,10 @@ export default function Navbar() {
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
           onClick={toggleMobile}
-          className={`flex h-11 w-11 items-center justify-center rounded-lg border transition-colors duration-300 lg:hidden ${FOCUS_RING} ${
+          className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors duration-300 lg:hidden ${FOCUS_RING} ${
             onDark
-              ? 'border-white/30 bg-white/10 text-white hover:bg-white/20'
-              : 'border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-100'
+              ? 'border-white/25 bg-white/10 text-white backdrop-blur-md hover:bg-white/20'
+              : 'border-white/50 bg-white/60 text-slate-800 backdrop-blur-md hover:bg-white/80'
           }`}
         >
           <span aria-hidden="true" className="relative block h-4 w-6">
@@ -587,17 +597,17 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Menu mobile: muncul di bawah bar sehingga logo tidak tertutup */}
+      {/* Menu mobile: kartu kaca mengambang di bawah bar */}
       <div
         id="mobile-menu"
         ref={mobilePanelRef}
-        className={`absolute inset-x-0 top-full overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none lg:hidden ${
+        className={`absolute inset-x-3 top-full mt-2 overflow-hidden rounded-2xl transition-all duration-300 ease-out motion-reduce:transition-none sm:inset-x-6 lg:hidden ${
           mobileOpen
             ? 'visible translate-y-0 opacity-100'
             : 'pointer-events-none invisible -translate-y-2 opacity-0'
         }`}
       >
-        <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-gray-200 bg-white/95 px-4 pb-6 pt-3 shadow-xl shadow-black/10 backdrop-blur-md">
+        <div className="max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-white/60 bg-white/80 px-4 pb-6 pt-3 shadow-xl shadow-slate-900/15 backdrop-blur-2xl ring-1 ring-inset ring-white/40">
           <ul className="flex flex-col gap-1">
             {MENU.map((entry) => {
               if (entry.type === 'group') {
@@ -624,8 +634,8 @@ export default function Navbar() {
                     href={entry.href}
                     onClick={closeAll}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`flex min-h-12 items-center rounded-lg px-4 text-base font-medium transition-colors duration-200 hover:bg-red-50 hover:text-red-600 ${FOCUS_RING} ${
-                      isActive ? 'text-red-600' : 'text-gray-800'
+                    className={`flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
+                      isActive ? 'text-red-600' : 'text-slate-700'
                     }`}
                   >
                     {entry.label}

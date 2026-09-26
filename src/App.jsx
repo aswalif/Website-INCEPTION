@@ -4,6 +4,7 @@ import Profil from './components/Profil';
 import Jurusan from './components/Jurusan';
 import Chatbot from './components/Chatbot';
 import Footer from './components/Footer';
+import VisiMisi from './components/VisiMisi';
 
 function App() {
   return (
@@ -13,11 +14,10 @@ function App() {
         <Navbar />
         <Hero />
         <Profil />
+        <VisiMisi /> 
         <Jurusan />
+        <Chatbot />
       </div>
-
-      {/* Chatbot & Penutup */}
-      <Chatbot />
       <Footer />
     </div>
   );
