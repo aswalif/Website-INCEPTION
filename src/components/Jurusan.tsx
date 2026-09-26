@@ -18,8 +18,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import kulinerImage from "../assets/kuliner.png";
-
 gsap.registerPlugin(ScrollTrigger);
 
 /* -------------------------------------------------------------------------- */
@@ -134,10 +132,9 @@ const JURUSAN_DATA: JurusanData[] = [
       "Food & Beverage Entrepreneur",
       "Catering Manager",
     ],
-
-    // ...field lain tetap sama
-    image: kulinerImage, // ganti dari URL Unsplash
-    icon: Server,
+    image:
+      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1600&auto=format&fit=crop",
+    icon: ChefHat,
   },
 ];
 
@@ -248,8 +245,6 @@ const JurusanDetailModal: React.FC<JurusanDetailModalProps> = ({
 
   if (!data) return null;
 
-  const Icon = data.icon;
-
   return (
     <div
       ref={backdropRef}
@@ -286,12 +281,6 @@ const JurusanDetailModal: React.FC<JurusanDetailModalProps> = ({
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 backdrop-blur-md">
-                <Icon className="h-4 w-4 text-white" strokeWidth={2} />
-                <span className="text-xs font-bold uppercase tracking-widest text-white">
-                  {data.kode}
-                </span>
-              </div>
               <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl">
                 {data.nama}
               </h2>
@@ -392,7 +381,6 @@ const JurusanCard: React.FC<JurusanCardProps> = ({
   onDetail,
 }) => {
   const isOffset = index % 2 === 1;
-  const Icon = data.icon;
 
   return (
     <div
@@ -411,14 +399,6 @@ const JurusanCard: React.FC<JurusanCardProps> = ({
           {/* Gradient overlay */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#E30613]/0 via-transparent to-[#800000]/0 transition-colors duration-500 group-hover:from-[#E30613]/15 group-hover:to-[#800000]/10" />
-
-          {/* Kode jurusan */}
-          <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 backdrop-blur-md">
-            <Icon className="h-4 w-4 text-white" strokeWidth={2} />
-            <span className="text-sm font-bold tracking-wide text-white">
-              {data.kode}
-            </span>
-          </div>
 
           {/* Nama & subtitle di atas gambar */}
           <div className="absolute inset-x-0 bottom-0 p-6">
@@ -520,16 +500,26 @@ const Jurusan: React.FC = () => {
       cards.forEach((card, i) => {
         gsap.fromTo(
           card,
-          { x: i % 2 === 0 ? -80 : 80, opacity: 0 },
+          { x: i % 2 === 0 ? -70 : 70, opacity: 0, force3D: true },
           {
             x: 0,
             opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
+            duration: 1.1,
+            ease: "power2.out",
+            overwrite: "auto",
+            force3D: true,
+            onStart: () => {
+              card.style.willChange = "transform, opacity";
+            },
+            onComplete: () => {
+              card.style.willChange = "auto";
+            },
             scrollTrigger: {
               trigger: card,
-              start: "top 85%",
+              start: "top 90%",
               toggleActions: "play none none reverse",
+              fastScrollEnd: true,
+              anticipatePin: 0,
             },
           },
         );
@@ -602,7 +592,7 @@ const Jurusan: React.FC = () => {
         </div>
 
         {/* ---------------- Cards Grid (asimetris/offset) ---------------- */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-x-10 md:gap-y-20">
           {JURUSAN_DATA.map((jurusan, index) => (
             <JurusanCard
               key={jurusan.id}
