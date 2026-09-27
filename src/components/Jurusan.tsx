@@ -17,6 +17,7 @@ import {
   Briefcase,
   type LucideIcon,
 } from "lucide-react";
+import kulinerImage from "../assets/kuliner.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -132,9 +133,8 @@ const JURUSAN_DATA: JurusanData[] = [
       "Food & Beverage Entrepreneur",
       "Catering Manager",
     ],
-    image:
-      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1600&auto=format&fit=crop",
-    icon: ChefHat,
+    image: kulinerImage,
+    icon: Server,
   },
 ];
 
@@ -548,16 +548,6 @@ const Jurusan: React.FC = () => {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* ---------------- Header / Editorial Title ---------------- */}
         <div ref={titleWrapRef} className="mb-16 max-w-3xl sm:mb-24">
-          <div
-            data-title-line
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#E30613]/20 bg-[#E30613]/5 px-4 py-1.5"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#E30613]" />
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#990000]">
-              Program Keahlian
-            </span>
-          </div>
-
           <h2 className="font-black uppercase leading-[0.95] tracking-tight text-slate-900">
             <span
               data-title-line
