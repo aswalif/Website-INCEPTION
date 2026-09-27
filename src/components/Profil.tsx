@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -18,27 +18,38 @@ interface DRealItem {
   description: string;
 }
 
-const HIGHLIGHTS = [
+interface HighlightItem {
+  id: string;
+  label: string;
+  title: string;
+  description: string;
+  position: "above" | "below";
+}
+
+const HIGHLIGHTS: HighlightItem[] = [
   {
+    id: "akreditasi",
+    label: "Unggul dan teruji",
     title: "Akreditasi A",
-    subtitle: "Unggul & Teruji",
     description:
-      "Komitmen terhadap kualitas pendidikan yang unggul dengan kurikulum dan fasilitas berstandar tinggi.",
-    accent: "red",
+      "Kurikulum dan fasilitas berstandar tinggi, diverifikasi lembaga akreditasi nasional. Menjadi jaminan mutu pembelajaran yang diakui secara resmi oleh pemerintah.",
+    position: "above",
   },
   {
+    id: "iso",
+    label: "Sistem mutu",
     title: "ISO 9001",
-    subtitle: "Sistem Mutu",
     description:
-      "Implementasi standar manajemen mutu pendidikan yang terintegrasi dan berorientasi pada kualitas.",
-    accent: "blue",
+      "Manajemen mutu pendidikan yang terintegrasi di seluruh proses belajar, mulai dari kurikulum, pengajaran, hingga evaluasi hasil belajar siswa.",
+    position: "below",
   },
   {
+    id: "tik",
+    label: "Pusat teknologi",
     title: "Spesialisasi TIK",
-    subtitle: "Pusat Teknologi",
     description:
-      "Fokus pada pengembangan kompetensi Teknologi Informasi dan Komunikasi untuk menghadapi era digital.",
-    accent: "dark",
+      "Kompetensi teknologi yang disiapkan langsung untuk kebutuhan industri, mencakup jaringan, perangkat lunak, desain, hingga produksi konten digital.",
+    position: "above",
   },
 ];
 
@@ -94,6 +105,8 @@ const DREAL_ITEMS: DRealItem[] = [
   },
 ];
 
+const TRACE_POSITIONS = ["14%", "50%", "86%"];
+
 export default function Profil({
   heroImageUrl,
   onExploreMore,
@@ -103,11 +116,15 @@ export default function Profil({
   const imageWrapperRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const textContentRef = useRef<HTMLDivElement | null>(null);
-  const highlightsContainerRef = useRef<HTMLDivElement | null>(null);
+  const traceRef = useRef<HTMLDivElement | null>(null);
+  const traceDetailRef = useRef<HTMLDivElement | null>(null);
   const ainoBannerRef = useRef<HTMLDivElement | null>(null);
   const drealGridRef = useRef<HTMLDivElement | null>(null);
 
   const [activeDReal, setActiveDReal] = useState<DRealItem>(DREAL_ITEMS[0]);
+  const [activeHighlight, setActiveHighlight] = useState<HighlightItem>(
+    HIGHLIGHTS[0],
+  );
   const [imageError, setImageError] = useState(false);
 
   const imagePath =
@@ -171,23 +188,51 @@ export default function Profil({
         );
       }
 
-      // 4. Highlight Cards Stagger Animation
-      if (highlightsContainerRef.current) {
-        gsap.fromTo(
-          highlightsContainerRef.current.children,
-          { y: 40, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: highlightsContainerRef.current,
-              start: "top 85%",
-            },
+      // 4. Credential network-trace: one orchestrated sequence
+      //    (line draws in -> nodes pop in -> labels fade up)
+      if (traceRef.current) {
+        const line = traceRef.current.querySelectorAll("[data-trace-line]");
+        const nodes = traceRef.current.querySelectorAll("[data-trace-node]");
+        const labels = traceRef.current.querySelectorAll("[data-trace-label]");
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: traceRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
           },
-        );
+        });
+
+        tl.fromTo(
+          line,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.9, ease: "power2.inOut", force3D: true },
+        )
+          .fromTo(
+            nodes,
+            { scale: 0, rotation: 45 },
+            {
+              scale: 1,
+              rotation: 45,
+              duration: 0.45,
+              ease: "back.out(2.2)",
+              stagger: 0.15,
+              force3D: true,
+            },
+            "-=0.35",
+          )
+          .fromTo(
+            labels,
+            { y: 14, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.5,
+              ease: "power2.out",
+              stagger: 0.15,
+            },
+            "-=0.5",
+          );
       }
 
       // 5. AINO Banner
@@ -233,6 +278,16 @@ export default function Profil({
 
     return () => ctx.revert();
   }, []);
+
+  // Crossfade the detail panel whenever the active credential changes
+  useEffect(() => {
+    if (!traceDetailRef.current) return;
+    gsap.fromTo(
+      traceDetailRef.current,
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+    );
+  }, [activeHighlight]);
 
   return (
     <section
@@ -360,37 +415,137 @@ export default function Profil({
           </div>
         </div>
 
-        {/* Highlight Cards */}
-        <div
-          ref={highlightsContainerRef}
-          className="mt-20 grid gap-5 md:grid-cols-3"
-        >
-          {HIGHLIGHTS.map((card, index) => (
+        {/* Credential network trace (klik tiap kredensial untuk lihat penjelasan) */}
+        <div ref={traceRef} className="mt-24">
+          {/* Desktop / tablet: horizontal schematic, klik untuk memilih */}
+          <div className="relative hidden h-[140px] md:block">
             <div
-              key={card.title}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-red-200 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-            >
-              <div className="mb-5 flex items-center justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-800 transition-colors group-hover:bg-red-600 group-hover:text-white dark:bg-slate-800 dark:text-slate-100">
-                  {index + 1}
-                </div>
+              data-trace-line
+              className="absolute left-[8%] right-[8%] top-1/2 h-px origin-left bg-slate-300 dark:bg-slate-700"
+            />
 
-                <span className="bg-slate-100 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300"></span>
-              </div>
+            {HIGHLIGHTS.map((item, index) => {
+              const left = TRACE_POSITIONS[index];
+              const isAbove = item.position === "above";
+              const isActive = activeHighlight.id === item.id;
 
-              <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
-                {card.subtitle}
-              </p>
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveHighlight(item)}
+                  aria-pressed={isActive}
+                  className="group absolute inset-y-0 w-[170px] -translate-x-1/2 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  style={{ left }}
+                >
+                  <span
+                    data-trace-node
+                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-colors duration-300 ${
+                      isActive
+                        ? "h-3.5 w-3.5 bg-red-600"
+                        : "h-2.5 w-2.5 bg-slate-400 group-hover:bg-red-400 dark:bg-slate-600"
+                    }`}
+                  />
 
-              <h4 className="mt-1.5 text-lg font-bold text-slate-950 dark:text-white">
-                {card.title}
-              </h4>
+                  <span
+                    data-trace-label
+                    className="absolute left-1/2 block w-full -translate-x-1/2 text-center"
+                    style={
+                      isAbove
+                        ? { bottom: "calc(50% + 16px)" }
+                        : { top: "calc(50% + 16px)" }
+                    }
+                  >
+                    <span
+                      className={`block text-xs font-medium transition-colors duration-300 ${
+                        isActive
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                    <span
+                      className={`mt-1 block text-lg font-bold transition-colors duration-300 ${
+                        isActive
+                          ? "text-slate-950 dark:text-white"
+                          : "text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300"
+                      }`}
+                    >
+                      {item.title}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-              <p className="mt-2 text-sm leading-6 text-slate-700 font-medium dark:text-slate-300">
-                {card.description}
-              </p>
-            </div>
-          ))}
+          {/* Mobile: daftar vertikal, klik untuk memilih */}
+          <div className="relative space-y-1 pl-6 md:hidden">
+            <div
+              data-trace-line
+              className="absolute bottom-3 left-[5px] top-3 w-px origin-top bg-slate-300 dark:bg-slate-700"
+            />
+
+            {HIGHLIGHTS.map((item) => {
+              const isActive = activeHighlight.id === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveHighlight(item)}
+                  aria-pressed={isActive}
+                  className="group relative flex w-full items-center gap-4 rounded-lg py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                >
+                  <span
+                    data-trace-node
+                    className={`absolute -left-6 h-2.5 w-2.5 shrink-0 -translate-x-1/2 transition-colors duration-300 ${
+                      isActive
+                        ? "bg-red-600"
+                        : "bg-slate-400 group-hover:bg-red-400 dark:bg-slate-600"
+                    }`}
+                  />
+                  <span data-trace-label>
+                    <span
+                      className={`block text-xs font-medium transition-colors duration-300 ${
+                        isActive
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                    <span
+                      className={`mt-0.5 block text-base font-bold transition-colors duration-300 ${
+                        isActive
+                          ? "text-slate-950 dark:text-white"
+                          : "text-slate-500 dark:text-slate-500"
+                      }`}
+                    >
+                      {item.title}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Detail panel: penjelasan kredensial yang aktif */}
+          <div
+            ref={traceDetailRef}
+            className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900"
+          >
+            <p className="text-xs font-medium text-red-600 dark:text-red-400">
+              {activeHighlight.label}
+            </p>
+            <h4 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
+              {activeHighlight.title}
+            </h4>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-medium dark:text-slate-300">
+              {activeHighlight.description}
+            </p>
+          </div>
         </div>
 
         {/* AINO Banner */}
