@@ -1,3 +1,4 @@
+import StrukturOrganisasi from './components/StrukturOrganisasi';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -15,6 +16,7 @@ const Home = () => {
       <Hero />
       <Profil />
       <VisiMisi />
+      <StrukturOrganisasi />
       <Jurusan />
       <Chatbot />
     </>
