@@ -256,7 +256,7 @@ const Fasilitas: React.FC = () => {
 
   return (
     <section
-      id="Fasilitas"
+      id="fasilitas"
       ref={sectionRef}
       className="relative w-full bg-slate-50 py-24 lg:py-32 overflow-hidden"
     >

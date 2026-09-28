@@ -18,6 +18,7 @@ const Home = () => {
       <VisiMisi />
       <StrukturOrganisasi />
       <Jurusan />
+      <Fasilitas />
       <Chatbot />
     </>
   );
