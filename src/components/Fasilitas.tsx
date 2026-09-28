@@ -18,26 +18,23 @@ interface FasilitasData {
 const fasilitasData: FasilitasData[] = [
   {
     id: 1,
-    title: "Lab Rekayasa Perangkat Lunak",
+    title: "Milenial class",
     category: "Laboratorium",
-    image:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop",
+    image: "/public/Milenialclass.webp",
     gridClass: "md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
-    title: "Studio DKV & Animasi",
+    title: "Studio DKV & Podcast",
     category: "Studio",
-    image:
-      "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?q=80&w=800&auto=format&fit=crop",
+    image: "/public/Dkvstudio.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 3,
     title: "Lab Jaringan (TKJ)",
     category: "Laboratorium",
-    image:
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop",
+    image: "/public/Labtkj.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
@@ -52,13 +49,12 @@ const fasilitasData: FasilitasData[] = [
     id: 5,
     title: "Perpustakaan Digital",
     category: "Fasilitas Umum",
-    image:
-      "https://images.unsplash.com/photo-1568667256549-094345857637?q=80&w=800&auto=format&fit=crop",
+    image: "/public/perpustakaan.webp",
     gridClass: "md:col-span-1 md:row-span-2",
   },
   {
     id: 6,
-    title: "Lapangan Basket Interaktif",
+    title: "Ruang Guru ",
     category: "Olahraga",
     image:
       "https://images.unsplash.com/photo-1504450758481-7338eba7524a?q=80&w=800&auto=format&fit=crop",
@@ -68,13 +64,12 @@ const fasilitasData: FasilitasData[] = [
     id: 7,
     title: "Masjid Raya Sekolah",
     category: "Ibadah",
-    image:
-      "https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=800&auto=format&fit=crop",
+    image: "/public/masjid.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 8,
-    title: "Aula Serbaguna (Hall)",
+    title: "Lobi Sekolah",
     category: "Fasilitas Umum",
     image:
       "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=800&auto=format&fit=crop",
@@ -84,37 +79,33 @@ const fasilitasData: FasilitasData[] = [
     id: 9,
     title: "Kantin Sehat & Bersih",
     category: "Fasilitas Umum",
-    image:
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop",
+    image: "/public/kantin.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 10,
-    title: "Ruang Podcast & Broadcasting",
+    title: " Teaching Factory TKJ",
     category: "Studio",
-    image:
-      "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=800&auto=format&fit=crop",
+    image: "/public/tefatkj.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 11,
-    title: "Lab Bahasa Internasional",
+    title: "Teaching Factory RPL & DKV",
     category: "Laboratorium",
-    image:
-      "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop",
+    image: "/public/tefarpldv.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 12,
-    title: "Klinik Kesehatan (UKS)",
+    title: "UKS Sekolah",
     category: "Kesehatan",
-    image:
-      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop",
+    image: "/public/uks.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 13,
-    title: "Area Parkir Cerdas",
+    title: "Aula Sekolah",
     category: "Infrastruktur",
     image:
       "https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=800&auto=format&fit=crop",
@@ -130,15 +121,14 @@ const fasilitasData: FasilitasData[] = [
   },
   {
     id: 15,
-    title: "Ruang Bimbingan Konseling",
+    title: "Ruang Kelas 1",
     category: "Layanan",
-    image:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
+    image: "/public/ruang1.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 16,
-    title: "Taman Literasi & Ekologi",
+    title: "Asrama Sekolah2",
     category: "Area Terbuka",
     image:
       "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=800&auto=format&fit=crop",
@@ -146,26 +136,23 @@ const fasilitasData: FasilitasData[] = [
   },
   {
     id: 17,
-    title: "Lapangan Futsal Standar",
+    title: "Ruang Kelas 2",
     category: "Olahraga",
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    image: "/public/ruang2.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 18,
-    title: "Studio Fotografi",
+    title: "Area Parkir Mobil",
     category: "Studio",
-    image:
-      "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=800&auto=format&fit=crop",
+    image: "/public/parkirmobil.webp ",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 19,
-    title: "Ruang Rapat Interaktif",
+    title: "Area Parkir Motor",
     category: "Fasilitas Staf",
-    image:
-      "https://images.unsplash.com/photo-1503423571797-2d2bb372094a?q=80&w=800&auto=format&fit=crop",
+    image: "/public/Areamotor.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
@@ -319,11 +306,6 @@ const Fasilitas: React.FC = () => {
               {/* Konten Kartu */}
               <div className="absolute inset-0 p-6 flex flex-col justify-between">
                 {/* Badge Kategori */}
-                <div className="flex justify-end">
-                  <span className="px-4 py-1.5 text-xs font-semibold text-white bg-white/20 backdrop-blur-md rounded-full border border-white/30 transform translate-y-[-10px] opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                    {fasilitas.category}
-                  </span>
-                </div>
 
                 {/* Judul & Icon (Awwwards Style Reveal) */}
                 <div className="transform translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
