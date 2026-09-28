@@ -6,11 +6,9 @@ import {
   type FocusEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
-import { NavHashLink } from "react-router-hash-link";
-import { useLocation } from "react-router-dom";
 
 /* ------------------------------------------------------------------ */
-/* Data menu                                                          */
+/* Data menu                                                           */
 /* ------------------------------------------------------------------ */
 
 interface NavLink {
@@ -32,46 +30,63 @@ interface GroupEntry {
 type NavEntry = SingleEntry | GroupEntry;
 
 const MENU: NavEntry[] = [
-  { type: "link", label: "Beranda", href: "/#hero" },
+  { type: "link", label: "Beranda", href: "#hero" },
   {
     type: "group",
     id: "tentang",
     label: "Tentang",
     items: [
-      { label: "Profil Sekolah", href: "/#profil" },
-      { label: "Visi dan Misi", href: "/#visi-misi" },
-      { label: "Struktur Organisasi", href: "/#struktur" },
-      { label: "Akreditasi", href: "/#akreditasi" },
-      { label: "Fasilitas", href: "/fasilitas" },
+      { label: "Profil Sekolah", href: "#profil" },
+      { label: "Visi dan Misi", href: "#visi-misi" },
+      { label: "Struktur Organisasi", href: "#struktur-organisasi" },
+      { label: "Akreditasi", href: "#akreditasi" },
+      { label: "Fasilitas", href: "#fasilitas" },
     ],
   },
-  { type: "link", label: "Jurusan", href: "/#jurusan" },
-  { type: "link", label: "Alumni", href: "/#alumni" },
-  { type: "link", label: "Kontak", href: "/#kontak" },
+  { type: "link", label: "Jurusan", href: "#jurusan" },
+  { type: "link", label: "Alumni", href: "#alumni" },
+  { type: "link", label: "Kontak", href: "#kontak" },
 ];
 
+// Menu dengan label panjang memakai indikator yang lebih lebar
 const WIDE_LABEL_LENGTH = 12;
+
+// Batas scroll untuk berpindah dari transparan ke solid
 const SCROLL_THRESHOLD = 20;
+
+// Semua id section yang dipantau oleh IntersectionObserver (hanya link dalam halaman yang berupa hash "#...")
+const SECTION_IDS: string[] = MENU.flatMap((entry) =>
+  entry.type === "link" ? [entry.href] : entry.items.map((item) => item.href),
+)
+  .filter((href) => href.startsWith("#"))
+  .map((href) => href.slice(1));
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400";
 
+// Bayangan teks tipis agar menu tetap terbaca di atas gambar Hero
 const TEXT_SHADOW = "[text-shadow:0_1px_10px_rgba(0,0,0,0.5)]";
 
+// Font khas untuk Navbar (dimuat via Google Fonts, sama dengan Hero agar konsisten)
 const FONT_ID = "app-plus-jakarta-sans-font";
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 const FONT_STACK = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
 
+/**
+ * Warna teks menu level atas.
+ * onDark = navbar kaca transparan di atas Hero (teks putih).
+ * Selain itu navbar kaca lebih solid (teks abu-abu gelap).
+ */
 function topLevelTone(onDark: boolean, active: boolean, open: boolean): string {
   if (onDark) {
-    return `${open || active ? "text-red-300 font-semibold" : "text-white"} hover:text-red-300 ${TEXT_SHADOW}`;
+    return `${open ? "text-red-300" : "text-white"} hover:text-red-300 ${TEXT_SHADOW}`;
   }
-  return `${active || open ? "text-red-600 font-semibold" : "text-slate-700"} hover:text-red-600`;
+  return `${active || open ? "text-red-600" : "text-slate-700"} hover:text-red-600`;
 }
 
 /* ------------------------------------------------------------------ */
-/* Komponen kecil                                                     */
+/* Komponen kecil                                                      */
 /* ------------------------------------------------------------------ */
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -93,6 +108,14 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
+/**
+ * Indikator ┴ merah bercahaya lembut. Hanya muncul saat hover (atau fokus keyboard).
+ * - Garis horizontal tumbuh dari titik tengah ke kiri dan kanan.
+ * - Garis vertikal tumbuh dari atas ke bawah dan menyentuh garis horizontal.
+ *
+ * Harus ditempatkan tepat setelah elemen ber-class `peer`, di dalam parent ber-class `group`.
+ * Kedua garis berupa sibling langsung agar `peer-focus-visible` bekerja.
+ */
 function HoverIndicator({
   wide = false,
   onDark,
@@ -106,10 +129,12 @@ function HoverIndicator({
 
   return (
     <>
+      {/* Garis vertikal: bawahnya (-6px) tepat di atas garis horizontal */}
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute -bottom-[6px] left-1/2 -ml-px h-2.5 w-0.5 origin-top scale-y-0 rounded-full transition-transform duration-200 ease-out group-hover:scale-y-100 peer-focus-visible:scale-y-100 motion-reduce:transition-none ${color}`}
       />
+      {/* Garis horizontal: tebal 2px, dipusatkan terhadap menu */}
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute -bottom-2 left-1/2 h-0.5 origin-center scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100 peer-focus-visible:scale-x-100 motion-reduce:transition-none ${color} ${
@@ -141,7 +166,6 @@ function DesktopGroup({
   onToggle,
   onNavigate,
 }: DesktopGroupProps) {
-  // Cek apakah item di dalam group ini cocok dengan URL/Hash aktif
   const isActive = group.items.some((item) => item.href === activeHref);
   const triggerId = `nav-${group.id}-trigger`;
   const panelId = `nav-${group.id}-panel`;
@@ -154,6 +178,8 @@ function DesktopGroup({
   };
 
   const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    // detail === 0 berarti diaktifkan lewat keyboard (Enter/Space) -> toggle.
+    // Klik mouse: dropdown sudah terbuka karena hover, jadi jangan ditutup lagi.
     if (event.detail === 0) {
       onToggle();
     } else {
@@ -197,11 +223,13 @@ function DesktopGroup({
         onDark={onDark}
       />
 
+      {/* Wrapper dengan padding-top menjembatani celah agar dropdown tidak tertutup */}
       <div
         className={`absolute left-1/2 top-full w-56 -translate-x-1/2 pt-4 ${
           isOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
       >
+        {/* Panel kaca (glass) selalu terang, apa pun kondisi navbar */}
         <div
           className={`relative rounded-2xl border border-white/60 bg-white/85 py-2 shadow-2xl shadow-slate-900/20 backdrop-blur-2xl ring-1 ring-inset ring-white/40 transition-all duration-200 ease-out motion-reduce:transition-none ${
             isOpen
@@ -222,18 +250,15 @@ function DesktopGroup({
               const current = item.href === activeHref;
               return (
                 <li key={item.href}>
-                  <NavHashLink
-                    smooth
-                    to={item.href}
+                  <a
+                    href={item.href}
                     onClick={onNavigate}
                     className={`mx-2 block rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-150 hover:bg-red-500/10 hover:text-red-600 focus-visible:bg-red-500/10 focus-visible:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400 ${
-                      current
-                        ? "bg-red-500/10 text-red-600 font-semibold"
-                        : "text-slate-700"
+                      current ? "bg-red-500/10 text-red-600" : "text-slate-700"
                     }`}
                   >
                     {item.label}
-                  </NavHashLink>
+                  </a>
                 </li>
               );
             })}
@@ -273,7 +298,7 @@ function MobileGroup({
         aria-controls={panelId}
         onClick={onToggle}
         className={`flex min-h-12 w-full items-center justify-between rounded-xl px-4 text-left text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
-          isActive || expanded ? "text-red-600 font-semibold" : "text-slate-700"
+          isActive || expanded ? "text-red-600" : "text-slate-700"
         }`}
       >
         {group.label}
@@ -297,16 +322,15 @@ function MobileGroup({
               const current = item.href === activeHref;
               return (
                 <li key={item.href}>
-                  <NavHashLink
-                    smooth
-                    to={item.href}
+                  <a
+                    href={item.href}
                     onClick={onNavigate}
                     className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
-                      current ? "text-red-600 font-semibold" : "text-slate-500"
+                      current ? "text-red-600" : "text-slate-500"
                     }`}
                   >
                     {item.label}
-                  </NavHashLink>
+                  </a>
                 </li>
               );
             })}
@@ -318,23 +342,17 @@ function MobileGroup({
 }
 
 /* ------------------------------------------------------------------ */
-/* Navbar                                                             */
+/* Navbar                                                              */
 /* ------------------------------------------------------------------ */
 
 export default function Navbar() {
-  const location = useLocation(); // Mendapatkan URL & Hash lokasi saat ini
   const [scrolled, setScrolled] = useState<boolean>(
     () => typeof window !== "undefined" && window.scrollY > SCROLL_THRESHOLD,
   );
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-
-  // Menentukan status aktif berdasarkan gabungan Path dan Hash
-  const activeHref =
-    location.pathname === "/fasilitas"
-      ? "/fasilitas"
-      : `${location.pathname}${location.hash || "#hero"}`;
+  const [activeHref, setActiveHref] = useState<string>("#hero");
 
   const navRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -346,6 +364,7 @@ export default function Navbar() {
     setMobileExpanded(null);
   }, []);
 
+  // Muat font "Plus Jakarta Sans" (dibagi dengan Hero Section agar tipografi konsisten)
   useEffect(() => {
     if (!document.getElementById(FONT_ID)) {
       const link = document.createElement("link");
@@ -356,6 +375,7 @@ export default function Navbar() {
     }
   }, []);
 
+  // Efek scroll (dibatasi requestAnimationFrame) + tutup dropdown desktop saat scroll
   useEffect(() => {
     let frame = 0;
 
@@ -380,6 +400,7 @@ export default function Navbar() {
     };
   }, []);
 
+  // Klik di luar navbar dan tombol Escape
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       const nav = navRef.current;
@@ -413,6 +434,29 @@ export default function Navbar() {
     };
   }, [closeAll]);
 
+  // Section aktif via IntersectionObserver
+  useEffect(() => {
+    const targets = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+      (element): element is HTMLElement => element !== null,
+    );
+    if (targets.length === 0) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveHref(`#${entry.target.id}`);
+          }
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+    );
+
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, []);
+
+  // Tutup menu mobile otomatis ketika layar melebar ke ukuran desktop
   useEffect(() => {
     const query = window.matchMedia("(min-width: 1024px)");
     const onChange = (event: MediaQueryListEvent) => {
@@ -425,9 +469,9 @@ export default function Navbar() {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  // Saat di halaman Fasilitas, latar belakang navbar dibuat solid agar teks selalu terbaca terang
-  const isFasilitasPage = location.pathname === "/fasilitas";
-  const solid = scrolled || mobileOpen || isFasilitasPage;
+  // Navbar lebih solid jika sudah scroll atau menu mobile terbuka
+  const solid = scrolled || mobileOpen;
+  // Navbar kaca transparan di atas Hero -> teks putih
   const onDark = !solid;
 
   const toggleMobile = () => {
@@ -444,16 +488,17 @@ export default function Navbar() {
       className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4"
     >
       <style>{`
-        @keyframes nav-fade-in {
-          from { opacity: 0; transform: translateY(-14px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-nav-in { animation: nav-fade-in 0.7s cubic-bezier(0.16,1,0.3,1) both; }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-nav-in { animation: none; }
-        }
-      `}</style>
+          @keyframes nav-fade-in {
+            from { opacity: 0; transform: translateY(-14px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-nav-in { animation: nav-fade-in 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-nav-in { animation: none; }
+          }
+        `}</style>
 
+      {/* Bar navigasi mengambang (floating glass bar) */}
       <div
         className={`animate-nav-in mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-4 transition-all duration-500 ease-out sm:px-5 ${
           solid
@@ -461,9 +506,9 @@ export default function Navbar() {
             : "h-20 border-white/20 bg-white/10 shadow-lg shadow-black/10 backdrop-blur-2xl"
         }`}
       >
-        <NavHashLink
-          smooth
-          to="/#hero"
+        {/* Logo */}
+        <a
+          href="#hero"
           onClick={closeAll}
           aria-label="SMK Telkom Medan, kembali ke beranda"
           className={`group rounded-xl ${FOCUS_RING}`}
@@ -475,9 +520,9 @@ export default function Navbar() {
               solid ? "h-10" : "h-12"
             }`}
           />
-        </NavHashLink>
+        </a>
 
-        {/* Menu Desktop */}
+        {/* Menu desktop */}
         <ul className="hidden items-center gap-1 lg:flex">
           {MENU.map((entry) => {
             if (entry.type === "group") {
@@ -507,9 +552,8 @@ export default function Navbar() {
             const isActive = entry.href === activeHref;
             return (
               <li key={entry.href} className="group relative">
-                <NavHashLink
-                  smooth
-                  to={entry.href}
+                <a
+                  href={entry.href}
                   onClick={closeAll}
                   aria-current={isActive ? "page" : undefined}
                   className={`peer inline-flex items-center rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
@@ -519,14 +563,14 @@ export default function Navbar() {
                   )}`}
                 >
                   {entry.label}
-                </NavHashLink>
+                </a>
                 <HoverIndicator onDark={onDark} />
               </li>
             );
           })}
         </ul>
 
-        {/* Tombol Hamburger Mobile */}
+        {/* Tombol hamburger (mobile) */}
         <button
           ref={toggleRef}
           type="button"
@@ -560,7 +604,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Menu Mobile */}
+      {/* Menu mobile: kartu kaca mengambang di bawah bar */}
       <div
         id="mobile-menu"
         ref={mobilePanelRef}
@@ -593,17 +637,16 @@ export default function Navbar() {
               const isActive = entry.href === activeHref;
               return (
                 <li key={entry.href}>
-                  <NavHashLink
-                    smooth
-                    to={entry.href}
+                  <a
+                    href={entry.href}
                     onClick={closeAll}
                     aria-current={isActive ? "page" : undefined}
                     className={`flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
-                      isActive ? "text-red-600 font-semibold" : "text-slate-700"
+                      isActive ? "text-red-600" : "text-slate-700"
                     }`}
                   >
                     {entry.label}
-                  </NavHashLink>
+                  </a>
                 </li>
               );
             })}
