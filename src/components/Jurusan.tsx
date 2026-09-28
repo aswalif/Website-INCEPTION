@@ -17,7 +17,10 @@ import {
   Briefcase,
   type LucideIcon,
 } from "lucide-react";
-import kulinerImage from "../assets/kuliner.webp";
+import kulinerImage from "../assets/jurusan/kuliner.webp";
+import tkjImage from "../assets/jurusan/tkj1.webp";
+import rplImage from "../assets/jurusan/rpl1.webp";
+import dkvImage from "../assets/jurusan/dkv.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,8 +60,7 @@ const JURUSAN_DATA: JurusanData[] = [
       "Cloud Infrastructure Engineer",
       "Teknisi Infrastruktur IT",
     ],
-    image:
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop",
+    image: tkjImage,
     icon: Server,
   },
   {
@@ -79,9 +81,8 @@ const JURUSAN_DATA: JurusanData[] = [
       "Database Administrator",
       "DevOps / Cloud Engineer",
     ],
-    image:
-      "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?q=80&w=1600&auto=format&fit=crop",
-    icon: Code2,
+    image: rplImage,
+    icon: Server,
   },
   {
     id: "dkv",
@@ -106,8 +107,7 @@ const JURUSAN_DATA: JurusanData[] = [
       "Brand & Illustration Designer",
       "Content Creator",
     ],
-    image:
-      "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1600&auto=format&fit=crop",
+    image: dkvImage,
     icon: Palette,
   },
   {
