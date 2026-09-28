@@ -41,8 +41,7 @@ const fasilitasData: FasilitasData[] = [
     id: 4,
     title: "Dapur Praktik Kuliner",
     category: "Praktikum",
-    image:
-      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop",
+    image: "/public/fasilitas/dapurkuliner.webp",
     gridClass: "md:col-span-2 md:row-span-1",
   },
   {
@@ -105,18 +104,16 @@ const fasilitasData: FasilitasData[] = [
   },
   {
     id: 13,
-    title: "Aula Sekolah",
+    title: "Asrama",
     category: "Infrastruktur",
-    image:
-      "https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=800&auto=format&fit=crop",
+    image: "/public/fasilitas/asrama.webp",
     gridClass: "md:col-span-2 md:row-span-1",
   },
   {
     id: 14,
-    title: "Ruang Guru Eksekutif",
+    title: "Ruang Musik",
     category: "Fasilitas Staf",
-    image:
-      "https://images.unsplash.com/photo-1577415124269-b9140d52d924?q=80&w=800&auto=format&fit=crop",
+    image: "/public/fasilitas/mustel.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {

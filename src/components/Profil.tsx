@@ -1,9 +1,12 @@
-import React, { useLayoutEffect, useEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
+
+/* -------------------------------------------------------------------------- */
+/*  Types & data                                                              */
+/* -------------------------------------------------------------------------- */
 
 export interface ProfilProps {
   heroImageUrl?: string;
@@ -22,8 +25,9 @@ interface HighlightItem {
   id: string;
   label: string;
   title: string;
+  mark: string;
   description: string;
-  position: "above" | "below";
+  theme: "red" | "ink" | "blush";
 }
 
 const HIGHLIGHTS: HighlightItem[] = [
@@ -31,27 +35,51 @@ const HIGHLIGHTS: HighlightItem[] = [
     id: "akreditasi",
     label: "Unggul dan teruji",
     title: "Akreditasi A",
+    mark: "A",
     description:
       "Kurikulum dan fasilitas berstandar tinggi, diverifikasi lembaga akreditasi nasional. Menjadi jaminan mutu pembelajaran yang diakui secara resmi oleh pemerintah.",
-    position: "above",
+    theme: "red",
   },
   {
     id: "iso",
     label: "Sistem mutu",
     title: "ISO 9001",
+    mark: "ISO",
     description:
       "Manajemen mutu pendidikan yang terintegrasi di seluruh proses belajar, mulai dari kurikulum, pengajaran, hingga evaluasi hasil belajar siswa.",
-    position: "below",
+    theme: "ink",
   },
   {
     id: "tik",
     label: "Pusat teknologi",
     title: "Spesialisasi TIK",
+    mark: "TIK",
     description:
       "Kompetensi teknologi yang disiapkan langsung untuk kebutuhan industri, mencakup jaringan, perangkat lunak, desain, hingga produksi konten digital.",
-    position: "above",
+    theme: "blush",
   },
 ];
+
+const THEMES: Record<
+  HighlightItem["theme"],
+  { card: string; pill: string; stroke: string }
+> = {
+  red: {
+    card: "bg-red-600 text-white",
+    pill: "bg-white text-red-600",
+    stroke: "[--stroke:rgba(255,255,255,0.4)]",
+  },
+  ink: {
+    card: "bg-neutral-950 text-white",
+    pill: "bg-red-600 text-white",
+    stroke: "[--stroke:rgba(255,255,255,0.2)]",
+  },
+  blush: {
+    card: "bg-[#FFE7E1] text-neutral-950",
+    pill: "bg-neutral-950 text-white",
+    stroke: "[--stroke:rgba(227,30,36,0.4)]",
+  },
+};
 
 const DREAL_ITEMS: DRealItem[] = [
   {
@@ -105,7 +133,68 @@ const DREAL_ITEMS: DRealItem[] = [
   },
 ];
 
-const TRACE_POSITIONS = ["14%", "50%", "86%"];
+const MARQUEE_ITEMS = [
+  "AKHLAK is Number One",
+  "Akreditasi A",
+  "ISO 9001",
+  "Spesialisasi TIK",
+  "D'REAL ICT",
+];
+
+const STATEMENT =
+  "SMK Telkom Medan adalah sekolah kejuruan unggulan bidang TIK di bawah naungan Yayasan Pendidikan Telkom, mencetak generasi profesional, kompeten, dan berkarakter di era digital.";
+const STATEMENT_HIGHLIGHT = new Set([
+  "TIK",
+  "profesional,",
+  "kompeten,",
+  "berkarakter",
+]);
+
+/* -------------------------------------------------------------------------- */
+/*  Small presentational helpers                                              */
+/* -------------------------------------------------------------------------- */
+
+/** One line of a masked headline: parent clips, child slides up. */
+function MaskLine({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className="pf-line">
+      <span data-line className={`block will-change-transform ${className}`}>
+        {children}
+      </span>
+    </span>
+  );
+}
+
+function Pill({
+  children,
+  tone = "light",
+}: {
+  children: React.ReactNode;
+  tone?: "light" | "dark";
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-1.5 text-xs font-bold tracking-wide sm:text-sm ${
+        tone === "dark"
+          ? "border-white/80 text-white"
+          : "border-neutral-950 text-neutral-950"
+      }`}
+    >
+      <span className="h-2 w-2 rounded-full bg-red-600" />
+      {children}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Component                                                                 */
+/* -------------------------------------------------------------------------- */
 
 export default function Profil({
   heroImageUrl,
@@ -113,579 +202,719 @@ export default function Profil({
   className = "",
 }: ProfilProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const imageWrapperRef = useRef<HTMLDivElement | null>(null);
-  const headerRef = useRef<HTMLDivElement | null>(null);
-  const textContentRef = useRef<HTMLDivElement | null>(null);
-  const traceRef = useRef<HTMLDivElement | null>(null);
-  const traceDetailRef = useRef<HTMLDivElement | null>(null);
-  const ainoBannerRef = useRef<HTMLDivElement | null>(null);
-  const drealGridRef = useRef<HTMLDivElement | null>(null);
+  const firstRun = useRef(true);
 
   const [activeDReal, setActiveDReal] = useState<DRealItem>(DREAL_ITEMS[0]);
-  const [activeHighlight, setActiveHighlight] = useState<HighlightItem>(
-    HIGHLIGHTS[0],
-  );
   const [imageError, setImageError] = useState(false);
 
   const imagePath =
     heroImageUrl || new URL("../assets/profil.png", import.meta.url).href;
 
+  /* ------------------------------ Main motion ----------------------------- */
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      // 1. Header Animation
-      if (headerRef.current) {
+    const root = sectionRef.current;
+    if (!root) return;
+
+    const q = <T extends Element = HTMLElement>(sel: string) =>
+      gsap.utils.toArray<T>(sel, root);
+
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // 1. Masked headline lines (hero, section titles, AINO letters)
+      q("[data-lines]").forEach((group) => {
         gsap.fromTo(
-          headerRef.current.children,
-          { y: 40, opacity: 0 },
+          group.querySelectorAll("[data-line]"),
+          { yPercent: 115 },
           {
-            y: 0,
+            yPercent: 0,
+            duration: 1.1,
+            stagger: 0.12,
+            ease: "power4.out",
+            scrollTrigger: { trigger: group, start: "top 88%", once: true },
+          },
+        );
+      });
+
+      // 2. Generic reveal, batched so items in view enter together
+      const reveals = q("[data-reveal]");
+      gsap.set(reveals, { opacity: 0, y: 36 });
+      ScrollTrigger.batch(reveals, {
+        start: "top 92%",
+        once: true,
+        onEnter: (batch) =>
+          gsap.to(batch, {
             opacity: 1,
-            duration: 0.8,
+            y: 0,
+            duration: 0.9,
             stagger: 0.1,
             ease: "power3.out",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top 90%",
-            },
-          },
-        );
-      }
+            overwrite: true,
+          }),
+      });
 
-      // 2. Main Image Animation
-      if (imageWrapperRef.current) {
+      // 3. Hero media: scales up + rounds off while scrolling in, inner zoom out
+      const media = root.querySelector<HTMLElement>("[data-hero-img]");
+      const mediaInner = root.querySelector<HTMLElement>("[data-hero-inner]");
+      if (media) {
         gsap.fromTo(
-          imageWrapperRef.current,
-          { opacity: 0, y: 40 },
+          media,
+          { scale: 0.86, borderRadius: "80px" },
           {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
+            scale: 1,
+            borderRadius: "36px",
+            ease: "none",
             scrollTrigger: {
-              trigger: imageWrapperRef.current,
-              start: "top 85%",
+              trigger: media,
+              start: "top 98%",
+              end: "top 35%",
+              scrub: true,
             },
           },
         );
       }
-
-      // 3. Text Paragraph Reveal
-      if (textContentRef.current) {
+      if (mediaInner) {
         gsap.fromTo(
-          textContentRef.current.children,
-          { y: 40, opacity: 0 },
+          mediaInner,
+          { scale: 1.18 },
           {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power3.out",
+            scale: 1,
+            ease: "none",
             scrollTrigger: {
-              trigger: textContentRef.current,
-              start: "top 85%",
+              trigger: mediaInner,
+              start: "top 98%",
+              end: "bottom 60%",
+              scrub: true,
             },
           },
         );
       }
 
-      // 4. Credential network-trace: one orchestrated sequence
-      //    (line draws in -> nodes pop in -> labels fade up)
-      if (traceRef.current) {
-        const line = traceRef.current.querySelectorAll("[data-trace-line]");
-        const nodes = traceRef.current.querySelectorAll("[data-trace-node]");
-        const labels = traceRef.current.querySelectorAll("[data-trace-label]");
-
-        const tl = gsap.timeline({
+      // 4. Sticker badge spins with scroll progress
+      const badge = root.querySelector<HTMLElement>("[data-badge]");
+      if (badge) {
+        gsap.to(badge, {
+          rotation: 540,
+          ease: "none",
           scrollTrigger: {
-            trigger: traceRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
+            trigger: root,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.6,
           },
         });
-
-        tl.fromTo(
-          line,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 0.9, ease: "power2.inOut", force3D: true },
-        )
-          .fromTo(
-            nodes,
-            { scale: 0, rotation: 45 },
-            {
-              scale: 1,
-              rotation: 45,
-              duration: 0.45,
-              ease: "back.out(2.2)",
-              stagger: 0.15,
-              force3D: true,
-            },
-            "-=0.35",
-          )
-          .fromTo(
-            labels,
-            { y: 14, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.5,
-              ease: "power2.out",
-              stagger: 0.15,
-            },
-            "-=0.5",
-          );
       }
 
-      // 5. AINO Banner
-      if (ainoBannerRef.current) {
+      // 5. Marquee: constant drift, boosted by scroll velocity & direction
+      const track = root.querySelector<HTMLElement>("[data-marquee]");
+      if (track) {
+        const drift = gsap.to(track, {
+          xPercent: -50,
+          duration: 28,
+          ease: "none",
+          repeat: -1,
+        });
+        ScrollTrigger.create({
+          trigger: track,
+          start: "top bottom",
+          end: "bottom top",
+          onUpdate: (self) => {
+            const boost = 1 + Math.min(Math.abs(self.getVelocity()) / 500, 4);
+            gsap.to(drift, {
+              timeScale: self.direction * boost,
+              duration: 0.2,
+              overwrite: true,
+            });
+            gsap.to(drift, {
+              timeScale: self.direction,
+              duration: 1,
+              delay: 0.2,
+              overwrite: false,
+            });
+          },
+        });
+      }
+
+      // 6. Statement: words light up as you scroll
+      const words = q("[data-word]");
+      const statement = root.querySelector<HTMLElement>("[data-statement]");
+      if (statement && words.length) {
         gsap.fromTo(
-          ainoBannerRef.current,
-          { y: 40, opacity: 0 },
+          words,
+          { opacity: 0.14 },
           {
-            y: 0,
             opacity: 1,
-            duration: 0.9,
+            ease: "none",
+            stagger: 0.12,
+            scrollTrigger: {
+              trigger: statement,
+              start: "top 78%",
+              end: "bottom 50%",
+              scrub: true,
+            },
+          },
+        );
+      }
+
+      // 7. Stacking credential cards: previous card shrinks as next covers it
+      const cards = q("[data-stack-card]");
+      cards.forEach((card, i) => {
+        const next = cards[i + 1];
+        if (!next) return;
+        gsap.to(card, {
+          scale: 0.93,
+          transformOrigin: "center top",
+          ease: "none",
+          scrollTrigger: {
+            trigger: next,
+            start: "top bottom",
+            end: "top 20%",
+            scrub: true,
+          },
+        });
+      });
+
+      // 8. AINO: parallax shapes
+      q("[data-aino-shape]").forEach((el, i) => {
+        gsap.to(el, {
+          yPercent: i % 2 === 0 ? -35 : 30,
+          rotation: i % 2 === 0 ? 0 : 90,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "[data-aino]",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      });
+
+      // 9. D'REAL rows enter in sequence
+      const rows = q("[data-dreal-row]");
+      gsap.set(rows, { opacity: 0, y: 40 });
+      ScrollTrigger.batch(rows, {
+        start: "top 92%",
+        once: true,
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.07,
             ease: "power3.out",
-            scrollTrigger: {
-              trigger: ainoBannerRef.current,
-              start: "top 85%",
-            },
-          },
-        );
-      }
+            overwrite: true,
+          }),
+      });
+    });
 
-      // 6. D'REAL ICT Grid
-      if (drealGridRef.current) {
-        gsap.fromTo(
-          drealGridRef.current.children,
-          { y: 30, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.6,
-            stagger: 0.05,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: drealGridRef.current,
-              start: "top 90%",
-            },
-          },
-        );
-      }
+    // Fonts & images change layout height, so recalc trigger positions
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
-      // Refresh ScrollTrigger agar perhitungan kalkulasi posisi tepat
-      ScrollTrigger.refresh();
-    }, sectionRef);
-
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
-  // Crossfade the detail panel whenever the active credential changes
-  useEffect(() => {
-    if (!traceDetailRef.current) return;
-    gsap.fromTo(
-      traceDetailRef.current,
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
-    );
-  }, [activeHighlight]);
+  /* --------------------- D'REAL accordion open / close -------------------- */
+  useLayoutEffect(() => {
+    const root = sectionRef.current;
+    if (!root) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
+    gsap.utils
+      .toArray<HTMLElement>("[data-dreal-panel]", root)
+      .forEach((panel) => {
+        const open = panel.dataset.letter === activeDReal.letter;
+        const to = { height: open ? "auto" : 0, opacity: open ? 1 : 0 };
+
+        if (firstRun.current || reduce) {
+          gsap.set(panel, to);
+        } else {
+          gsap.to(panel, {
+            ...to,
+            duration: 0.55,
+            ease: "power3.inOut",
+            overwrite: true,
+            onComplete: () => ScrollTrigger.refresh(),
+          });
+        }
+      });
+
+    firstRun.current = false;
+  }, [activeDReal]);
+
+  /* -------------------------------- Render -------------------------------- */
   return (
     <section
       ref={sectionRef}
       id="profil"
-      className={`bg-white py-20 text-slate-900 md:py-28  dark:text-slate-100 ${className}`}
+      className={`pf-root relative bg-white text-neutral-950 ${className}`}
     >
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div ref={headerRef} className="max-w-3xl">
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl dark:text-black">
-            Profil{" "}
-            <span className="text-red-600 dark:text-red-500">
-              SMK Telkom Medan
-            </span>
-          </h2>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+        .pf-root { overflow-x: clip; }
+        .pf-root .pf-display {
+          font-family: 'Anton', 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+          font-weight: 400;
+          text-transform: uppercase;
+          letter-spacing: 0.005em;
+        }
+        .pf-line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+        .pf-outline {
+          color: transparent;
+          -webkit-text-stroke: 2px var(--stroke, #0a0a0a);
+        }
+        @media (min-width: 768px) { .pf-outline { -webkit-text-stroke-width: 3px; } }
+      `}</style>
 
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-900  font-normal">
+      {/* ============================ HERO ============================ */}
+      <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-20 sm:px-8 md:pt-28">
+        <div data-reveal>
+          <Pill>Profil sekolah</Pill>
+        </div>
+
+        <h2
+          data-lines
+          className="pf-display mt-6 text-[clamp(3.75rem,16vw,15rem)] leading-[0.88]"
+        >
+          <MaskLine>Profil</MaskLine>
+          <MaskLine className="text-red-600">SMK Telkom</MaskLine>
+          <MaskLine>Medan</MaskLine>
+        </h2>
+
+        <div
+          data-reveal
+          className="mt-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+        >
+          <p className="max-w-md text-lg font-medium leading-7 text-neutral-700 md:text-xl">
             Membangun generasi profesional, kompeten, dan berkarakter di era
             digital.
           </p>
-        </div>
 
-        {/* Main Profile */}
-        <div className="mt-14 grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* Gambar Komposit */}
-          <div ref={imageWrapperRef}>
-            {!imageError ? (
-              <div className="group relative overflow-hidden rounded-[28px] border border-slate-200 bg-slate-50 p-2 shadow-[0_20px_60px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900">
-                <div className="overflow-hidden rounded-[22px]">
-                  <img
-                    src={imagePath}
-                    alt="Profil SMK Telkom Medan"
-                    onError={() => setImageError(true)}
-                    className="block h-auto w-full object-contain transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-
-                <div className="absolute bottom-5 left-5 rounded-xl border border-white/60 bg-white/90 px-4 py-2.5 shadow-lg backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/90">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">
-                    SMK Telkom Medan
-                  </p>
-                  <p className="mt-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                    Pendidikan teknologi & karakter
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex aspect-[4/3] items-center justify-center rounded-[28px] border border-dashed border-slate-300 bg-slate-50 text-center dark:border-slate-700 dark:bg-slate-900">
-                <div>
-                  <p className="font-bold text-slate-800 dark:text-white">
-                    SMK Telkom Medan
-                  </p>
-                  <p className="mt-1 text-sm font-normal text-slate-500">
-                    Profil-Sekolah.png tidak ditemukan
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Text Content */}
-          <div ref={textContentRef}>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-600 dark:text-red-500">
-              Mengenal lebih dekat
-            </p>
-
-            <h3 className="text-2xl font-bold leading-tight text-slate-950 sm:text-3xl dark:text-black">
-              Membangun Generasi Unggul di Era Digital
-            </h3>
-
-            <div className="mt-6 space-y-4 text-[15px] leading-7 text-slate-900 font-medium dark:text-slate-500">
-              <p>
-                <strong className="font-bold text-slate-950 dark:text-black">
-                  SMK Telkom Medan
-                </strong>{" "}
-                adalah sekolah menengah kejuruan unggulan di bidang Teknologi
-                Informasi dan Komunikasi (TIK) di bawah naungan Yayasan
-                Pendidikan Telkom. Berdiri dengan semangat mencetak generasi
-                profesional dan kompeten di era digital, SMK Telkom Medan telah
-                terakreditasi{" "}
-                <strong className="font-bold text-red-600 dark:text-red-400">
-                  "A"
-                </strong>{" "}
-                dan mengimplementasikan standar mutu pendidikan berbasis ISO
-                9001.
-              </p>
-
-              <p>
-                Dengan mengusung moto{" "}
-                <strong className="font-bold text-slate-950 dark:text-red-500">
-                  AINO (AKHLAK is Number One)
-                </strong>{" "}
-                dan nilai-nilai{" "}
-                <strong className="font-bold text-slate-950 dark:text-white">
-                  D'REAL ICT
-                </strong>{" "}
-                (Discipline, Religious, Awareness, Learned, Innovative,
-                Communicative, Tolerance), sekolah ini berkomitmen untuk
-                mengembangkan potensi siswa dalam aspek akademik, keterampilan,
-                dan karakter.
-              </p>
-
-              <p>
-                Sebagai institusi pendidikan yang terus berkembang, SMK Telkom
-                Medan berkomitmen untuk melibatkan seluruh komponen sekolah
-                dalam mewujudkan visi menjadi pusat pendidikan teknologi yang
-                disiplin, religius, dan inovatif, sekaligus menjadi teladan
-                dalam membangun toleransi dan komunikasi yang baik di
-                masyarakat.
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div className="mt-7 flex flex-wrap gap-2 border-t border-slate-200 pt-5 dark:border-slate-800">
-              {[].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-800 transition-all duration-300 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {["Akreditasi A", "ISO 9001", "Spesialisasi TIK"].map((t) => (
+              <span
+                key={t}
+                className="rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white"
+              >
+                {t}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Credential network trace (klik tiap kredensial untuk lihat penjelasan) */}
-        <div ref={traceRef} className="mt-24">
-          {/* Desktop / tablet: horizontal schematic, klik untuk memilih */}
-          <div className="relative hidden h-[140px] md:block">
-            <div
-              data-trace-line
-              className="absolute left-[8%] right-[8%] top-1/2 h-px origin-left bg-slate-300 dark:bg-slate-700"
-            />
-
-            {HIGHLIGHTS.map((item, index) => {
-              const left = TRACE_POSITIONS[index];
-              const isAbove = item.position === "above";
-              const isActive = activeHighlight.id === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveHighlight(item)}
-                  aria-pressed={isActive}
-                  className="group absolute inset-y-0 w-[170px] -translate-x-1/2 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                  style={{ left }}
-                >
-                  <span
-                    data-trace-node
-                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-colors duration-300 ${
-                      isActive
-                        ? "h-3.5 w-3.5 bg-red-600"
-                        : "h-2.5 w-2.5 bg-slate-400 group-hover:bg-red-400 dark:bg-slate-600"
-                    }`}
-                  />
-
-                  <span
-                    data-trace-label
-                    className="absolute left-1/2 block w-full -translate-x-1/2 text-center"
-                    style={
-                      isAbove
-                        ? { bottom: "calc(50% + 16px)" }
-                        : { top: "calc(50% + 16px)" }
-                    }
-                  >
-                    <span
-                      className={`block text-xs font-medium transition-colors duration-300 ${
-                        isActive
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
-                    <span
-                      className={`mt-1 block text-lg font-bold transition-colors duration-300 ${
-                        isActive
-                          ? "text-slate-950 dark:text-white"
-                          : "text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300"
-                      }`}
-                    >
-                      {item.title}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mobile: daftar vertikal, klik untuk memilih */}
-          <div className="relative space-y-1 pl-6 md:hidden">
-            <div
-              data-trace-line
-              className="absolute bottom-3 left-[5px] top-3 w-px origin-top bg-slate-300 dark:bg-slate-700"
-            />
-
-            {HIGHLIGHTS.map((item) => {
-              const isActive = activeHighlight.id === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveHighlight(item)}
-                  aria-pressed={isActive}
-                  className="group relative flex w-full items-center gap-4 rounded-lg py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                >
-                  <span
-                    data-trace-node
-                    className={`absolute -left-6 h-2.5 w-2.5 shrink-0 -translate-x-1/2 transition-colors duration-300 ${
-                      isActive
-                        ? "bg-red-600"
-                        : "bg-slate-400 group-hover:bg-red-400 dark:bg-slate-600"
-                    }`}
-                  />
-                  <span data-trace-label>
-                    <span
-                      className={`block text-xs font-medium transition-colors duration-300 ${
-                        isActive
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
-                    <span
-                      className={`mt-0.5 block text-base font-bold transition-colors duration-300 ${
-                        isActive
-                          ? "text-slate-950 dark:text-white"
-                          : "text-slate-500 dark:text-slate-500"
-                      }`}
-                    >
-                      {item.title}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Detail panel: penjelasan kredensial yang aktif */}
+        {/* Hero media */}
+        <div className="relative mt-12 md:mt-16">
+          {/* Rotating sticker */}
           <div
-            ref={traceDetailRef}
-            className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900"
+            data-badge
+            className="absolute -top-8 right-2 z-10 h-24 w-24 sm:-top-10 sm:right-6 sm:h-32 sm:w-32 md:-top-16 md:right-12 md:h-44 md:w-44"
+            aria-hidden="true"
           >
-            <p className="text-xs font-medium text-red-600 dark:text-red-400">
-              {activeHighlight.label}
-            </p>
-            <h4 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-              {activeHighlight.title}
-            </h4>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-medium dark:text-slate-300">
-              {activeHighlight.description}
-            </p>
+            <svg viewBox="0 0 200 200" className="h-full w-full">
+              <defs>
+                <path
+                  id="pf-badge-path"
+                  d="M 100,100 m -76,0 a 76,76 0 1,1 152,0 a 76,76 0 1,1 -152,0"
+                />
+              </defs>
+              <circle cx="100" cy="100" r="98" fill="#0a0a0a" />
+              <text
+                fill="#fff"
+                fontSize="21"
+                fontFamily="'Anton', Impact, sans-serif"
+                letterSpacing="2"
+              >
+                <textPath
+                  href="#pf-badge-path"
+                  textLength="470"
+                  lengthAdjust="spacing"
+                >
+                  AKREDITASI A + ISO 9001 + TIK +
+                </textPath>
+              </text>
+              <circle cx="100" cy="100" r="50" fill="#E31E24" />
+              <text
+                x="100"
+                y="122"
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="66"
+                fontFamily="'Anton', Impact, sans-serif"
+              >
+                A
+              </text>
+            </svg>
           </div>
-        </div>
 
-        {/* AINO Banner */}
-        <div ref={ainoBannerRef} className="mt-20">
-          <div className="relative overflow-hidden rounded-3xl bg-slate-950 p-7 text-white shadow-2xl sm:p-10">
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-600/25 blur-3xl" />
-            <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-blue-600/15 blur-3xl" />
+          {!imageError ? (
+            <div
+              data-hero-img
+              className="relative overflow-hidden border-2 border-neutral-950 bg-neutral-100"
+              style={{ borderRadius: 36 }}
+            >
+              <div data-hero-inner>
+                <img
+                  src={imagePath}
+                  alt="Profil SMK Telkom Medan"
+                  onLoad={() => ScrollTrigger.refresh()}
+                  onError={() => setImageError(true)}
+                  className="block h-auto w-full object-contain"
+                />
+              </div>
 
-            <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="absolute bottom-4 left-4 rounded-2xl border-2 border-neutral-950 bg-white px-4 py-2.5 sm:bottom-6 sm:left-6">
+                <p className="text-xs font-bold sm:text-sm">SMK Telkom Medan</p>
+                <p className="mt-0.5 text-[11px] font-medium text-neutral-600 sm:text-xs">
+                  Pendidikan teknologi &amp; karakter
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex aspect-[4/3] items-center justify-center rounded-[36px] border-2 border-dashed border-neutral-400 bg-neutral-50 text-center">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-400">
-                  Moto Utama Sekolah
-                </p>
-
-                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="text-4xl font-black tracking-tight sm:text-5xl">
-                    AINO
-                  </h3>
-
-                  <span className="text-lg font-semibold italic text-red-400 sm:text-xl">
-                    "AKHLAK is Number One"
-                  </span>
-                </div>
-
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200 font-medium sm:text-base">
-                  Menjadikan nilai akhlak sebagai landasan dalam membentuk
-                  peserta didik yang berintegritas dan berkarakter.
+                <p className="pf-display text-3xl">SMK Telkom Medan</p>
+                <p className="mt-1 text-sm font-medium text-neutral-500">
+                  Gambar profil tidak ditemukan
                 </p>
               </div>
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* =========================== MARQUEE =========================== */}
+      <div className="overflow-hidden py-10 md:py-16">
+        <div className="-ml-[5%] w-[110%] -rotate-1 border-y-2 border-neutral-950 bg-red-600 py-3 md:py-4">
+          <div data-marquee className="flex w-max whitespace-nowrap">
+            {[0, 1].map((g) => (
+              <div
+                key={g}
+                className="flex shrink-0 items-center"
+                aria-hidden={g === 1}
+              >
+                {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((word, i) => (
+                  <React.Fragment key={`${g}-${i}`}>
+                    <span
+                      className={`pf-display px-5 text-4xl md:px-8 md:text-6xl ${
+                        i % 2 === 0
+                          ? "text-white"
+                          : "pf-outline [--stroke:#fff]"
+                      }`}
+                    >
+                      {word}
+                    </span>
+                    <span className="text-2xl text-neutral-950 md:text-4xl">
+                      ✦
+                    </span>
+                  </React.Fragment>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* D'REAL ICT */}
-        <div className="mt-20">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-900">
-              Karakter Siswa
-            </p>
+      {/* ========================== STATEMENT ========================== */}
+      <div className="mx-auto max-w-[1400px] px-5 pt-6 sm:px-8 md:pt-12">
+        <p
+          data-statement
+          className="pf-display text-[clamp(1.9rem,6.2vw,5.5rem)] leading-[1.04]"
+        >
+          {STATEMENT.split(" ").map((w, i) => (
+            <span
+              key={i}
+              data-word
+              className={`mr-[0.22em] inline-block ${
+                STATEMENT_HIGHLIGHT.has(w) ? "text-red-600" : ""
+              }`}
+            >
+              {w}
+            </span>
+          ))}
+        </p>
 
-            <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-black">
-              D'REAL ICT
+        {/* Detail text */}
+        <div className="mt-16 grid gap-10 md:mt-24 lg:grid-cols-12 lg:gap-16">
+          <div data-reveal className="lg:col-span-5">
+            <Pill>Mengenal lebih dekat</Pill>
+            <h3 className="pf-display mt-5 text-4xl leading-[0.95] sm:text-5xl md:text-6xl">
+              Membangun generasi unggul di era digital
             </h3>
-
-            <p className="mt-2 text-sm text-slate-700 font-medium sm:text-base dark:text-slate-500">
-              Nilai yang menjadi bagian dari karakter siswa SMK Telkom Medan.
-            </p>
           </div>
 
           <div
-            ref={drealGridRef}
-            className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"
+            data-reveal
+            className="space-y-5 text-base font-medium leading-8 text-neutral-700 md:text-lg lg:col-span-7"
           >
-            {DREAL_ITEMS.map((item, index) => {
-              const selected = activeDReal.letter === item.letter;
+            <p>
+              <strong className="font-bold text-neutral-950">
+                SMK Telkom Medan
+              </strong>{" "}
+              adalah sekolah menengah kejuruan unggulan di bidang Teknologi
+              Informasi dan Komunikasi (TIK) di bawah naungan Yayasan Pendidikan
+              Telkom. Berdiri dengan semangat mencetak generasi profesional dan
+              kompeten di era digital, SMK Telkom Medan telah terakreditasi{" "}
+              <strong className="font-bold text-red-600">&quot;A&quot;</strong>{" "}
+              dan mengimplementasikan standar mutu pendidikan berbasis ISO 9001.
+            </p>
 
-              return (
-                <button
-                  key={item.letter}
-                  type="button"
-                  onClick={() => setActiveDReal(item)}
-                  className={`min-h-[118px] rounded-2xl border p-4 text-left transition-all duration-300 hover:-translate-y-1 ${
-                    selected
-                      ? "border-red-600 bg-slate-950 text-white shadow-xl dark:bg-slate-800"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
-                  }`}
+            <p>
+              Dengan mengusung moto{" "}
+              <strong className="font-bold text-neutral-950">
+                AINO (AKHLAK is Number One)
+              </strong>{" "}
+              dan nilai-nilai{" "}
+              <strong className="font-bold text-neutral-950">
+                D&apos;REAL ICT
+              </strong>{" "}
+              (Discipline, Religious, Awareness, Learned, Innovative,
+              Communicative, Tolerance), sekolah ini berkomitmen untuk
+              mengembangkan potensi siswa dalam aspek akademik, keterampilan,
+              dan karakter.
+            </p>
+
+            <p>
+              Sebagai institusi pendidikan yang terus berkembang, SMK Telkom
+              Medan berkomitmen untuk melibatkan seluruh komponen sekolah dalam
+              mewujudkan visi menjadi pusat pendidikan teknologi yang disiplin,
+              religius, dan inovatif, sekaligus menjadi teladan dalam membangun
+              toleransi dan komunikasi yang baik di masyarakat.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ====================== CREDENTIAL STACK ====================== */}
+      <div className="mx-auto mt-28 max-w-[1400px] px-5 sm:px-8 md:mt-44">
+        <div data-reveal>
+          <Pill>Kredensial</Pill>
+        </div>
+        <h3
+          data-lines
+          className="pf-display mt-5 text-[clamp(3rem,11vw,10rem)] leading-[0.9]"
+        >
+          <MaskLine>Unggul</MaskLine>
+          <MaskLine>
+            dan <span className="text-red-600">teruji</span>
+          </MaskLine>
+        </h3>
+
+        <div className="mt-10 md:mt-16">
+          {HIGHLIGHTS.map((item, i) => {
+            const t = THEMES[item.theme];
+            return (
+              <article
+                key={item.id}
+                data-stack-card
+                style={{ top: `calc(5.5rem + ${i * 0.9}rem)`, zIndex: i + 1 }}
+                className={`sticky mb-8 flex flex-col overflow-hidden rounded-[1.75rem] border-2 border-neutral-950 p-6 sm:p-10 md:mb-14 md:min-h-[28rem] md:rounded-[2.5rem] md:p-14 ${t.card}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pf-display pf-outline pointer-events-none absolute -bottom-4 right-2 select-none text-[9rem] leading-none sm:text-[14rem] md:-bottom-14 md:right-8 md:text-[26rem] ${t.stroke}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-2xl font-black ${
-                        selected
-                          ? "text-red-400"
-                          : "text-red-600 dark:text-red-500"
-                      }`}
-                    >
-                      {item.letter}
-                    </span>
+                  {item.mark}
+                </span>
 
+                <div className="relative flex flex-1 flex-col justify-between gap-12">
+                  <div className="flex items-center justify-between gap-4">
                     <span
-                      className={`text-[10px] font-bold ${
-                        selected
-                          ? "text-slate-400"
-                          : "text-slate-500 dark:text-slate-500"
-                      }`}
+                      className={`rounded-full px-4 py-1.5 text-xs font-bold sm:text-sm ${t.pill}`}
                     >
-                      0{index + 1}
+                      {item.label}
+                    </span>
+                    <span className="pf-display text-xl sm:text-3xl">
+                      {i + 1}/{HIGHLIGHTS.length}
                     </span>
                   </div>
 
-                  <div className="mt-6">
-                    <p
-                      className={`text-[11px] font-medium ${
-                        selected
-                          ? "text-slate-300"
-                          : "text-slate-600 dark:text-slate-400"
-                      }`}
-                    >
+                  <div>
+                    <h4 className="pf-display text-[clamp(3rem,10vw,8rem)] leading-[0.9]">
                       {item.title}
+                    </h4>
+                    <p className="mt-5 max-w-xl text-base font-medium leading-7 md:text-lg md:leading-8">
+                      {item.description}
                     </p>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
 
-                    <p
-                      className={`mt-0.5 text-xs font-bold ${
-                        selected
-                          ? "text-white"
-                          : "text-slate-950 dark:text-white"
+      {/* ============================= AINO ============================ */}
+      <div className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8 md:mt-36">
+        <div
+          data-aino
+          className="relative overflow-hidden rounded-[2rem] border-2 border-neutral-950 bg-neutral-950 px-6 py-14 text-white sm:px-10 md:rounded-[3rem] md:px-16 md:py-24"
+        >
+          <div
+            data-aino-shape
+            className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600 md:-right-32 md:-top-32 md:h-[30rem] md:w-[30rem]"
+          />
+          <div
+            data-aino-shape
+            className="absolute -bottom-16 left-[38%] h-40 w-40 rotate-45 border-2 border-white/30 md:h-64 md:w-64"
+          />
+
+          <div className="relative">
+            <Pill tone="dark">Moto utama sekolah</Pill>
+
+            <h3
+              data-lines
+              className="pf-display mt-6 flex text-[clamp(7rem,34vw,30rem)] leading-[0.85]"
+            >
+              <span className="sr-only">AINO</span>
+              {"AINO".split("").map((l, i) => (
+                <span key={i} aria-hidden="true" className="pf-line">
+                  <span data-line className="block will-change-transform">
+                    {l}
+                  </span>
+                </span>
+              ))}
+            </h3>
+
+            <p
+              data-reveal
+              className="pf-display mt-4 text-3xl leading-none sm:text-5xl md:text-7xl"
+            >
+              <span className="text-red-500">AKHLAK</span>{" "}
+              <span className="pf-outline [--stroke:#fff]">is</span> Number One
+            </p>
+
+            <p
+              data-reveal
+              className="mt-6 max-w-xl text-base font-medium leading-7 text-white/80 md:text-lg md:leading-8"
+            >
+              Menjadikan nilai akhlak sebagai landasan dalam membentuk peserta
+              didik yang berintegritas dan berkarakter.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================== D'REAL ICT ========================= */}
+      <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 sm:px-8 md:pb-36 md:pt-40">
+        <div data-reveal>
+          <Pill>Karakter siswa</Pill>
+        </div>
+        <h3
+          data-lines
+          className="pf-display mt-5 text-[clamp(3.25rem,13vw,12rem)] leading-[0.9]"
+        >
+          <MaskLine>
+            D&apos;<span className="text-red-600">REAL</span> ICT
+          </MaskLine>
+        </h3>
+        <p
+          data-reveal
+          className="mt-4 max-w-xl text-base font-medium text-neutral-700 md:text-lg"
+        >
+          Nilai yang menjadi bagian dari karakter siswa SMK Telkom Medan. Pilih
+          satu huruf untuk melihat maknanya.
+        </p>
+
+        <div className="mt-10 border-b-2 border-neutral-950 md:mt-14">
+          {DREAL_ITEMS.map((item, index) => {
+            const active = activeDReal.letter === item.letter;
+            return (
+              <div
+                key={item.letter}
+                data-dreal-row
+                className={`border-t-2 border-neutral-950 transition-colors duration-300 ${
+                  active ? "bg-neutral-950 text-white" : "hover:bg-[#FFE7E1]"
+                }`}
+              >
+                <button
+                  type="button"
+                  id={`dreal-btn-${item.letter}`}
+                  aria-expanded={active}
+                  aria-controls={`dreal-panel-${item.letter}`}
+                  onClick={() => setActiveDReal(item)}
+                  className="flex w-full items-center gap-4 px-3 py-4 text-left outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-600 sm:gap-8 sm:px-6 md:py-6"
+                >
+                  <span
+                    className={`hidden w-8 text-sm font-bold sm:block ${
+                      active ? "text-white/60" : "text-neutral-500"
+                    }`}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <span className="pf-display w-[0.8em] text-6xl leading-none text-red-600 sm:text-7xl md:text-8xl">
+                    {item.letter}
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="pf-display block truncate text-2xl leading-none sm:text-4xl md:text-6xl">
+                      {item.title}
+                    </span>
+                    <span
+                      className={`mt-1.5 block text-xs font-bold tracking-wide sm:text-sm ${
+                        active ? "text-white/70" : "text-neutral-500"
                       }`}
                     >
                       {item.indonesian}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
+
+                  <span
+                    aria-hidden="true"
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-2xl leading-none transition-transform duration-500 md:h-14 md:w-14 ${
+                      active
+                        ? "rotate-45 border-white bg-red-600"
+                        : "border-neutral-950"
+                    }`}
+                  >
+                    +
+                  </span>
                 </button>
-              );
-            })}
-          </div>
 
-          {/* Active Detail */}
-          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-6 transition-all dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h4 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">
-                  {activeDReal.indonesian}
-                </h4>
-
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-800 font-medium dark:text-slate-300">
-                  {activeDReal.description}
-                </p>
-              </div>
-
-              {onExploreMore && (
-                <button
-                  type="button"
-                  onClick={onExploreMore}
-                  className="shrink-0 rounded-xl bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 dark:bg-white dark:text-slate-950 dark:hover:bg-red-500 dark:hover:text-white"
+                <div
+                  id={`dreal-panel-${item.letter}`}
+                  role="region"
+                  aria-labelledby={`dreal-btn-${item.letter}`}
+                  data-dreal-panel
+                  data-letter={item.letter}
+                  className="overflow-hidden"
                 >
-                  Info Pendaftaran
-                </button>
-              )}
-            </div>
-          </div>
+                  <p className="max-w-2xl px-3 pb-7 text-base font-medium leading-7 text-white/85 sm:pl-[7.5rem] md:pl-[11rem] md:text-lg md:leading-8">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {onExploreMore && (
+          <div data-reveal className="mt-12 flex justify-center md:justify-end">
+            <button
+              type="button"
+              onClick={onExploreMore}
+              className="group inline-flex items-center gap-5 rounded-full border-2 border-neutral-950 bg-red-600 py-2 pl-7 pr-2 text-sm font-bold text-white outline-none transition-colors duration-300 hover:bg-neutral-950 focus-visible:ring-4 focus-visible:ring-red-300 md:text-base"
+            >
+              Info Pendaftaran
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 transition-transform duration-500 group-hover:rotate-45 md:h-12 md:w-12">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17 17 7M8 7h9v9" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
