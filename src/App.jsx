@@ -1,4 +1,4 @@
-import StrukturOrganisasi from './components/StrukturOrganisasi';
+import StrukturOrganisasi from "./components/StrukturOrganisasi";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import VisiMisi from "./components/VisiMisi";
 import Fasilitas from "./components/Fasilitas";
 import AkreditasiSection from "./components/AkreditasiSection";
+import Alumni from "./components/Alumni";
 
 // Kita bungkus komponen-komponen halaman utama ke dalam satu variabel Home
 const Home = () => {
@@ -22,6 +23,7 @@ const Home = () => {
       <AkreditasiSection />
       <Fasilitas />
       <Chatbot />
+      <Alumni />
     </>
   );
 };
