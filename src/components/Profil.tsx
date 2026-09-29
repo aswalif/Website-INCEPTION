@@ -760,7 +760,8 @@ export default function Profil({
           />
 
           <div className="relative">
-            <Pill tone="dark">Moto utama sekolah</Pill>
+            <Pill tone="dark">Moto utama sekolah</Pill>y
+            
 
             <h3
               data-lines

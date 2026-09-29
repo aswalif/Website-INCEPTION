@@ -8,6 +8,7 @@ import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
 import VisiMisi from "./components/VisiMisi";
 import Fasilitas from "./components/Fasilitas";
+import AkreditasiSection from "./components/AkreditasiSection";
 
 // Kita bungkus komponen-komponen halaman utama ke dalam satu variabel Home
 const Home = () => {
@@ -18,6 +19,7 @@ const Home = () => {
       <VisiMisi />
       <StrukturOrganisasi />
       <Jurusan />
+      <AkreditasiSection />
       <Fasilitas />
       <Chatbot />
     </>
