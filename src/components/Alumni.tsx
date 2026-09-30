@@ -9,7 +9,7 @@ interface Testimonial {
   name: string;
   role: string;
   quote: string;
-  photo: string; // ID foto Unsplash. Ganti dengan foto alumni asli.
+  photo: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -64,14 +64,14 @@ const img = (id: string, w: number, ratio = 1.25) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&q=80&w=${w}&h=${Math.round(w * ratio)}`;
 
 /* ------------------------------------------------------------------ */
-/*  Styles (warna tema ada di variabel CSS paling atas)                */
+/*  Styles                                                             */
 /* ------------------------------------------------------------------ */
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600&display=swap');
 
 .alumni{
-  --red:#E31E24;      /* merah Telkom */
-  --ink:#1B1416;      /* gelap hangat, dasar seksi gelap */
+  --red:#E31E24;
+  --ink:#1B1416;
   --al-pad:clamp(1.25rem,6vw,6rem);
   font-family:'Manrope',system-ui,sans-serif;
 }
@@ -109,7 +109,6 @@ const prefersReduced = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** true begitu elemen masuk viewport (sekali saja) */
 const useInView = <T extends HTMLElement>(threshold = 0.25) => {
   const ref = useRef<T>(null);
   const [seen, setSeen] = useState(false);
@@ -131,7 +130,6 @@ const useInView = <T extends HTMLElement>(threshold = 0.25) => {
   return [ref, seen] as const;
 };
 
-/** progres 0..1 saat elemen melewati viewport */
 const useScrollProgress = <T extends HTMLElement>() => {
   const ref = useRef<T>(null);
   const [p, setP] = useState(0);
@@ -165,7 +163,6 @@ const useScrollProgress = <T extends HTMLElement>() => {
   return [ref, p] as const;
 };
 
-/** baris teks yang naik dari balik mask */
 const Line: React.FC<{
   show: boolean;
   delay?: number;
@@ -217,7 +214,6 @@ const Hero: React.FC = () => {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-[var(--ink)] text-white"
     >
-      {/* Foto full-bleed dengan duotone merah, dibuka lewat clip-path */}
       <div
         className="al-clip absolute inset-0"
         style={{
@@ -274,7 +270,7 @@ const Hero: React.FC = () => {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Pernyataan: kata terisi mengikuti scroll                           */
+/*  Statement                                                          */
 /* ------------------------------------------------------------------ */
 const Statement: React.FC = () => {
   const [ref, p] = useScrollProgress<HTMLParagraphElement>();
@@ -303,7 +299,7 @@ const Statement: React.FC = () => {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Marquee nama institusi                                             */
+/*  Marquee                                                            */
 /* ------------------------------------------------------------------ */
 const Marquee: React.FC = () => (
   <div
@@ -328,9 +324,9 @@ const Marquee: React.FC = () => (
 );
 
 /* ------------------------------------------------------------------ */
-/*  Slider testimoni                                                   */
+/*  Slider                                                             */
 /* ------------------------------------------------------------------ */
-const Arrow: React.FC<{
+const ArrowButton: React.FC<{
   label: string;
   onClick: () => void;
   children: React.ReactNode;
@@ -389,7 +385,6 @@ const Slider: React.FC = () => {
   const prev = () => go(active === 0 ? n - 1 : active - 1);
   const next = () => go(active === n - 1 ? 0 : active + 1);
 
-  // drag dengan mouse (sentuhan memakai scroll native)
   const down = (e: React.PointerEvent) => {
     if (e.pointerType !== "mouse" || !track.current) return;
     drag.current = { on: true, x: e.clientX, left: track.current.scrollLeft };
@@ -416,12 +411,12 @@ const Slider: React.FC = () => {
           Kata mereka tentang SMK Telkom Medan
         </h2>
         <div className="flex shrink-0 gap-3">
-          <Arrow label="Alumni sebelumnya" onClick={prev}>
-            <FaArrowLeft />
-          </Arrow>
-          <Arrow label="Alumni berikutnya" onClick={next}>
-            <FaArrowRight />
-          </Arrow>
+          <ArrowButton label="Alumni sebelumnya" onClick={prev}>
+            <ArrowLeft className="h-5 w-5" />
+          </ArrowButton>
+          <ArrowButton label="Alumni berikutnya" onClick={next}>
+            <ArrowRight className="h-5 w-5" />
+          </ArrowButton>
         </div>
       </div>
 
@@ -480,7 +475,6 @@ const Slider: React.FC = () => {
             </div>
           </article>
         ))}
-        {/* ruang akhir agar kartu terakhir bisa rata kiri */}
         <div
           aria-hidden="true"
           className="w-[24vw] shrink-0 sm:w-[56vw] lg:w-[72vw]"
@@ -560,7 +554,7 @@ const Cta: React.FC = () => {
           >
             <span className="flex flex-col items-center gap-2 font-semibold">
               Daftar PPDB
-              <FaArrowRight className="-rotate-45 transition-transform duration-500 group-hover:rotate-0" />
+              <ArrowRight className="h-5 w-5 -rotate-45 transition-transform duration-500 group-hover:rotate-0" />
             </span>
           </a>
         </div>

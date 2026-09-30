@@ -520,13 +520,13 @@ const PRESTASI_SOURCE: PrestasiSource[] = [
     id: "prestasi-36",
     title: "Medali Perunggu Smart Education Competition Bidang Bahasa Inggris SMA",
     image:
-      "Medali Perunggu Smart Education Competition Bidang Bahasa Inggris SMA.jpg",
+      "Medali Perunggu  Smart Education Competition Bidang Bahasa Inggris SMA.jpg",
   },
   {
     id: "prestasi-37",
     title: "Medali Emas Smart Education Competition Tingkat Nasional Bidang Matematika SMA 16 Medan",
     image:
-      "Medali Emas Smart Education Competition tingkat nasional Bidang Matematika SMA 16 medan.jpg",
+      "Medali Emas  Smart Education Competition tingkat nasional Bidang Matematika SMA 16 mei.jpg",
   },
   {
     id: "prestasi-38",
@@ -536,7 +536,7 @@ const PRESTASI_SOURCE: PrestasiSource[] = [
   {
     id: "prestasi-39",
     title: "Siswa/i SMK Telkom 1 Medan Lulus SNBP Tahun 2025",
-    image: "Siswa/i SMK Telkom 1 Medan Lulus SNBP Tahun 2025.jpg",
+    image: "Siswai SMK Telkom 1 Medan Lulus SNBP Tahun 2025.jpg",
   },
   {
     id: "prestasi-40",
@@ -551,17 +551,17 @@ const PRESTASI_SOURCE: PrestasiSource[] = [
   {
     id: "prestasi-42",
     title: "Medali Emas Olimpiade Nasional Sains dan Bahasa",
-    image: "Medali Emas Olimpiade Nasional Sains dan Bahasa.jpg",
+    image: "Medai Emas Olimpiade Nasional Sains dan Bahasa.jpg",
   },
   {
     id: "prestasi-43",
     title: "Peraih Medali Emas Bidang Fisika SMK",
-    image: "Peraih Medali Emas Bidang Fisika SMK.jpg",
+    image: "Peraih Medali Emas Bidang FisikaSMK.jpg",
   },
   {
     id: "prestasi-44",
     title: "Sangga Pramuka Meraih Piala Pangkalan Terbaik Sangga",
-    image: "Sangga Pramuka Meraih Piala Pangkalan Terbaik Sangga.png",
+    image: "Sangga Pramuka Meraih Piala Pangkalan TerbaikSangga .png",
   },
   {
     id: "prestasi-45",

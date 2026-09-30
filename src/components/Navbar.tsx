@@ -37,13 +37,23 @@ const MENU: NavEntry[] = [
       { label: "Visi dan Misi", href: "#visi-misi" },
       { label: "Struktur Organisasi", href: "#struktur-organisasi" },
       { label: "Akreditasi", href: "#akreditasi" },
-      {  label: "Hubungan Industri(Hubin)", href: "/kemitraan" },
-      {label: "Prestasi", href: "/prestasi" },
+      { label: "Hubungan Industri(Hubin)", href: "/kemitraan" },
+      { label: "Prestasi", href: "/prestasi" },
       { label: "Fasilitas", href: "#fasilitas" },
     ],
   },
   { type: "link", label: "Jurusan", href: "#jurusan" },
-  { type: "link", label: "Program", href: "#jurusan" },
+  {
+    type: "group",
+    id: "Program",
+    label: "Program",
+    items: [
+      { label: "Akademi Mikrotik", href: "#profil" },
+      { label: "Akademi Cisco", href: "/cisco-academy" },
+      { label: "Karya Siswa P5", href: "#struktur-organisasi" },
+      { label: "Pameran Jurusan", href: "#akreditasi" },
+    ],
+  },
   { type: "link", label: "Kontak", href: "#kontak" },
 ];
 
@@ -124,6 +134,7 @@ interface DesktopGroupProps {
   isOpen: boolean;
   onDark: boolean;
   activeHref: string;
+  isHomePage: boolean;
   getHref: (href: string) => string;
   onOpen: () => void;
   onClose: () => void;
@@ -136,13 +147,19 @@ function DesktopGroup({
   isOpen,
   onDark,
   activeHref,
+  isHomePage,
   getHref,
   onOpen,
   onClose,
   onToggle,
   onNavigate,
 }: DesktopGroupProps) {
-  const isActive = group.items.some((item) => item.href === activeHref);
+  // Cegah menu parent menyala jika berada di luar beranda dan itemnya cuma link hash (#)
+  const isActive = group.items.some((item) => {
+    if (!isHomePage && item.href.startsWith("#")) return false;
+    return item.href === activeHref;
+  });
+
   const triggerId = `nav-${group.id}-trigger`;
   const panelId = `nav-${group.id}-panel`;
 
@@ -260,6 +277,7 @@ interface MobileGroupProps {
   group: GroupEntry;
   expanded: boolean;
   activeHref: string;
+  isHomePage: boolean;
   getHref: (href: string) => string;
   onToggle: () => void;
   onNavigate: () => void;
@@ -269,11 +287,16 @@ function MobileGroup({
   group,
   expanded,
   activeHref,
+  isHomePage,
   getHref,
   onToggle,
   onNavigate,
 }: MobileGroupProps) {
-  const isActive = group.items.some((item) => item.href === activeHref);
+  const isActive = group.items.some((item) => {
+    if (!isHomePage && item.href.startsWith("#")) return false;
+    return item.href === activeHref;
+  });
+
   const buttonId = `m-${group.id}-trigger`;
   const panelId = `m-${group.id}-panel`;
 
@@ -355,11 +378,14 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  
-  // Tetapkan activeHref berdasarkan lokasi pathname
-  const [activeHref, setActiveHref] = useState<string>(() =>
-    location.pathname.startsWith("/prestasi") ? "/prestasi" : "#hero"
-  );
+
+  // Inisialisasi activeHref berdasarkan rute halaman
+  const [activeHref, setActiveHref] = useState<string>(() => {
+    if (location.pathname.startsWith("/prestasi")) return "/prestasi";
+    if (location.pathname.startsWith("/kemitraan")) return "/kemitraan";
+    if (location.pathname.startsWith("/cisco-academy")) return "/cisco-academy";
+    return location.hash || "#hero";
+  });
 
   const navRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -371,15 +397,24 @@ export default function Navbar() {
     setMobileExpanded(null);
   }, []);
 
-  // Sync status activeHref saat lokasi rute berubah
+  // Sinkronkan activeHref ketika perpindahan halaman atau hash terjadi
   useEffect(() => {
     if (location.pathname.startsWith("/prestasi")) {
       setActiveHref("/prestasi");
-    } else if (isHomePage && !location.hash) {
-      setActiveHref("#hero");
+    } else if (location.pathname.startsWith("/kemitraan")) {
+      setActiveHref("/kemitraan");
+    } else if (location.pathname.startsWith("/cisco-academy")) {
+      setActiveHref("/cisco-academy");
+    } else if (isHomePage) {
+      if (location.hash) {
+        setActiveHref(location.hash);
+      } else {
+        setActiveHref("#hero");
+      }
     }
   }, [location.pathname, location.hash, isHomePage]);
 
+  // Format link hash agar mengarah ke beranda lebih dulu (misal /#jurusan) saat di luar beranda
   const getHref = useCallback(
     (href: string) => {
       if (href.startsWith("#") && !isHomePage) {
@@ -457,7 +492,8 @@ export default function Navbar() {
     };
   }, [closeAll]);
 
-  // Pantau IntersectionObserver hanya jika berada di Homepage
+  // PERBAIKAN BUG INTERSECTION OBSERVER:
+  // Menggunakan rootMargin (-48%) agar hanya memicu berpindah aktif ketika bagian tengah layar persis menyentuh section target.
   useEffect(() => {
     if (!isHomePage) return undefined;
 
@@ -468,13 +504,15 @@ export default function Navbar() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveHref(`#${entry.target.id}`);
-          }
+        const visibleEntry = entries.find((entry) => entry.isIntersecting);
+        if (visibleEntry) {
+          setActiveHref(`#${visibleEntry.target.id}`);
         }
       },
-      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+      { 
+        rootMargin: "-48% 0px -48% 0px", 
+        threshold: 0 
+      },
     );
 
     targets.forEach((target) => observer.observe(target));
@@ -569,6 +607,7 @@ export default function Navbar() {
                   isOpen={activeDropdown === entry.id}
                   onDark={onDark}
                   activeHref={activeHref}
+                  isHomePage={isHomePage}
                   getHref={getHref}
                   onOpen={() => setActiveDropdown(entry.id)}
                   onClose={() =>
@@ -678,6 +717,7 @@ export default function Navbar() {
                     group={entry}
                     expanded={mobileExpanded === entry.id}
                     activeHref={activeHref}
+                    isHomePage={isHomePage}
                     getHref={getHref}
                     onToggle={() =>
                       setMobileExpanded((current) =>

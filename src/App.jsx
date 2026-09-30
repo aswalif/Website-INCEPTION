@@ -1,36 +1,48 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import Profil from "./components/Profil";
-import Jurusan from "./components/Jurusan";
+const Profil = lazy(() => import("./components/Profil"));
 import VisiMisi from "./components/VisiMisi";
 import StrukturOrganisasi from "./components/StrukturOrganisasi";
 import AkreditasiSection from "./components/AkreditasiSection";
-import Fasilitas from "./components/Fasilitas";
+const Fasilitas = lazy(() => import("./components/Fasilitas"));
 import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
 
 // Import Halaman Prestasi & Hubin/Kemitraan
-import PrestasiPage from "./components/PrestasiPage";
-import PrestasiDetail from "./components/PrestasiDetail";
-import HubinPage from "./components/HubinPage";
-import HubinDetail from "./components/HubinDetail";
+const PrestasiPage = lazy(() => import("./components/PrestasiPage"));
+const PrestasiDetail = lazy(() => import("./components/PrestasiDetail"));
+const HubinPage = lazy(() => import("./components/HubinPage"));
+const HubinDetail = lazy(() => import("./components/HubinDetail"));
+
+// Import Halaman Cisco Networking Academy
+// Ubah path dari ./pages/ ke ./components/
+const CiscoAcademyPage = lazy(() => import("./components/CiscoAcademyPage"));
 
 // Import Scroll Helper
 import ScrollToHashElement from "./components/ScrollToHashElement";
+
+const Jurusan = lazy(() => import("./components/Jurusan"));
 
 // 1. Kumpulkan Komponen Landing Page Utama ke Komponen Home
 const Home = () => {
   return (
     <>
       <Hero />
-      <Profil />
+      <Suspense fallback={null}>
+        <Profil />
+      </Suspense>
       <VisiMisi />
-      <Jurusan />
+      <Suspense fallback={null}>
+        <Jurusan />
+      </Suspense>
       <StrukturOrganisasi />
       <AkreditasiSection />
-      <Fasilitas />
+      <Suspense fallback={null}>
+        <Fasilitas />
+      </Suspense>
       <Alumni />
     </>
   );
@@ -45,10 +57,46 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/prestasi" element={<PrestasiPage />} />
-          <Route path="/prestasi/:id" element={<PrestasiDetail />} />
-          <Route path="/kemitraan" element={<HubinPage />} />
-          <Route path="/kemitraan/:id" element={<HubinDetail />} />
+          <Route
+            path="/prestasi"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <PrestasiPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/prestasi/:id"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <PrestasiDetail />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/kemitraan"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <HubinPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/kemitraan/:id"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <HubinDetail />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/cisco-academy"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <CiscoAcademyPage />
+              </Suspense>
+            }
+          />
         </Routes>
         <Chatbot />
         <Footer />
