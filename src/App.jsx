@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-import StrukturOrganisasi from "./components/StrukturOrganisasi";
->>>>>>> b2eac7e620f7220c5b73f92be5b97df57da75080
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -11,15 +7,9 @@ import VisiMisi from "./components/VisiMisi";
 import StrukturOrganisasi from "./components/StrukturOrganisasi";
 import AkreditasiSection from "./components/AkreditasiSection";
 import Fasilitas from "./components/Fasilitas";
+import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
-<<<<<<< HEAD
-=======
-import VisiMisi from "./components/VisiMisi";
-import Fasilitas from "./components/Fasilitas";
-import AkreditasiSection from "./components/AkreditasiSection";
-import Alumni from "./components/Alumni";
->>>>>>> b2eac7e620f7220c5b73f92be5b97df57da75080
 
 // Import Halaman Prestasi & Hubin/Kemitraan
 import PrestasiPage from "./components/PrestasiPage";
@@ -41,11 +31,7 @@ const Home = () => {
       <StrukturOrganisasi />
       <AkreditasiSection />
       <Fasilitas />
-<<<<<<< HEAD
-=======
-      <Chatbot />
       <Alumni />
->>>>>>> b2eac7e620f7220c5b73f92be5b97df57da75080
     </>
   );
 };
