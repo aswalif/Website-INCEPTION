@@ -2,31 +2,31 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-const Profil = lazy(() => import("./components/Profil"));
 import VisiMisi from "./components/VisiMisi";
 import StrukturOrganisasi from "./components/StrukturOrganisasi";
 import AkreditasiSection from "./components/AkreditasiSection";
-const Fasilitas = lazy(() => import("./components/Fasilitas"));
 import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
 
-// Import Halaman Prestasi & Hubin/Kemitraan
+// Import Scroll Helper
+import ScrollToHashElement from "./components/ScrollToHashElement";
+
+// Lazy Loading Komponen Landing Page
+const Profil = lazy(() => import("./components/Profil"));
+const Jurusan = lazy(() => import("./components/Jurusan"));
+const Fasilitas = lazy(() => import("./components/Fasilitas"));
+
+// Lazy Loading Halaman Multi-Page
 const PrestasiPage = lazy(() => import("./components/PrestasiPage"));
 const PrestasiDetail = lazy(() => import("./components/PrestasiDetail"));
 const HubinPage = lazy(() => import("./components/HubinPage"));
 const HubinDetail = lazy(() => import("./components/HubinDetail"));
-
-// Import Halaman Cisco Networking Academy
-// Ubah path dari ./pages/ ke ./components/
 const CiscoAcademyPage = lazy(() => import("./components/CiscoAcademyPage"));
+const MikrotikAcademyPage = lazy(() => import("./components/MikrotikAcademyPage"));
+const ProfilGuruPage = lazy(() => import("./components/ProfilGuruPage"));
 
-// Import Scroll Helper
-import ScrollToHashElement from "./components/ScrollToHashElement";
-
-const Jurusan = lazy(() => import("./components/Jurusan"));
-
-// 1. Kumpulkan Komponen Landing Page Utama ke Komponen Home
+// Komponen Landing Page Utama
 const Home = () => {
   return (
     <>
@@ -48,7 +48,7 @@ const Home = () => {
   );
 };
 
-// 2. Ekspor App Utama
+// Ekspor App Utama
 export default function App() {
   return (
     <Router>
@@ -94,6 +94,22 @@ export default function App() {
             element={
               <Suspense fallback={<div className="min-h-screen bg-white" />}>
                 <CiscoAcademyPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/mikrotik-academy"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <MikrotikAcademyPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/profil-guru"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                <ProfilGuruPage />
               </Suspense>
             }
           />

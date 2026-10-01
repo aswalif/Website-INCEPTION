@@ -32,13 +32,13 @@ const ROUTES = {
 } as const;
 
 const ciscoAssets = import.meta.glob<{ default: string }>(
-  "../assets/cisco/*.{jpg,jpeg,png,webp}",
+  "../assets/sertifikatcisco.png",
   { eager: true }
 );
 
 const certificateSrc: string | null = (() => {
   const entry = Object.entries(ciscoAssets).find(([path]) =>
-    path.toLowerCase().endsWith("/sertifikatcisco.jpg")
+    path.toLowerCase().endsWith("/sertifikatcisco.png")
   );
   return entry?.[1]?.default ?? null;
 })();

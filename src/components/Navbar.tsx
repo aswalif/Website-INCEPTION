@@ -48,7 +48,7 @@ const MENU: NavEntry[] = [
     id: "Program",
     label: "Program",
     items: [
-      { label: "Akademi Mikrotik", href: "#profil" },
+      { label: "Akademi Mikrotik", href: "/mikrotik-academy" },
       { label: "Akademi Cisco", href: "/cisco-academy" },
       { label: "Karya Siswa P5", href: "#struktur-organisasi" },
       { label: "Pameran Jurusan", href: "#akreditasi" },
@@ -59,12 +59,43 @@ const MENU: NavEntry[] = [
 
 const WIDE_LABEL_LENGTH = 12;
 const SCROLL_THRESHOLD = 20;
+const SPY_LOCK_FALLBACK_MS = 1200; // batas maksimal kunci jika scroll tidak terjadi
+const SPY_LOCK_IDLE_MS = 200; // kunci dilepas setelah scroll berhenti selama ini
 
 const SECTION_IDS: string[] = MENU.flatMap((entry) =>
   entry.type === "link" ? [entry.href] : entry.items.map((item) => item.href),
 )
   .filter((href) => href.startsWith("#"))
   .map((href) => href.slice(1));
+
+// Setiap href hash (#...) hanya "dimiliki" oleh SATU menu (kemunculan pertama di MENU).
+// Ini mencegah dua menu (mis. "Tentang" dan "Program") menyala bersamaan
+// karena item dropdown-nya memakai hash yang sama (#profil, #struktur-organisasi, #akreditasi).
+const HASH_OWNER = new Map<string, string>();
+MENU.forEach((entry) => {
+  if (entry.type === "link") {
+    if (entry.href.startsWith("#") && !HASH_OWNER.has(entry.href)) {
+      HASH_OWNER.set(entry.href, entry.href);
+    }
+    return;
+  }
+  entry.items.forEach((item) => {
+    if (item.href.startsWith("#") && !HASH_OWNER.has(item.href)) {
+      HASH_OWNER.set(item.href, entry.id);
+    }
+  });
+});
+
+function isItemActive(
+  ownerId: string,
+  href: string,
+  activeHref: string,
+  isHomePage: boolean,
+): boolean {
+  if (href !== activeHref) return false;
+  if (!href.startsWith("#")) return true; // rute halaman (/prestasi, dll)
+  return isHomePage && HASH_OWNER.get(href) === ownerId;
+}
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400";
@@ -139,7 +170,7 @@ interface DesktopGroupProps {
   onOpen: () => void;
   onClose: () => void;
   onToggle: () => void;
-  onNavigate: () => void;
+  onNavigate: (href: string) => void;
 }
 
 function DesktopGroup({
@@ -154,11 +185,10 @@ function DesktopGroup({
   onToggle,
   onNavigate,
 }: DesktopGroupProps) {
-  // Cegah menu parent menyala jika berada di luar beranda dan itemnya cuma link hash (#)
-  const isActive = group.items.some((item) => {
-    if (!isHomePage && item.href.startsWith("#")) return false;
-    return item.href === activeHref;
-  });
+  // Menu parent menyala hanya jika ada item yang benar-benar dimilikinya yang aktif
+  const isActive = group.items.some((item) =>
+    isItemActive(group.id, item.href, activeHref, isHomePage),
+  );
 
   const triggerId = `nav-${group.id}-trigger`;
   const panelId = `nav-${group.id}-panel`;
@@ -236,7 +266,12 @@ function DesktopGroup({
             className="relative flex flex-col"
           >
             {group.items.map((item) => {
-              const current = item.href === activeHref;
+              const current = isItemActive(
+                group.id,
+                item.href,
+                activeHref,
+                isHomePage,
+              );
               const targetPath = getHref(item.href);
               const isRouter = targetPath.startsWith("/");
 
@@ -245,7 +280,7 @@ function DesktopGroup({
                   {isRouter ? (
                     <Link
                       to={targetPath}
-                      onClick={onNavigate}
+                      onClick={() => onNavigate(item.href)}
                       className={`mx-2 block rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-150 hover:bg-red-500/10 hover:text-red-600 focus-visible:bg-red-500/10 focus-visible:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400 ${
                         current ? "bg-red-500/10 text-red-600 font-bold" : "text-slate-700"
                       }`}
@@ -255,7 +290,7 @@ function DesktopGroup({
                   ) : (
                     <a
                       href={targetPath}
-                      onClick={onNavigate}
+                      onClick={() => onNavigate(item.href)}
                       className={`mx-2 block rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-150 hover:bg-red-500/10 hover:text-red-600 focus-visible:bg-red-500/10 focus-visible:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400 ${
                         current ? "bg-red-500/10 text-red-600 font-bold" : "text-slate-700"
                       }`}
@@ -280,7 +315,7 @@ interface MobileGroupProps {
   isHomePage: boolean;
   getHref: (href: string) => string;
   onToggle: () => void;
-  onNavigate: () => void;
+  onNavigate: (href: string) => void;
 }
 
 function MobileGroup({
@@ -292,10 +327,9 @@ function MobileGroup({
   onToggle,
   onNavigate,
 }: MobileGroupProps) {
-  const isActive = group.items.some((item) => {
-    if (!isHomePage && item.href.startsWith("#")) return false;
-    return item.href === activeHref;
-  });
+  const isActive = group.items.some((item) =>
+    isItemActive(group.id, item.href, activeHref, isHomePage),
+  );
 
   const buttonId = `m-${group.id}-trigger`;
   const panelId = `m-${group.id}-panel`;
@@ -331,7 +365,12 @@ function MobileGroup({
             }`}
           >
             {group.items.map((item) => {
-              const current = item.href === activeHref;
+              const current = isItemActive(
+                group.id,
+                item.href,
+                activeHref,
+                isHomePage,
+              );
               const targetPath = getHref(item.href);
               const isRouter = targetPath.startsWith("/");
 
@@ -340,7 +379,7 @@ function MobileGroup({
                   {isRouter ? (
                     <Link
                       to={targetPath}
-                      onClick={onNavigate}
+                      onClick={() => onNavigate(item.href)}
                       className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
                         current ? "text-red-600 font-bold" : "text-slate-500"
                       }`}
@@ -350,7 +389,7 @@ function MobileGroup({
                   ) : (
                     <a
                       href={targetPath}
-                      onClick={onNavigate}
+                      onClick={() => onNavigate(item.href)}
                       className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
                         current ? "text-red-600 font-bold" : "text-slate-500"
                       }`}
@@ -397,6 +436,41 @@ export default function Navbar() {
     setMobileExpanded(null);
   }, []);
 
+  // Kunci scroll-spy selama scroll otomatis (klik menu -> scroll ke section tujuan).
+  // Tanpa ini, IntersectionObserver ikut menyala di setiap section yang DILEWATI
+  // (mis. #profil, #akreditasi), sehingga menu "Tentang"/"Program" ikut berubah merah.
+  const spyLockRef = useRef(false);
+  const spyTimerRef = useRef(0);
+
+  const releaseSpyLock = useCallback((delay: number) => {
+    window.clearTimeout(spyTimerRef.current);
+    spyTimerRef.current = window.setTimeout(() => {
+      spyLockRef.current = false;
+    }, delay);
+  }, []);
+
+  const lockScrollSpy = useCallback(() => {
+    spyLockRef.current = true;
+    // Fallback: jika ternyata tidak ada scroll, kunci dilepas otomatis.
+    releaseSpyLock(SPY_LOCK_FALLBACK_MS);
+  }, [releaseSpyLock]);
+
+  useEffect(() => {
+    return () => window.clearTimeout(spyTimerRef.current);
+  }, []);
+
+  // Dipanggil setiap kali link menu diklik.
+  const handleNavigate = useCallback(
+    (href: string) => {
+      closeAll();
+      if (href.startsWith("#")) {
+        lockScrollSpy();
+        if (isHomePage) setActiveHref(href);
+      }
+    },
+    [closeAll, lockScrollSpy, isHomePage],
+  );
+
   // Sinkronkan activeHref ketika perpindahan halaman atau hash terjadi
   useEffect(() => {
     if (location.pathname.startsWith("/prestasi")) {
@@ -407,12 +481,18 @@ export default function Navbar() {
       setActiveHref("/cisco-academy");
     } else if (isHomePage) {
       if (location.hash) {
+        // Datang dari halaman lain / klik hash: langsung tandai tujuan
+        // dan kunci scroll-spy sampai scroll otomatis selesai.
+        lockScrollSpy();
         setActiveHref(location.hash);
       } else {
         setActiveHref("#hero");
       }
+    } else {
+      // Rute lain yang tidak ada di menu: jangan pertahankan highlight lama.
+      setActiveHref("");
     }
-  }, [location.pathname, location.hash, isHomePage]);
+  }, [location.pathname, location.hash, isHomePage, lockScrollSpy]);
 
   // Format link hash agar mengarah ke beranda lebih dulu (misal /#jurusan) saat di luar beranda
   const getHref = useCallback(
@@ -445,6 +525,10 @@ export default function Navbar() {
     };
 
     const onScroll = () => {
+      // Selama scroll otomatis berjalan, perpanjang kunci; lepas saat scroll berhenti.
+      if (spyLockRef.current) {
+        releaseSpyLock(SPY_LOCK_IDLE_MS);
+      }
       if (frame === 0) {
         frame = window.requestAnimationFrame(update);
       }
@@ -457,7 +541,7 @@ export default function Navbar() {
         window.cancelAnimationFrame(frame);
       }
     };
-  }, []);
+  }, [releaseSpyLock]);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -504,6 +588,7 @@ export default function Navbar() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (spyLockRef.current) return; // sedang scroll otomatis, abaikan section yang dilewati
         const visibleEntry = entries.find((entry) => entry.isIntersecting);
         if (visibleEntry) {
           setActiveHref(`#${visibleEntry.target.id}`);
@@ -569,7 +654,7 @@ export default function Navbar() {
         {isHomePage ? (
           <a
             href="#hero"
-            onClick={closeAll}
+            onClick={() => handleNavigate("#hero")}
             aria-label="SMK Telkom Medan, kembali ke beranda"
             className={`group rounded-xl ${FOCUS_RING}`}
           >
@@ -620,7 +705,7 @@ export default function Navbar() {
                       current === entry.id ? null : entry.id,
                     )
                   }
-                  onNavigate={closeAll}
+                  onNavigate={handleNavigate}
                 />
               );
             }
@@ -634,7 +719,7 @@ export default function Navbar() {
                 {isRouter ? (
                   <Link
                     to={targetPath}
-                    onClick={closeAll}
+                    onClick={() => handleNavigate(entry.href)}
                     className={`peer inline-flex items-center rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
                       onDark,
                       isActive,
@@ -646,7 +731,7 @@ export default function Navbar() {
                 ) : (
                   <a
                     href={targetPath}
-                    onClick={closeAll}
+                    onClick={() => handleNavigate(entry.href)}
                     aria-current={isActive ? "page" : undefined}
                     className={`peer inline-flex items-center rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors duration-300 ${FOCUS_RING} ${topLevelTone(
                       onDark,
@@ -724,7 +809,7 @@ export default function Navbar() {
                         current === entry.id ? null : entry.id,
                       )
                     }
-                    onNavigate={closeAll}
+                    onNavigate={handleNavigate}
                   />
                 );
               }
@@ -738,7 +823,7 @@ export default function Navbar() {
                   {isRouter ? (
                     <Link
                       to={targetPath}
-                      onClick={closeAll}
+                      onClick={() => handleNavigate(entry.href)}
                       className={`flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
                         isActive ? "text-red-600 font-bold" : "text-slate-700"
                       }`}
@@ -748,7 +833,7 @@ export default function Navbar() {
                   ) : (
                     <a
                       href={targetPath}
-                      onClick={closeAll}
+                      onClick={() => handleNavigate(entry.href)}
                       aria-current={isActive ? "page" : undefined}
                       className={`flex min-h-12 items-center rounded-xl px-4 text-base font-medium transition-colors duration-200 hover:bg-red-500/10 hover:text-red-600 ${FOCUS_RING} ${
                         isActive ? "text-red-600 font-bold" : "text-slate-700"
