@@ -168,7 +168,7 @@ function useInView<T extends HTMLElement>(threshold = 0.15) {
           io.disconnect();
         }
       },
-      { threshold }
+      { threshold },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -201,7 +201,9 @@ function Reveal({
       ref={ref}
       style={{ transitionDelay: `${delay}ms`, transitionTimingFunction: EASE }}
       className={`transition-all duration-1000 ${
-        inView ? "opacity-100 blur-0 translate-x-0 translate-y-0 scale-100" : `opacity-0 blur-sm ${hidden}`
+        inView
+          ? "opacity-100 blur-0 translate-x-0 translate-y-0 scale-100"
+          : `opacity-0 blur-sm ${hidden}`
       } ${className}`}
     >
       {children}
@@ -223,7 +225,10 @@ function MaskLine({
   return (
     <span className="pf-line overflow-hidden block">
       <span
-        style={{ transitionDelay: `${delay}ms`, transitionTimingFunction: EASE }}
+        style={{
+          transitionDelay: `${delay}ms`,
+          transitionTimingFunction: EASE,
+        }}
         className={`block transform transition-all duration-1000 ${
           animate
             ? "translate-y-0 rotate-0 opacity-100"
@@ -290,7 +295,10 @@ function CredentialCard({
   const [ref, inView] = useInView<HTMLElement>(0.25);
   const t = THEMES[item.theme];
   const step = (d: number) =>
-    ({ transitionDelay: `${d}ms`, transitionTimingFunction: EASE }) as React.CSSProperties;
+    ({
+      transitionDelay: `${d}ms`,
+      transitionTimingFunction: EASE,
+    }) as React.CSSProperties;
 
   return (
     <article
@@ -384,7 +392,7 @@ export default function Profil({
           titleObs.disconnect();
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.25 },
     );
     const mediaObs = new IntersectionObserver(
       ([entry]) => {
@@ -393,7 +401,7 @@ export default function Profil({
           mediaObs.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
     if (heroTitleRef.current) titleObs.observe(heroTitleRef.current);
     if (heroMediaRef.current) mediaObs.observe(heroMediaRef.current);
@@ -429,9 +437,13 @@ export default function Profil({
 
       // Judul hero: tiap baris bergeser berlawanan arah + miring + memudar saat scroll
       if (heroTitleRef.current) {
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const reduce = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
         const r = heroTitleRef.current.getBoundingClientRect();
-        const p = reduce ? 0 : Math.min(1, Math.max(0, (120 - r.top) / r.height));
+        const p = reduce
+          ? 0
+          : Math.min(1, Math.max(0, (120 - r.top) / r.height));
         const eased = p * p * (3 - 2 * p); // smoothstep
         heroTitleRef.current
           .querySelectorAll<HTMLElement>("[data-pf-line]")
@@ -448,7 +460,9 @@ export default function Profil({
       if (statementRef.current) {
         const r = statementRef.current.getBoundingClientRect();
         const p = (vh * 0.85 - r.top) / (r.height + vh * 0.35);
-        const n = Math.round(Math.min(1, Math.max(0, p)) * STATEMENT_WORDS.length);
+        const n = Math.round(
+          Math.min(1, Math.max(0, p)) * STATEMENT_WORDS.length,
+        );
         setLitWords((prev) => (prev === n ? prev : n));
       }
     };
@@ -614,7 +628,9 @@ export default function Profil({
             className="absolute -top-8 right-2 z-10 h-24 w-24 sm:-top-10 sm:right-6 sm:h-32 sm:w-32 md:-top-16 md:right-12 md:h-44 md:w-44"
             aria-hidden="true"
           >
-            <div className={`h-full w-full ${mediaIn ? "pf-badge-in" : "opacity-0"}`}>
+            <div
+              className={`h-full w-full ${mediaIn ? "pf-badge-in" : "opacity-0"}`}
+            >
               <div className="pf-spin-slow h-full w-full transition-transform duration-500 hover:scale-110">
                 <svg viewBox="0 0 200 200" className="h-full w-full">
                   <defs>
@@ -681,7 +697,9 @@ export default function Profil({
                   transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
                 }}
                 className={`absolute bottom-4 left-4 rounded-2xl border-2 border-neutral-950 bg-white px-4 py-2.5 transition-all duration-1000 sm:bottom-6 sm:left-6 ${
-                  isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                  isVisible
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
                 }`}
               >
                 <p className="text-xs font-bold sm:text-sm">SMK Telkom Medan</p>
@@ -718,7 +736,9 @@ export default function Profil({
                     <React.Fragment key={`${g}-${i}`}>
                       <span
                         className={`pf-display px-5 text-4xl md:px-8 md:text-6xl ${
-                          i % 2 === 0 ? "text-white" : "pf-outline [--stroke:#fff]"
+                          i % 2 === 0
+                            ? "text-white"
+                            : "pf-outline [--stroke:#fff]"
                         }`}
                       >
                         {word}
@@ -780,7 +800,9 @@ export default function Profil({
                 Pendidikan Telkom. Berdiri dengan semangat mencetak generasi
                 profesional dan kompeten di era digital, SMK Telkom Medan telah
                 terakreditasi{" "}
-                <strong className="font-bold text-red-600">&quot;A&quot;</strong>{" "}
+                <strong className="font-bold text-red-600">
+                  &quot;A&quot;
+                </strong>{" "}
                 dan mengimplementasikan standar mutu pendidikan berbasis ISO
                 9001.
               </p>
@@ -878,7 +900,10 @@ export default function Profil({
             </h3>
 
             <p
-              style={{ transitionDelay: "1200ms", transitionTimingFunction: EASE }}
+              style={{
+                transitionDelay: "1200ms",
+                transitionTimingFunction: EASE,
+              }}
               className={`pf-display mt-4 text-3xl leading-none transition-all duration-1000 sm:text-5xl md:text-7xl ${
                 ainoIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
               }`}
@@ -888,7 +913,10 @@ export default function Profil({
             </p>
 
             <p
-              style={{ transitionDelay: "1450ms", transitionTimingFunction: EASE }}
+              style={{
+                transitionDelay: "1450ms",
+                transitionTimingFunction: EASE,
+              }}
               className={`mt-6 max-w-xl text-base font-medium leading-7 text-white/80 transition-all duration-1000 md:text-lg md:leading-8 ${
                 ainoIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
@@ -931,7 +959,9 @@ export default function Profil({
                   transitionTimingFunction: EASE,
                 }}
                 className={`group border-t-2 border-neutral-950 transition-all duration-700 ${
-                  listIn ? "translate-x-0 opacity-100" : "-translate-x-16 opacity-0"
+                  listIn
+                    ? "translate-x-0 opacity-100"
+                    : "-translate-x-16 opacity-0"
                 } ${active ? "bg-neutral-950 text-white" : "hover:bg-[#FFE7E1]"}`}
               >
                 <button
@@ -956,7 +986,10 @@ export default function Profil({
                         ? "scale-110 -rotate-6"
                         : "group-hover:-translate-y-1 group-hover:scale-110"
                     }`}
-                    style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+                    style={{
+                      transitionTimingFunction:
+                        "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    }}
                   >
                     {item.letter}
                   </span>
@@ -981,14 +1014,30 @@ export default function Profil({
 
                   <span
                     aria-hidden="true"
-                    style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-2xl leading-none transition-all duration-500 md:h-14 md:w-14 ${
+                    style={{
+                      transitionTimingFunction:
+                        "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    }}
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 leading-none transition-all duration-500 md:h-14 md:w-14 ${
                       active
-                        ? "rotate-[135deg] border-white bg-red-600"
-                        : "border-neutral-950 group-hover:rotate-90 group-hover:bg-red-600 group-hover:text-white"
+                        ? "rotate-180 border-white bg-red-600 text-white"
+                        : "border-neutral-950 text-neutral-950 group-hover:border-red-600 group-hover:bg-red-600 group-hover:text-white"
                     }`}
                   >
-                    +
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-5 w-5 md:h-6 md:w-6"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
                   </span>
                 </button>
 
@@ -1011,7 +1060,9 @@ export default function Profil({
                         transitionTimingFunction: EASE,
                       }}
                       className={`max-w-2xl px-3 pb-7 text-base font-medium leading-7 text-white/85 transition-all duration-700 sm:pl-[7.5rem] md:pl-[11rem] md:text-lg md:leading-8 ${
-                        active ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                        active
+                          ? "translate-y-0 opacity-100"
+                          : "translate-y-4 opacity-0"
                       }`}
                     >
                       {item.description}
@@ -1024,7 +1075,10 @@ export default function Profil({
         </div>
 
         {onExploreMore && (
-          <Reveal className="mt-12 flex justify-center md:justify-end" from="scale">
+          <Reveal
+            className="mt-12 flex justify-center md:justify-end"
+            from="scale"
+          >
             <button
               type="button"
               onClick={onExploreMore}
