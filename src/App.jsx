@@ -13,7 +13,7 @@ import Footer from "./components/Footer";
 import ScrollToHashElement from "./components/ScrollToHashElement";
 
 // Lazy Loading Komponen Landing Page
-const Profil = lazy(() => import("./components/Profil"));
+import Profil from "./components/Profil";
 const Jurusan = lazy(() => import("./components/Jurusan"));
 const Fasilitas = lazy(() => import("./components/Fasilitas"));
 
