@@ -548,12 +548,17 @@ export default function Profil({
 
       {/* ============================ HERO ============================ */}
       <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-20 sm:px-8 md:pt-28">
-        <div data-reveal>
+        <div
+          style={{ transitionTimingFunction: EASE }}
+          className={`transition-all duration-700 ${
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          }`}
+        >
           <Pill>Profil sekolah</Pill>
         </div>
 
         <h2
-          data-lines
+          ref={heroTitleRef}
           className="pf-display mt-6 text-[clamp(3.75rem,16vw,15rem)] leading-[0.88]"
         >
           <div data-pf-line="1" style={{ willChange: "transform, opacity" }}>
@@ -579,7 +584,7 @@ export default function Profil({
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          <p className="max-w-md text-base font-medium leading-7 text-neutral-700 md:text-lg">
+          <p className="max-w-md text-lg font-medium leading-7 text-neutral-700 md:text-xl">
             Membangun generasi profesional, kompeten, dan berkarakter di era
             digital.
           </p>
@@ -588,7 +593,13 @@ export default function Profil({
             {["Akreditasi A", "ISO 9001", "Spesialisasi TIK"].map((t, i) => (
               <span
                 key={t}
-                className="rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white"
+                style={{
+                  transitionDelay: `${700 + i * 120}ms`,
+                  transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+                className={`rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-700 hover:-translate-y-1 hover:bg-red-600 ${
+                  isVisible ? "scale-100 opacity-100" : "scale-50 opacity-0"
+                }`}
               >
                 {t}
               </span>
@@ -599,7 +610,7 @@ export default function Profil({
         {/* Hero media */}
         <div ref={heroMediaRef} className="relative mt-12 md:mt-16">
           <div
-            data-badge
+            ref={badgeRef}
             className="absolute -top-8 right-2 z-10 h-24 w-24 sm:-top-10 sm:right-6 sm:h-32 sm:w-32 md:-top-16 md:right-12 md:h-44 md:w-44"
             aria-hidden="true"
           >
@@ -693,41 +704,41 @@ export default function Profil({
       </div>
 
       {/* =========================== MARQUEE =========================== */}
-      <div className="overflow-hidden py-10 md:py-16">
-        <div className="-ml-[5%] w-[110%] -rotate-1 border-y-2 border-neutral-950 bg-red-600 py-3 md:py-4">
-          <div data-marquee className="flex w-max whitespace-nowrap">
-            {[0, 1].map((g) => (
-              <div
-                key={g}
-                className="flex shrink-0 items-center"
-                aria-hidden={g === 1}
-              >
-                {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((word, i) => (
-                  <React.Fragment key={`${g}-${i}`}>
-                    <span
-                      className={`pf-display px-5 text-4xl md:px-8 md:text-6xl ${
-                        i % 2 === 0
-                          ? "text-white"
-                          : "pf-outline [--stroke:#fff]"
-                      }`}
-                    >
-                      {word}
-                    </span>
-                    <span className="text-2xl text-neutral-950 md:text-4xl">
-                      ✦
-                    </span>
-                  </React.Fragment>
-                ))}
-              </div>
-            ))}
+      <div className="pf-marquee overflow-hidden py-10 md:py-16">
+        <Reveal from="scale">
+          <div className="-ml-[5%] w-[110%] -rotate-1 border-y-2 border-neutral-950 bg-red-600 py-3 transition-transform duration-700 hover:-rotate-2 md:py-4">
+            <div className="flex w-max whitespace-nowrap animate-marquee-slow">
+              {[0, 1].map((g) => (
+                <div
+                  key={g}
+                  className="flex shrink-0 items-center"
+                  aria-hidden={g === 1}
+                >
+                  {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((word, i) => (
+                    <React.Fragment key={`${g}-${i}`}>
+                      <span
+                        className={`pf-display px-5 text-4xl md:px-8 md:text-6xl ${
+                          i % 2 === 0 ? "text-white" : "pf-outline [--stroke:#fff]"
+                        }`}
+                      >
+                        {word}
+                      </span>
+                      <span className="pf-spin-slow inline-block text-2xl text-neutral-950 md:text-4xl">
+                        ✦
+                      </span>
+                    </React.Fragment>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {/* ========================== STATEMENT ========================== */}
       <div className="mx-auto max-w-[1400px] px-5 pt-6 sm:px-8 md:pt-12">
         <p
-          data-statement
+          ref={statementRef}
           className="pf-display text-[clamp(1.9rem,6.2vw,5.5rem)] leading-[1.04]"
         >
           {STATEMENT_WORDS.map((w, i) => {
@@ -753,26 +764,27 @@ export default function Profil({
         <div className="mt-16 grid gap-10 md:mt-24 lg:grid-cols-12 lg:gap-16">
           <Reveal className="lg:col-span-5" from="left">
             <Pill>Mengenal lebih dekat</Pill>
-            <h3 className="pf-display mt-5 text-3xl leading-[0.98] sm:text-4xl md:text-5xl">
+            <h3 className="pf-display mt-5 text-4xl leading-[0.95] sm:text-5xl md:text-6xl">
               Membangun generasi unggul di era digital
             </h3>
           </Reveal>
 
-          <div
-            data-reveal
-            className="space-y-5 text-base font-medium leading-8 text-neutral-700 md:text-lg lg:col-span-7"
-          >
-            <p>
-              <strong className="font-bold text-neutral-950">
-                SMK Telkom Medan
-              </strong>{" "}
-              adalah sekolah menengah kejuruan unggulan di bidang Teknologi
-              Informasi dan Komunikasi (TIK) di bawah naungan Yayasan Pendidikan
-              Telkom. Berdiri dengan semangat mencetak generasi profesional dan
-              kompeten di era digital, SMK Telkom Medan telah terakreditasi{" "}
-              <strong className="font-bold text-red-600">&quot;A&quot;</strong>{" "}
-              dan mengimplementasikan standar mutu pendidikan berbasis ISO 9001.
-            </p>
+          <div className="space-y-5 text-base font-medium leading-8 text-neutral-700 md:text-lg lg:col-span-7">
+            <Reveal delay={100} from="right">
+              <p>
+                <strong className="font-bold text-neutral-950">
+                  SMK Telkom Medan
+                </strong>{" "}
+                adalah sekolah menengah kejuruan unggulan di bidang Teknologi
+                Informasi dan Komunikasi (TIK) di bawah naungan Yayasan
+                Pendidikan Telkom. Berdiri dengan semangat mencetak generasi
+                profesional dan kompeten di era digital, SMK Telkom Medan telah
+                terakreditasi{" "}
+                <strong className="font-bold text-red-600">&quot;A&quot;</strong>{" "}
+                dan mengimplementasikan standar mutu pendidikan berbasis ISO
+                9001.
+              </p>
+            </Reveal>
 
             <Reveal delay={200} from="right">
               <p>
@@ -807,85 +819,51 @@ export default function Profil({
 
       {/* ====================== CREDENTIAL STACK ====================== */}
       <div className="mx-auto mt-28 max-w-[1400px] px-5 sm:px-8 md:mt-44">
-        <div data-reveal>
+        <Reveal>
           <Pill>Kredensial</Pill>
-        </div>
-        <h3
-          data-lines
-          className="pf-display mt-5 text-[clamp(3rem,11vw,10rem)] leading-[0.9]"
-        >
-          <MaskLine>Unggul</MaskLine>
-          <MaskLine>
+        </Reveal>
+        <h3 className="pf-display mt-5 text-[clamp(3rem,11vw,10rem)] leading-[0.9]">
+          <ScrollMask delay={100}>Unggul</ScrollMask>
+          <ScrollMask delay={200}>
             dan <span className="text-red-600">teruji</span>
           </ScrollMask>
         </h3>
 
         <div className="mt-10 md:mt-16">
-          {HIGHLIGHTS.map((item, i) => {
-            const t = THEMES[item.theme];
-            return (
-              <article
-                key={item.id}
-                data-stack-card
-                style={{ top: `calc(5.5rem + ${i * 0.9}rem)`, zIndex: i + 1 }}
-                className={`sticky mb-8 flex flex-col overflow-hidden rounded-[1.75rem] border-2 border-neutral-950 p-6 sm:p-10 md:mb-14 md:min-h-[28rem] md:rounded-[2.5rem] md:p-14 ${t.card}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`pf-display pf-outline pointer-events-none absolute -bottom-4 right-2 select-none text-[9rem] leading-none sm:text-[14rem] md:-bottom-14 md:right-8 md:text-[26rem] ${t.stroke}`}
-                >
-                  {item.mark}
-                </span>
-
-                <div className="relative flex flex-1 flex-col justify-between gap-12">
-                  <div className="flex items-center justify-between gap-4">
-                    <span
-                      className={`rounded-full px-4 py-1.5 text-xs font-bold sm:text-sm ${t.pill}`}
-                    >
-                      {item.label}
-                    </span>
-                    <span className="pf-display text-xl sm:text-3xl">
-                      {i + 1}/{HIGHLIGHTS.length}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="pf-display text-[clamp(3rem,10vw,8rem)] leading-[0.9]">
-                      {item.title}
-                    </h4>
-                    <p className="mt-5 max-w-xl text-base font-medium leading-7 md:text-lg md:leading-8">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+          {HIGHLIGHTS.map((item, i) => (
+            <CredentialCard
+              key={item.id}
+              item={item}
+              index={i}
+              total={HIGHLIGHTS.length}
+            />
+          ))}
         </div>
       </div>
 
       {/* ============================= AINO ============================ */}
-      <div className="mx-auto mt-16 max-w-[1400px] px-5 sm:px-8 md:mt-24">
+      <div className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8 md:mt-36">
         <div
-          data-aino
-          className="relative overflow-hidden rounded-[2rem] border-2 border-neutral-950 bg-neutral-950 px-6 py-14 text-white sm:px-10 md:rounded-[3rem] md:px-16 md:py-24"
+          ref={ainoRef}
+          className={`relative overflow-hidden rounded-[2rem] border-2 border-neutral-950 bg-neutral-950 px-6 py-14 text-white transition-all duration-[1400ms] sm:px-10 md:rounded-[3rem] md:px-16 md:py-24 ${
+            ainoIn ? "pf-aino-in scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
+          style={{ transitionTimingFunction: EASE }}
         >
           <div
-            data-aino-shape
-            className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600 md:-right-32 md:-top-32 md:h-[30rem] md:w-[30rem]"
-          />
-          <div
-            data-aino-shape
-            className="absolute -bottom-16 left-[38%] h-40 w-40 rotate-45 border-2 border-white/30 md:h-64 md:w-64"
-          />
+            className={`absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600 transition-transform duration-[1800ms] md:-right-32 md:-top-32 md:h-[30rem] md:w-[30rem] ${
+              ainoIn ? "scale-100" : "scale-0"
+            }`}
+            style={{ transitionTimingFunction: EASE }}
+          >
+            <div className="pf-float h-full w-full rounded-full" />
+          </div>
+          <div className="pf-spin-slow absolute -bottom-16 left-[38%] h-40 w-40 rotate-45 border-2 border-white/30 md:h-64 md:w-64" />
 
           <div className="relative">
             <Pill tone="dark">Moto utama sekolah</Pill>
 
-            <h3
-              data-lines
-              className="pf-display mt-6 flex text-[clamp(7rem,34vw,30rem)] leading-[0.85]"
-            >
+            <h3 className="pf-display mt-6 flex text-[clamp(7rem,34vw,30rem)] leading-[0.85]">
               <span className="sr-only">AINO</span>
               {"AINO".split("").map((l, i) => (
                 <span key={i} aria-hidden="true" className="pf-line">
@@ -900,16 +878,20 @@ export default function Profil({
             </h3>
 
             <p
-              data-reveal
-              className="pf-display mt-4 text-3xl leading-none sm:text-5xl md:text-7xl"
+              style={{ transitionDelay: "1200ms", transitionTimingFunction: EASE }}
+              className={`pf-display mt-4 text-3xl leading-none transition-all duration-1000 sm:text-5xl md:text-7xl ${
+                ainoIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+              }`}
             >
               <span className="text-red-500">AKHLAK</span>{" "}
               <span className="pf-outline [--stroke:#fff]">is</span> Number One
             </p>
 
             <p
-              data-reveal
-              className="mt-6 max-w-xl text-base font-medium leading-7 text-white/80 md:text-lg md:leading-8"
+              style={{ transitionDelay: "1450ms", transitionTimingFunction: EASE }}
+              className={`mt-6 max-w-xl text-base font-medium leading-7 text-white/80 transition-all duration-1000 md:text-lg md:leading-8 ${
+                ainoIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              }`}
             >
               Menjadikan nilai akhlak sebagai landasan dalam membentuk peserta
               didik yang berintegritas dan berkarakter.
@@ -920,24 +902,20 @@ export default function Profil({
 
       {/* =========================== D'REAL ICT ========================= */}
       <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 sm:px-8 md:pb-36 md:pt-40">
-        <div data-reveal>
+        <Reveal>
           <Pill>Karakter siswa</Pill>
-        </div>
-        <h3
-          data-lines
-          className="pf-display mt-5 text-[clamp(3.25rem,13vw,12rem)] leading-[0.9]"
-        >
-          <MaskLine>
+        </Reveal>
+        <h3 className="pf-display mt-5 text-[clamp(3.25rem,13vw,12rem)] leading-[0.9]">
+          <ScrollMask delay={100}>
             D&apos;<span className="text-red-600">REAL</span> ICT
           </ScrollMask>
         </h3>
-        <p
-          data-reveal
-          className="mt-4 max-w-xl text-base font-medium text-neutral-700 md:text-lg"
-        >
-          Nilai yang menjadi bagian dari karakter siswa SMK Telkom Medan. Pilih
-          satu huruf untuk melihat maknanya.
-        </p>
+        <Reveal delay={200}>
+          <p className="mt-4 max-w-xl text-base font-medium text-neutral-700 md:text-lg">
+            Nilai yang menjadi bagian dari karakter siswa SMK Telkom Medan.
+            Pilih satu huruf untuk melihat maknanya.
+          </p>
+        </Reveal>
 
         <div
           ref={listRef}
@@ -962,26 +940,38 @@ export default function Profil({
                   aria-expanded={active}
                   aria-controls={`dreal-panel-${item.letter}`}
                   onClick={() => setActiveDReal(item)}
-                  className="flex w-full items-center gap-3 px-3 py-3 text-left outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-600 sm:gap-6 sm:px-5 md:py-4"
+                  className="flex w-full items-center gap-4 px-3 py-4 text-left outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-600 sm:gap-8 sm:px-6 md:py-6"
                 >
                   <span
-                    className={`hidden w-7 text-xs font-bold sm:block ${
+                    className={`hidden w-8 text-sm font-bold sm:block ${
                       active ? "text-white/60" : "text-neutral-500"
                     }`}
                   >
                     {String(index + 1).padStart(2, "0")}
                   </span>
 
-                  <span className="pf-display w-[0.8em] text-6xl leading-none text-red-600 sm:text-7xl md:text-8xl">
+                  <span
+                    className={`pf-display inline-block w-[0.8em] text-6xl leading-none text-red-600 transition-transform duration-500 sm:text-7xl md:text-8xl ${
+                      active
+                        ? "scale-110 -rotate-6"
+                        : "group-hover:-translate-y-1 group-hover:scale-110"
+                    }`}
+                    style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+                  >
                     {item.letter}
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="pf-display block truncate text-2xl leading-none sm:text-4xl md:text-6xl">
+                    <span
+                      className={`pf-display block truncate text-2xl leading-none transition-transform duration-500 sm:text-4xl md:text-6xl ${
+                        active ? "translate-x-3" : "group-hover:translate-x-3"
+                      }`}
+                      style={{ transitionTimingFunction: EASE }}
+                    >
                       {item.title}
                     </span>
                     <span
-                      className={`mt-1.5 block text-[11px] font-bold tracking-wide sm:text-xs ${
+                      className={`mt-1.5 block text-xs font-bold tracking-wide sm:text-sm ${
                         active ? "text-white/70" : "text-neutral-500"
                       }`}
                     >
@@ -991,7 +981,8 @@ export default function Profil({
 
                   <span
                     aria-hidden="true"
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-2xl leading-none transition-transform duration-500 md:h-14 md:w-14 ${
+                    style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-2xl leading-none transition-all duration-500 md:h-14 md:w-14 ${
                       active
                         ? "rotate-[135deg] border-white bg-red-600"
                         : "border-neutral-950 group-hover:rotate-90 group-hover:bg-red-600 group-hover:text-white"
@@ -1006,13 +997,26 @@ export default function Profil({
                   id={`dreal-panel-${item.letter}`}
                   role="region"
                   aria-labelledby={`dreal-btn-${item.letter}`}
-                  data-dreal-panel
-                  data-letter={item.letter}
-                  className="overflow-hidden"
+                  aria-hidden={!active}
+                  style={{
+                    gridTemplateRows: active ? "1fr" : "0fr",
+                    transitionTimingFunction: EASE,
+                  }}
+                  className="grid transition-[grid-template-rows] duration-700"
                 >
-                  <p className="max-w-2xl px-3 pb-7 text-base font-medium leading-7 text-white/85 sm:pl-[7.5rem] md:pl-[11rem] md:text-lg md:leading-8">
-                    {item.description}
-                  </p>
+                  <div className="min-h-0 overflow-hidden">
+                    <p
+                      style={{
+                        transitionDelay: active ? "150ms" : "0ms",
+                        transitionTimingFunction: EASE,
+                      }}
+                      className={`max-w-2xl px-3 pb-7 text-base font-medium leading-7 text-white/85 transition-all duration-700 sm:pl-[7.5rem] md:pl-[11rem] md:text-lg md:leading-8 ${
+                        active ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                      }`}
+                    >
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
@@ -1024,13 +1028,13 @@ export default function Profil({
             <button
               type="button"
               onClick={onExploreMore}
-              className="group inline-flex items-center gap-5 rounded-full border-2 border-neutral-950 bg-red-600 py-2 pl-7 pr-2 text-sm font-bold text-white outline-none transition-colors duration-300 hover:bg-neutral-950 focus-visible:ring-4 focus-visible:ring-red-300 md:text-base"
+              className="pf-cta group inline-flex items-center gap-5 rounded-full border-2 border-neutral-950 bg-red-600 py-2 pl-7 pr-2 text-sm font-bold text-white outline-none transition-all duration-300 hover:scale-105 hover:bg-neutral-950 focus-visible:ring-4 focus-visible:ring-red-300 active:scale-95 md:text-base"
             >
               Info Pendaftaran
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-neutral-950 transition-transform duration-500 group-hover:rotate-45 md:h-10 md:w-10">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 transition-transform duration-500 group-hover:rotate-45 md:h-12 md:w-12">
                 <svg
-                  width="16"
-                  height="16"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
