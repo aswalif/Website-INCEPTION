@@ -468,14 +468,14 @@ export default function Profil({
       `}</style>
 
       {/* ============================ HERO ============================ */}
-      <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-20 sm:px-8 md:pt-28">
+      <div className="mx-auto max-w-[1400px] px-5 pb-8 pt-14 sm:px-8 md:pt-20">
         <div data-reveal>
           <Pill>Profil sekolah</Pill>
         </div>
 
         <h2
           data-lines
-          className="pf-display mt-6 text-[clamp(3.75rem,16vw,15rem)] leading-[0.88]"
+          className="pf-display mt-6 text-[clamp(2.75rem,10vw,7.5rem)] leading-[0.9]"
         >
           <MaskLine>Profil</MaskLine>
           <MaskLine className="text-red-600">SMK Telkom</MaskLine>
@@ -486,7 +486,7 @@ export default function Profil({
           data-reveal
           className="mt-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
         >
-          <p className="max-w-md text-lg font-medium leading-7 text-neutral-700 md:text-xl">
+          <p className="max-w-md text-base font-medium leading-7 text-neutral-700 md:text-lg">
             Membangun generasi profesional, kompeten, dan berkarakter di era
             digital.
           </p>
@@ -495,7 +495,7 @@ export default function Profil({
             {["Akreditasi A", "ISO 9001", "Spesialisasi TIK"].map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-full bg-neutral-950 px-3.5 py-1.5 text-xs font-semibold text-white sm:text-sm"
               >
                 {t}
               </span>
@@ -508,7 +508,7 @@ export default function Profil({
           {/* Rotating sticker */}
           <div
             data-badge
-            className="absolute -top-8 right-2 z-10 h-24 w-24 sm:-top-10 sm:right-6 sm:h-32 sm:w-32 md:-top-16 md:right-12 md:h-44 md:w-44"
+            className="absolute -top-6 right-2 z-10 h-16 w-16 sm:-top-8 sm:right-5 sm:h-24 sm:w-24 md:-top-10 md:right-10 md:h-32 md:w-32"
             aria-hidden="true"
           >
             <svg viewBox="0 0 200 200" className="h-full w-full">
@@ -584,8 +584,8 @@ export default function Profil({
       </div>
 
       {/* =========================== MARQUEE =========================== */}
-      <div className="overflow-hidden py-10 md:py-16">
-        <div className="-ml-[5%] w-[110%] -rotate-1 border-y-2 border-neutral-950 bg-red-600 py-3 md:py-4">
+      <div className="overflow-hidden py-6 md:py-10">
+        <div className="-ml-[5%] w-[110%] -rotate-1 border-y-2 border-neutral-950 bg-red-600 py-2 md:py-3">
           <div data-marquee className="flex w-max whitespace-nowrap">
             {[0, 1].map((g) => (
               <div
@@ -596,7 +596,7 @@ export default function Profil({
                 {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((word, i) => (
                   <React.Fragment key={`${g}-${i}`}>
                     <span
-                      className={`pf-display px-5 text-4xl md:px-8 md:text-6xl ${
+                      className={`pf-display px-3 text-xl md:px-5 md:text-3xl ${
                         i % 2 === 0
                           ? "text-white"
                           : "pf-outline [--stroke:#fff]"
@@ -604,7 +604,7 @@ export default function Profil({
                     >
                       {word}
                     </span>
-                    <span className="text-2xl text-neutral-950 md:text-4xl">
+                    <span className="text-base text-neutral-950 md:text-xl">
                       ✦
                     </span>
                   </React.Fragment>
@@ -619,7 +619,7 @@ export default function Profil({
       <div className="mx-auto max-w-[1400px] px-5 pt-6 sm:px-8 md:pt-12">
         <p
           data-statement
-          className="pf-display text-[clamp(1.9rem,6.2vw,5.5rem)] leading-[1.04]"
+          className="pf-display text-[clamp(1.4rem,4vw,2.9rem)] leading-[1.15]"
         >
           {STATEMENT.split(" ").map((w, i) => (
             <span
@@ -638,14 +638,14 @@ export default function Profil({
         <div className="mt-16 grid gap-10 md:mt-24 lg:grid-cols-12 lg:gap-16">
           <div data-reveal className="lg:col-span-5">
             <Pill>Mengenal lebih dekat</Pill>
-            <h3 className="pf-display mt-5 text-4xl leading-[0.95] sm:text-5xl md:text-6xl">
+            <h3 className="pf-display mt-5 text-3xl leading-[0.98] sm:text-4xl md:text-5xl">
               Membangun generasi unggul di era digital
             </h3>
           </div>
 
           <div
             data-reveal
-            className="space-y-5 text-base font-medium leading-8 text-neutral-700 md:text-lg lg:col-span-7"
+            className="space-y-5 text-[15px] font-medium leading-7 text-neutral-700 md:text-base lg:col-span-7"
           >
             <p>
               <strong className="font-bold text-neutral-950">
@@ -686,13 +686,13 @@ export default function Profil({
       </div>
 
       {/* ====================== CREDENTIAL STACK ====================== */}
-      <div className="mx-auto mt-28 max-w-[1400px] px-5 sm:px-8 md:mt-44">
+      <div className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8 md:mt-28">
         <div data-reveal>
           <Pill>Kredensial</Pill>
         </div>
         <h3
           data-lines
-          className="pf-display mt-5 text-[clamp(3rem,11vw,10rem)] leading-[0.9]"
+          className="pf-display mt-5 text-[clamp(2.25rem,7vw,5.5rem)] leading-[0.95]"
         >
           <MaskLine>Unggul</MaskLine>
           <MaskLine>
@@ -700,40 +700,40 @@ export default function Profil({
           </MaskLine>
         </h3>
 
-        <div className="mt-10 md:mt-16">
+        <div className="mt-8 md:mt-12">
           {HIGHLIGHTS.map((item, i) => {
             const t = THEMES[item.theme];
             return (
               <article
                 key={item.id}
                 data-stack-card
-                style={{ top: `calc(5.5rem + ${i * 0.9}rem)`, zIndex: i + 1 }}
-                className={`sticky mb-8 flex flex-col overflow-hidden rounded-[1.75rem] border-2 border-neutral-950 p-6 sm:p-10 md:mb-14 md:min-h-[28rem] md:rounded-[2.5rem] md:p-14 ${t.card}`}
+                style={{ top: `calc(4.5rem + ${i * 0.75}rem)`, zIndex: i + 1 }}
+                className={`sticky mb-6 flex flex-col overflow-hidden rounded-[1.5rem] border-2 border-neutral-950 p-5 sm:p-8 md:mb-10 md:min-h-[19rem] md:rounded-[2rem] md:p-10 ${t.card}`}
               >
                 <span
                   aria-hidden="true"
-                  className={`pf-display pf-outline pointer-events-none absolute -bottom-4 right-2 select-none text-[9rem] leading-none sm:text-[14rem] md:-bottom-14 md:right-8 md:text-[26rem] ${t.stroke}`}
+                  className={`pf-display pf-outline pointer-events-none absolute -bottom-3 right-1 select-none text-[5.5rem] leading-none sm:text-[8rem] md:-bottom-8 md:right-5 md:text-[14rem] ${t.stroke}`}
                 >
                   {item.mark}
                 </span>
 
-                <div className="relative flex flex-1 flex-col justify-between gap-12">
+                <div className="relative flex flex-1 flex-col justify-between gap-8">
                   <div className="flex items-center justify-between gap-4">
                     <span
-                      className={`rounded-full px-4 py-1.5 text-xs font-bold sm:text-sm ${t.pill}`}
+                      className={`rounded-full px-3.5 py-1.5 text-xs font-bold ${t.pill}`}
                     >
                       {item.label}
                     </span>
-                    <span className="pf-display text-xl sm:text-3xl">
+                    <span className="pf-display text-base sm:text-xl">
                       {i + 1}/{HIGHLIGHTS.length}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="pf-display text-[clamp(3rem,10vw,8rem)] leading-[0.9]">
+                    <h4 className="pf-display text-[clamp(2rem,6vw,4.25rem)] leading-[0.95]">
                       {item.title}
                     </h4>
-                    <p className="mt-5 max-w-xl text-base font-medium leading-7 md:text-lg md:leading-8">
+                    <p className="mt-4 max-w-xl text-sm font-medium leading-6 md:text-base md:leading-7">
                       {item.description}
                     </p>
                   </div>
@@ -745,27 +745,26 @@ export default function Profil({
       </div>
 
       {/* ============================= AINO ============================ */}
-      <div className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8 md:mt-36">
+      <div className="mx-auto mt-16 max-w-[1400px] px-5 sm:px-8 md:mt-24">
         <div
           data-aino
-          className="relative overflow-hidden rounded-[2rem] border-2 border-neutral-950 bg-neutral-950 px-6 py-14 text-white sm:px-10 md:rounded-[3rem] md:px-16 md:py-24"
+          className="relative overflow-hidden rounded-[1.75rem] border-2 border-neutral-950 bg-neutral-950 px-5 py-10 text-white sm:px-8 md:rounded-[2.5rem] md:px-12 md:py-16"
         >
           <div
             data-aino-shape
-            className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600 md:-right-32 md:-top-32 md:h-[30rem] md:w-[30rem]"
+            className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-red-600 md:-right-24 md:-top-24 md:h-80 md:w-80"
           />
           <div
             data-aino-shape
-            className="absolute -bottom-16 left-[38%] h-40 w-40 rotate-45 border-2 border-white/30 md:h-64 md:w-64"
+            className="absolute -bottom-10 left-[38%] h-28 w-28 rotate-45 border-2 border-white/30 md:h-44 md:w-44"
           />
 
           <div className="relative">
-            <Pill tone="dark">Moto utama sekolah</Pill>y
-            
+            <Pill tone="dark">Moto utama sekolah</Pill>
 
             <h3
               data-lines
-              className="pf-display mt-6 flex text-[clamp(7rem,34vw,30rem)] leading-[0.85]"
+              className="pf-display mt-5 flex text-[clamp(3.75rem,19vw,13rem)] leading-[0.85]"
             >
               <span className="sr-only">AINO</span>
               {"AINO".split("").map((l, i) => (
@@ -779,7 +778,7 @@ export default function Profil({
 
             <p
               data-reveal
-              className="pf-display mt-4 text-3xl leading-none sm:text-5xl md:text-7xl"
+              className="pf-display mt-3 text-2xl leading-none sm:text-3xl md:text-5xl"
             >
               <span className="text-red-500">AKHLAK</span>{" "}
               <span className="pf-outline [--stroke:#fff]">is</span> Number One
@@ -787,7 +786,7 @@ export default function Profil({
 
             <p
               data-reveal
-              className="mt-6 max-w-xl text-base font-medium leading-7 text-white/80 md:text-lg md:leading-8"
+              className="mt-5 max-w-xl text-sm font-medium leading-6 text-white/80 md:text-base md:leading-7"
             >
               Menjadikan nilai akhlak sebagai landasan dalam membentuk peserta
               didik yang berintegritas dan berkarakter.
@@ -797,13 +796,13 @@ export default function Profil({
       </div>
 
       {/* =========================== D'REAL ICT ========================= */}
-      <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 sm:px-8 md:pb-36 md:pt-40">
+      <div className="mx-auto max-w-[1400px] px-5 pb-16 pt-16 sm:px-8 md:pb-24 md:pt-28">
         <div data-reveal>
           <Pill>Karakter siswa</Pill>
         </div>
         <h3
           data-lines
-          className="pf-display mt-5 text-[clamp(3.25rem,13vw,12rem)] leading-[0.9]"
+          className="pf-display mt-5 text-[clamp(2.25rem,8vw,6rem)] leading-[0.95]"
         >
           <MaskLine>
             D&apos;<span className="text-red-600">REAL</span> ICT
@@ -811,7 +810,7 @@ export default function Profil({
         </h3>
         <p
           data-reveal
-          className="mt-4 max-w-xl text-base font-medium text-neutral-700 md:text-lg"
+          className="mt-4 max-w-xl text-sm font-medium text-neutral-700 md:text-base"
         >
           Nilai yang menjadi bagian dari karakter siswa SMK Telkom Medan. Pilih
           satu huruf untuk melihat maknanya.
@@ -834,26 +833,26 @@ export default function Profil({
                   aria-expanded={active}
                   aria-controls={`dreal-panel-${item.letter}`}
                   onClick={() => setActiveDReal(item)}
-                  className="flex w-full items-center gap-4 px-3 py-4 text-left outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-600 sm:gap-8 sm:px-6 md:py-6"
+                  className="flex w-full items-center gap-3 px-3 py-3 text-left outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-600 sm:gap-6 sm:px-5 md:py-4"
                 >
                   <span
-                    className={`hidden w-8 text-sm font-bold sm:block ${
+                    className={`hidden w-7 text-xs font-bold sm:block ${
                       active ? "text-white/60" : "text-neutral-500"
                     }`}
                   >
                     {String(index + 1).padStart(2, "0")}
                   </span>
 
-                  <span className="pf-display w-[0.8em] text-6xl leading-none text-red-600 sm:text-7xl md:text-8xl">
+                  <span className="pf-display w-[0.8em] text-4xl leading-none text-red-600 sm:text-5xl md:text-6xl">
                     {item.letter}
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="pf-display block truncate text-2xl leading-none sm:text-4xl md:text-6xl">
+                    <span className="pf-display block truncate text-lg leading-none sm:text-2xl md:text-4xl">
                       {item.title}
                     </span>
                     <span
-                      className={`mt-1.5 block text-xs font-bold tracking-wide sm:text-sm ${
+                      className={`mt-1.5 block text-[11px] font-bold tracking-wide sm:text-xs ${
                         active ? "text-white/70" : "text-neutral-500"
                       }`}
                     >
@@ -863,7 +862,7 @@ export default function Profil({
 
                   <span
                     aria-hidden="true"
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-2xl leading-none transition-transform duration-500 md:h-14 md:w-14 ${
+                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 text-xl leading-none transition-transform duration-500 md:h-11 md:w-11 ${
                       active
                         ? "rotate-45 border-white bg-red-600"
                         : "border-neutral-950"
@@ -881,7 +880,7 @@ export default function Profil({
                   data-letter={item.letter}
                   className="overflow-hidden"
                 >
-                  <p className="max-w-2xl px-3 pb-7 text-base font-medium leading-7 text-white/85 sm:pl-[7.5rem] md:pl-[11rem] md:text-lg md:leading-8">
+                  <p className="max-w-2xl px-3 pb-5 text-sm font-medium leading-6 text-white/85 sm:pl-[5.75rem] md:pl-[8.25rem] md:text-base md:leading-7">
                     {item.description}
                   </p>
                 </div>
@@ -895,13 +894,13 @@ export default function Profil({
             <button
               type="button"
               onClick={onExploreMore}
-              className="group inline-flex items-center gap-5 rounded-full border-2 border-neutral-950 bg-red-600 py-2 pl-7 pr-2 text-sm font-bold text-white outline-none transition-colors duration-300 hover:bg-neutral-950 focus-visible:ring-4 focus-visible:ring-red-300 md:text-base"
+              className="group inline-flex items-center gap-4 rounded-full border-2 border-neutral-950 bg-red-600 py-1.5 pl-6 pr-1.5 text-xs font-bold text-white outline-none transition-colors duration-300 hover:bg-neutral-950 focus-visible:ring-4 focus-visible:ring-red-300 md:text-sm"
             >
               Info Pendaftaran
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 transition-transform duration-500 group-hover:rotate-45 md:h-12 md:w-12">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-neutral-950 transition-transform duration-500 group-hover:rotate-45 md:h-10 md:w-10">
                 <svg
-                  width="18"
-                  height="18"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
