@@ -35,11 +35,11 @@ const Home = () => {
         <Profil />
       </Suspense>
       <VisiMisi />
+      <AkreditasiSection />
       <Suspense fallback={null}>
         <Jurusan />
       </Suspense>
       <StrukturOrganisasi />
-      <AkreditasiSection />
       <Suspense fallback={null}>
         <Fasilitas />
       </Suspense>
