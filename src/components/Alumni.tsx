@@ -100,11 +100,17 @@ const Alumni: React.FC = () => {
   const rootRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
   const progressAnim = useRef<ReturnType<typeof animate> | null>(null);
+  // Nilai terbaru `paused`, agar animasi progres yang baru dibuat ikut terjeda
+  const pausedRef = useRef(false);
+  pausedRef.current = paused;
 
   const total = testimonials.length;
   const t = testimonials[active];
 
-  const go = (i: number) => setActive((i + total) % total);
+  /** pindah ke indeks tertentu (klik pemilih alumni) */
+  const go = (i: number) => setActive(((i % total) + total) % total);
+  /** geser relatif; pakai functional update agar klik cepat tidak terlewat */
+  const step = (d: number) => setActive((p) => (p + d + total) % total);
 
   /** ambil elemen di dalam section ini saja */
   const q = (sel: string) =>
@@ -201,8 +207,14 @@ const Alumni: React.FC = () => {
       scaleX: [0, 1],
       duration: AUTOPLAY_MS,
       ease: "linear",
-      onComplete: () => setActive((p) => (p + 1) % total),
+      onComplete: () => {
+        progressAnim.current = null; // sudah selesai: jangan di-play() ulang
+        setActive((p) => (p + 1) % total);
+      },
     });
+    // FIX: setelah klik tombol, animasi baru dibuat saat kursor masih di atas
+    // section. Jika tidak dijeda di sini, autoplay jalan terus padahal "paused".
+    if (pausedRef.current) a.pause();
     progressAnim.current = a;
     return () => {
       a.pause();
@@ -230,9 +242,18 @@ const Alumni: React.FC = () => {
 
       <div
         className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onFocus={() => setPaused(true)}
+        // FIX: hanya mouse yang menjeda lewat hover. Di layar sentuh, "hover"
+        // tiruan tidak pernah lepas sehingga autoplay macet.
+        onPointerEnter={(e) => {
+          if (e.pointerType === "mouse") setPaused(true);
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") setPaused(false);
+        }}
+        // FIX: fokus hanya menjeda untuk navigasi keyboard, bukan setelah klik
+        onFocus={(e) => {
+          if (e.target.matches(":focus-visible")) setPaused(true);
+        }}
         onBlur={() => setPaused(false)}
       >
         {/* Header */}
@@ -270,16 +291,18 @@ const Alumni: React.FC = () => {
               {active + 1} dari {total}
             </span>
             <button
-              onClick={() => go(active - 1)}
+              type="button"
+              onClick={() => step(-1)}
               aria-label="Alumni sebelumnya"
               className="flex h-12 w-12 items-center justify-center border-2 border-[var(--alu-ink)] transition-colors hover:border-[var(--alu-red)] hover:bg-[var(--alu-red)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--alu-red)] sm:h-14 sm:w-14"
             >
               <FaChevronLeft />
             </button>
             <button
-              onClick={() => go(active + 1)}
+              type="button"
+              onClick={() => step(1)}
               aria-label="Alumni berikutnya"
-              className="flex h-12 w-12 items-center justify-center bg-[var(--alu-red)] text-white transition-colors hover:bg-[var(--alu-red-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--alu-ink)] sm:h-14 sm:w-14"
+              className="flex h-12 w-12 items-center justify-center border-2 border-[var(--alu-ink)] transition-colors hover:border-[var(--alu-red)] hover:bg-[var(--alu-red)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--alu-red)] sm:h-14 sm:w-14"
             >
               <FaChevronRight />
             </button>
@@ -381,6 +404,7 @@ const Alumni: React.FC = () => {
             const isActive = i === active;
             return (
               <button
+                type="button"
                 key={item.id}
                 onClick={() => go(i)}
                 aria-current={isActive}
