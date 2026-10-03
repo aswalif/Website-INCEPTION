@@ -32,6 +32,7 @@ export default function Hero() {
       link.href = SATOSHI_FONT_HREF;
       document.head.appendChild(link);
     }
+
     if (!document.getElementById(GOOGLE_FONT_ID)) {
       const link = document.createElement('link');
       link.id = GOOGLE_FONT_ID;
@@ -39,6 +40,7 @@ export default function Hero() {
       link.href = GOOGLE_FONT_HREF;
       document.head.appendChild(link);
     }
+
     if (!document.getElementById(HEADLINE_FONT_ID)) {
       const link = document.createElement('link');
       link.id = HEADLINE_FONT_ID;
@@ -58,17 +60,19 @@ export default function Hero() {
       highlight: 'Generasi Masa Depan!',
       badge: 'SEKOLAH INFORMATIKA NYATA & Pusat Keunggulan 🏅',
       buttonText: 'Bergabunglah dengan Kami',
-      link: 'https://ppdb.smktelkom1medan.sch.id',
+      link: 'https://ppdb.telkomschools.sch.id/signup?lemdik=50',
     },
+
     // Slide 2: Selamat Datang
     {
       type: 'welcome',
       image: '/gedung-baru.jpg',
       welcomeText: 'Selamat Datang di',
       title: 'Website SMK Telkom Medan',
-      badge: 'SMK Pusat Keunggulan 🏅 Sekolah berbasis IT ter-baik di Sumatera Utara dengan Akreditasi "A"',
+      badge:
+        'SMK Pusat Keunggulan 🏅 Sekolah berbasis IT ter-baik di Sumatera Utara dengan Akreditasi "A"',
       buttonText: 'Mulai',
-      link: '#profil',
+      link: 'https://ppdb.telkomschools.sch.id/signup?lemdik=50',
     },
   ];
 
@@ -99,19 +103,31 @@ export default function Hero() {
           from { opacity: 0; transform: translateY(18px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .animate-hero-in { animation: hero-content-in 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+
+        .animate-hero-in {
+          animation: hero-content-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+        }
 
         @keyframes orb-float {
           0%, 100% { transform: translate(0, 0); }
           50% { transform: translate(0, -22px); }
         }
-        .animate-orb-float { animation: orb-float 9s ease-in-out infinite; }
-        .animate-orb-float-slow { animation: orb-float 13s ease-in-out infinite; animation-delay: -4s; }
+
+        .animate-orb-float {
+          animation: orb-float 9s ease-in-out infinite;
+        }
+
+        .animate-orb-float-slow {
+          animation: orb-float 13s ease-in-out infinite;
+          animation-delay: -4s;
+        }
 
         @media (prefers-reduced-motion: reduce) {
           .animate-hero-in,
           .animate-orb-float,
-          .animate-orb-float-slow { animation: none; }
+          .animate-orb-float-slow {
+            animation: none;
+          }
         }
       `}</style>
 
@@ -127,9 +143,12 @@ export default function Hero() {
             src={slide.image}
             alt={`Slide ${index + 1}`}
             className={`w-full h-full object-cover transition-transform duration-[7000ms] ease-out ${
-              index === currentSlide ? 'scale-110 translate-y-2' : 'scale-100 translate-y-0'
+              index === currentSlide
+                ? 'scale-110 translate-y-2'
+                : 'scale-100 translate-y-0'
             }`}
           />
+
           {/* Overlay gradien berlapis agar kartu kaca tetap terbaca dan terasa dalam (depth) */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20" />
           <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 via-transparent to-transparent" />
@@ -141,6 +160,7 @@ export default function Hero() {
         aria-hidden="true"
         className="animate-orb-float pointer-events-none absolute -top-24 right-[-6rem] z-10 h-72 w-72 rounded-full bg-red-500/20 blur-3xl"
       />
+
       <div
         aria-hidden="true"
         className="animate-orb-float-slow pointer-events-none absolute bottom-[-8rem] left-[-6rem] z-10 h-80 w-80 rounded-full bg-white/10 blur-3xl"
@@ -159,6 +179,7 @@ export default function Hero() {
                 style={{ fontFamily: HEADLINE_SERIF_STACK }}
               >
                 {slides[currentSlide].title} <br />
+
                 <span
                   className="text-xl font-normal tracking-wider text-gray-200 sm:text-3xl"
                   style={{ fontFamily: HEADLINE_CONDENSED_STACK }}
@@ -166,6 +187,7 @@ export default function Hero() {
                   {slides[currentSlide].subtitle}
                 </span>{' '}
                 <br />
+
                 <span className="text-3xl font-black text-red-500 drop-shadow-md sm:text-6xl">
                   {slides[currentSlide].highlight}
                 </span>
@@ -186,31 +208,64 @@ export default function Hero() {
                 </a>
               </div>
 
+              {/* Media Sosial */}
               <div className="flex items-center justify-end gap-3 pt-4 text-white">
-                <span className="text-xs font-bold text-slate-200">Ikuti kami:</span>
+                <span className="text-xs font-bold text-slate-200">
+                  Ikuti kami:
+                </span>
+
+                {/* Facebook */}
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/p/SMK-Telkom-Medan-100063703027473/"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-red-400/50 hover:bg-red-500/25"
+                  aria-label="Facebook SMK Telkom Medan"
                 >
-                  f
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.87.24-1.46 1.5-1.46h1.6V4.46A21 21 0 0 0 14.3 4.3c-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21h3Z" />
+                  </svg>
                 </a>
+
+                {/* Instagram */}
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/smktelkommedan01"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-red-400/50 hover:bg-red-500/25"
+                  aria-label="Instagram SMK Telkom Medan"
                 >
-                  📷
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.25a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />
+                  </svg>
                 </a>
+
+                {/* TikTok */}
                 <a
-                  href="https://tiktok.com"
+                  href="https://www.tiktok.com/@smktelkom_medan"
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-red-400/50 hover:bg-red-500/25"
+                  aria-label="TikTok SMK Telkom Medan"
                 >
-                  🎵
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.11V2h-3.96v13.67a2.89 2.89 0 1 1-2.89-2.89c.3 0 .59.05.86.13V8.88a6.84 6.84 0 0 0-.86-.05A6.85 6.85 0 1 0 15.82 15V8.98a8.72 8.72 0 0 0 5.1 1.64V6.69h-1.33Z" />
+                  </svg>
                 </a>
               </div>
             </div>
@@ -263,6 +318,7 @@ export default function Hero() {
         >
           ←
         </button>
+
         <button
           onClick={nextSlide}
           aria-label="Slide berikutnya"

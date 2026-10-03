@@ -53,7 +53,7 @@ const MENU: NavEntry[] = [
       { label: "Akademi Cisco", href: "/cisco-academy" },
     ],
   },
-  { type: "link", label: "Kontak", href: "#kontak" },
+  { type: "link", label: "Kontak", href: "#Footer" },
 ];
 
 const WIDE_LABEL_LENGTH = 12;

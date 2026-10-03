@@ -268,11 +268,14 @@ function KartuAnggota({
   index,
   nomorUrut,
   unggulan = false,
+  lebar = false,
 }: {
   anggota: Anggota;
   index: number;
   nomorUrut: number;
   unggulan?: boolean;
+  /** Kartu terakhir yang jomblo di grid 2 kolom (mobile/tablet) dibuat selebar 2 kolom */
+  lebar?: boolean;
 }) {
   const aksen = kategoriAksen[anggota.kategori];
   const [barisAtas, barisBawah] = pecahNama(anggota.nama);
@@ -281,20 +284,32 @@ function KartuAnggota({
   return (
     <div
       className={`${delayKelas} osis-fade-up group relative flex flex-col overflow-hidden bg-[#111111] ${
-        unggulan ? "lg:col-span-2 lg:row-span-2" : ""
+        unggulan
+          ? "col-span-2 lg:col-span-2 lg:row-span-2"
+          : lebar
+            ? "col-span-2 lg:col-span-1"
+            : ""
       }`}
     >
       <div
         className={`relative w-full overflow-hidden ${
-          unggulan ? "aspect-[4/5] lg:aspect-auto lg:h-full" : "aspect-[3/4]"
+          unggulan
+            ? "aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-full"
+            : lebar
+              ? "aspect-[4/3] lg:aspect-[3/4]"
+              : "aspect-[3/4]"
         }`}
       >
         {anggota.foto ? (
           <img
             src={anggota.foto}
             alt={`Foto ${anggota.nama}, ${anggota.jabatan}`}
-            className={`h-full w-full object-cover grayscale-[15%] transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.045] motion-safe:group-hover:grayscale-0 ${
-              unggulan ? "lg:absolute lg:inset-0" : ""
+            className={`h-full w-full object-cover transition-transform duration-700 ease-out sm:grayscale-[15%] sm:motion-safe:group-hover:scale-[1.045] sm:motion-safe:group-hover:grayscale-0 ${
+              unggulan
+                ? "object-[50%_20%] lg:absolute lg:inset-0 lg:object-center"
+                : lebar
+                  ? "object-[50%_25%] lg:object-center"
+                  : ""
             }`}
           />
         ) : (
@@ -307,7 +322,7 @@ function KartuAnggota({
 
         {/* Nomor urut anggota */}
         <span
-          className={`pointer-events-none absolute right-4 top-4 font-mono text-xs tracking-widest text-white/70 transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-1 ${
+          className={`pointer-events-none absolute right-3 top-3 font-mono sm:right-4 sm:top-4 text-xs tracking-widest text-white/70 transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-1 ${
             unggulan ? "lg:text-sm" : ""
           }`}
         >
@@ -315,18 +330,24 @@ function KartuAnggota({
         </span>
 
         {/* Overlay gradient gelap */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-70 transition-opacity duration-500 ease-out group-hover:opacity-95" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent sm:from-black/85 sm:via-black/10 opacity-70 transition-opacity duration-500 ease-out group-hover:opacity-95" />
 
         {/* Identitas */}
-        <div className="absolute inset-x-0 bottom-0 p-5">
+        <div
+          className={`absolute inset-x-0 bottom-0 sm:p-5 ${unggulan ? "p-4" : "p-3"}`}
+        >
           <span
-            className={`mb-3 block h-px w-6 bg-red-600 transition-all duration-500 ease-out group-hover:w-12 ${
+            className={`mb-2 block h-px w-6 bg-red-600 sm:mb-3 transition-all duration-500 ease-out group-hover:w-12 ${
               unggulan ? "w-10" : ""
             }`}
           />
           <h3
-            className={`font-semibold uppercase leading-[1.05] tracking-tight text-white ${
-              unggulan ? "text-3xl sm:text-4xl" : "text-lg sm:text-xl"
+            className={`break-words font-semibold uppercase leading-[1.05] tracking-tight text-white ${
+              unggulan
+                ? "text-3xl sm:text-4xl"
+                : lebar
+                  ? "text-lg sm:text-xl"
+                  : "text-sm min-[400px]:text-base sm:text-xl"
             }`}
           >
             {barisAtas}
@@ -338,13 +359,20 @@ function KartuAnggota({
             )}
           </h3>
 
-          <div className="mt-2 max-h-0 overflow-hidden opacity-0 transition-all duration-500 ease-out group-hover:mt-3 group-hover:max-h-20 group-hover:opacity-100">
+          {/* Mobile: jabatan selalu tampil (tidak ada hover di layar sentuh). Sm ke atas: tetap muncul saat hover. */}
+          <div className="mt-1.5 max-h-24 overflow-hidden opacity-100 transition-all duration-500 ease-out sm:mt-2 sm:max-h-0 sm:opacity-0 sm:group-hover:mt-3 sm:group-hover:max-h-20 sm:group-hover:opacity-100">
             <p
-              className={`font-medium text-red-400 ${unggulan ? "text-base" : "text-sm"}`}
+              className={`font-medium leading-snug text-red-400 ${
+                unggulan
+                  ? "text-sm sm:text-base"
+                  : lebar
+                    ? "text-sm"
+                    : "text-xs sm:text-sm"
+              }`}
             >
               {anggota.jabatan}
             </p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-xs uppercase tracking-wide text-white/60">
+            <p className="mt-0.5 hidden items-center gap-1.5 text-xs uppercase tracking-wide text-white/60 sm:flex">
               <span className={`h-1 w-1 rounded-full ${aksen.dot}`} />
               {anggota.divisi}
             </p>
@@ -374,16 +402,24 @@ function SlideDivisi({
   seksi,
   anggota,
   aktif,
+  innerRef,
 }: {
   seksi: SeksiKategori;
   anggota: Anggota[];
   aktif: boolean;
+  innerRef?: (el: HTMLDivElement | null) => void;
 }) {
   let counter = 0;
+  // Sisa kartu (di luar kartu unggulan BPH) — kalau ganjil, kartu terakhir dilebarkan di mobile
+  const sisaKartu = seksi.kategori === "bph" ? anggota.length - 1 : anggota.length;
 
   return (
-    <div className="w-full shrink-0 px-1" aria-hidden={!aktif}>
-      <div className="mb-8 grid grid-cols-1 gap-5 sm:mb-10 lg:grid-cols-12 lg:gap-8">
+    <div
+      ref={innerRef}
+      className="w-full shrink-0 px-1"
+      aria-hidden={!aktif}
+    >
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-10 sm:gap-5 lg:grid-cols-12 lg:gap-8">
         {/* Kiri: nomor, judul, deskripsi */}
         <div className="lg:col-span-8">
           <span className="mb-3 block font-mono text-xs tracking-[0.3em] text-red-600">
@@ -417,6 +453,10 @@ function SlideDivisi({
           {anggota.map((item, index) => {
             counter += 1;
             const unggulan = seksi.kategori === "bph" && index === 0;
+            const lebar =
+              !unggulan &&
+              index === anggota.length - 1 &&
+              sisaKartu % 2 === 1;
             return (
               <KartuAnggota
                 key={`${item.nama}-${item.jabatan}`}
@@ -424,6 +464,7 @@ function SlideDivisi({
                 index={index}
                 nomorUrut={counter}
                 unggulan={unggulan}
+                lebar={lebar}
               />
             );
           })}
@@ -441,7 +482,12 @@ export default function StrukturOrganisasi() {
   const [isHovering, setIsHovering] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const touchState = useRef({ startX: 0, tracking: false });
+  const touchState = useRef({ startX: 0, startY: 0, tracking: false });
+  const navRef = useRef<HTMLElement | null>(null);
+  const navBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [isCompact, setIsCompact] = useState(false); // < lg (HP & tablet)
+  const [tinggiAktif, setTinggiAktif] = useState<number | null>(null);
 
   const jumlahAnggota = dataAnggota.length;
   const jumlahDivisi = seksiKategori.length;
@@ -454,6 +500,43 @@ export default function StrukturOrganisasi() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // Deteksi layar HP/tablet (di bawah breakpoint lg)
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    setIsCompact(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsCompact(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Di HP: tinggi carousel mengikuti slide aktif, supaya tidak ada ruang kosong
+  // di bawah slide yang kartunya lebih sedikit. Desktop tidak dipengaruhi.
+  useEffect(() => {
+    if (!isCompact) {
+      setTinggiAktif(null);
+      return;
+    }
+    const el = slideRefs.current[activeIndex];
+    if (!el) return;
+    const ukur = () => setTinggiAktif(el.offsetHeight);
+    ukur();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(ukur);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isCompact, activeIndex]);
+
+  // Tab aktif otomatis digeser ke tengah saat nav bisa di-scroll (HP)
+  useEffect(() => {
+    const nav = navRef.current;
+    const btn = navBtnRefs.current[activeIndex];
+    if (!nav || !btn || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollTo({
+      left: btn.offsetLeft - (nav.clientWidth - btn.offsetWidth) / 2,
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  }, [activeIndex, reducedMotion]);
 
   // Autoplay carousel
   useEffect(() => {
@@ -487,6 +570,7 @@ export default function StrukturOrganisasi() {
 
   function handleTouchStart(e: React.TouchEvent) {
     touchState.current.startX = e.touches[0].clientX;
+    touchState.current.startY = e.touches[0].clientY;
     touchState.current.tracking = true;
   }
 
@@ -494,7 +578,10 @@ export default function StrukturOrganisasi() {
     if (!touchState.current.tracking) return;
     touchState.current.tracking = false;
     const deltaX = e.changedTouches[0].clientX - touchState.current.startX;
+    const deltaY = e.changedTouches[0].clientY - touchState.current.startY;
     const AMBANG = 45;
+    // Abaikan gesture yang dominan vertikal (user sedang scroll halaman)
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return;
     if (deltaX <= -AMBANG) {
       gotoSlide(activeIndex + 1); // swipe kiri → berikutnya
     } else if (deltaX >= AMBANG) {
@@ -502,10 +589,19 @@ export default function StrukturOrganisasi() {
     }
   }
 
+  // Tombol Sebelumnya/Berikutnya di bawah (HP): pindah slide lalu kembali ke atas carousel
+  function pindahDariBawah(idx: number) {
+    gotoSlide(idx);
+    navRef.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
   return (
     <section
       id="struktur-organisasi"
-      className="w-full bg-[#F8F8F6] px-4 py-20 sm:px-8 sm:py-28 lg:px-14"
+      className="w-full bg-[#F8F8F6] px-4 py-14 sm:px-8 sm:py-28 lg:px-14"
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -542,8 +638,8 @@ export default function StrukturOrganisasi() {
 
       <div className="osis-body mx-auto max-w-7xl">
         {/* ===== HERO ===== */}
-        <header className="osis-fade-up mb-14 border-b border-neutral-200 pb-10 sm:mb-20 sm:pb-14">
-          <div className="mb-6 flex items-center gap-3">
+        <header className="osis-fade-up mb-10 border-b border-neutral-200 pb-8 sm:mb-20 sm:pb-14">
+          <div className="mb-5 flex items-center gap-3 sm:mb-6">
             <span className="font-mono text-xs tracking-[0.3em] text-red-600">
               01
             </span>
@@ -554,32 +650,32 @@ export default function StrukturOrganisasi() {
           </div>
 
           <h1 className="osis-editorial leading-[0.9] tracking-tight text-neutral-900">
-            <span className="block text-6xl font-semibold uppercase sm:text-8xl lg:text-[7.5rem]">
+            <span className="block text-[clamp(2.25rem,11.5vw,4rem)] font-semibold uppercase sm:text-8xl lg:text-[7.5rem]">
               Struktur
             </span>
-            <span className="block text-6xl font-semibold uppercase sm:text-8xl lg:text-[7.5rem]">
+            <span className="block text-[clamp(2.25rem,11.5vw,4rem)] font-semibold uppercase sm:text-8xl lg:text-[7.5rem]">
               Organisasi
             </span>
             <span
-              className="mt-1 block text-6xl font-semibold uppercase text-transparent sm:text-8xl lg:text-[7.5rem]"
+              className="mt-1 block text-[clamp(2.25rem,11.5vw,4rem)] font-semibold uppercase text-transparent sm:text-8xl lg:text-[7.5rem]"
               style={{ WebkitTextStroke: "1.5px #DC2626" }}
             >
               OSIS
             </span>
           </h1>
 
-          <div className="mt-8 flex flex-col gap-10 sm:mt-12 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mt-6 flex flex-col gap-8 sm:mt-12 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
             <p className="max-w-sm text-sm leading-relaxed text-neutral-500 sm:text-base">
               Kenali para pengurus OSIS yang menjalankan berbagai kegiatan dan
               program sekolah.
             </p>
 
-            <div className="flex gap-8 sm:gap-12">
+            <div className="flex w-full justify-between gap-4 sm:w-auto sm:justify-start sm:gap-12">
               <div className="flex flex-col">
                 <span className="text-3xl font-bold text-neutral-900 sm:text-4xl">
                   {jumlahAnggota}+
                 </span>
-                <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">
+                <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-400 sm:text-[11px] sm:tracking-[0.2em]">
                   Anggota
                 </span>
               </div>
@@ -588,7 +684,7 @@ export default function StrukturOrganisasi() {
                 <span className="text-3xl font-bold text-neutral-900 sm:text-4xl">
                   {String(jumlahDivisi).padStart(2, "0")}
                 </span>
-                <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">
+                <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-400 sm:text-[11px] sm:tracking-[0.2em]">
                   Divisi
                 </span>
               </div>
@@ -597,7 +693,7 @@ export default function StrukturOrganisasi() {
                 <span className="text-3xl font-bold text-neutral-900 sm:text-4xl">
                   01
                 </span>
-                <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">
+                <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-400 sm:text-[11px] sm:tracking-[0.2em]">
                   Periode
                 </span>
               </div>
@@ -607,14 +703,18 @@ export default function StrukturOrganisasi() {
 
         {/* ===== FILTER / NAVIGASI CAROUSEL ===== */}
         <nav
+          ref={navRef}
           aria-label="Navigasi divisi"
-          className="osis-scroll-x osis-fade-up mb-10 flex gap-8 overflow-x-auto border-b border-neutral-200 pb-4 sm:mb-14 sm:gap-12"
+          className="osis-scroll-x osis-fade-up mb-8 flex scroll-mt-20 gap-6 overflow-x-auto border-b border-neutral-200 pb-4 sm:mb-14 sm:gap-12"
         >
           {filterOptions.map((opsi, i) => {
             const aktif = filterAktif === opsi.key;
             return (
               <button
                 key={opsi.key}
+                ref={(el) => {
+                  navBtnRefs.current[i] = el;
+                }}
                 type="button"
                 aria-current={aktif ? "true" : undefined}
                 onClick={() => pilihFilter(opsi.key)}
@@ -667,7 +767,15 @@ export default function StrukturOrganisasi() {
           onMouseLeave={() => setIsHovering(false)}
         >
           <div
-            className="overflow-hidden"
+            className="touch-pan-y overflow-hidden"
+            style={
+              isCompact && tinggiAktif !== null
+                ? {
+                    height: tinggiAktif,
+                    transition: reducedMotion ? "none" : "height 500ms ease",
+                  }
+                : undefined
+            }
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -676,6 +784,7 @@ export default function StrukturOrganisasi() {
               style={{
                 transform: `translateX(-${activeIndex * 100}%)`,
                 transitionDuration: reducedMotion ? "0ms" : "700ms",
+                alignItems: isCompact ? "flex-start" : undefined,
               }}
             >
               {seksiKategori.map((seksi, idx) => (
@@ -686,6 +795,9 @@ export default function StrukturOrganisasi() {
                     (a) => a.kategori === seksi.kategori,
                   )}
                   aktif={idx === activeIndex}
+                  innerRef={(el) => {
+                    slideRefs.current[idx] = el;
+                  }}
                 />
               ))}
             </div>
@@ -737,7 +849,7 @@ export default function StrukturOrganisasi() {
         </div>
 
         {/* Indikator */}
-        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:mt-10 sm:flex-row sm:gap-6">
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-6">
           <span className="font-mono text-xs tracking-widest text-neutral-400">
             {String(activeIndex + 1).padStart(2, "0")} /{" "}
             {String(TOTAL_SLIDE).padStart(2, "0")}
@@ -750,7 +862,7 @@ export default function StrukturOrganisasi() {
                 onClick={() => gotoSlide(idx)}
                 aria-label={`Ke divisi ${seksi.judul} ${seksi.subjudul}`}
                 aria-current={idx === activeIndex ? "true" : undefined}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${
+                className={`relative h-1.5 rounded-full transition-all duration-300 ease-out before:absolute before:-inset-x-1.5 before:-inset-y-3 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${
                   idx === activeIndex
                     ? "w-7 bg-red-600"
                     : "w-1.5 bg-neutral-300 hover:bg-neutral-400"
@@ -760,21 +872,21 @@ export default function StrukturOrganisasi() {
           </div>
         </div>
 
-        {/* Tombol Previous/Next teks — tampil di mobile sebagai pengganti panah samping */}
-        <div className="mt-6 flex items-center justify-between sm:hidden">
+        {/* Tombol Sebelumnya/Berikutnya — hanya HP, target sentuh besar */}
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:hidden">
           <button
             type="button"
-            onClick={() => gotoSlide(activeIndex - 1)}
-            className="text-xs font-medium uppercase tracking-wide text-neutral-500 focus-visible:outline-none"
+            onClick={() => pindahDariBawah(activeIndex - 1)}
+            className="flex min-h-12 items-center justify-center gap-2 border border-neutral-300 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-neutral-700 transition-colors active:border-neutral-900 active:bg-neutral-900 active:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           >
-            ← Sebelumnya
+            <span aria-hidden="true">←</span> Sebelumnya
           </button>
           <button
             type="button"
-            onClick={() => gotoSlide(activeIndex + 1)}
-            className="text-xs font-medium uppercase tracking-wide text-neutral-500 focus-visible:outline-none"
+            onClick={() => pindahDariBawah(activeIndex + 1)}
+            className="flex min-h-12 items-center justify-center gap-2 border border-neutral-900 bg-neutral-900 px-3 text-xs font-semibold uppercase tracking-wide text-white transition-colors active:border-red-600 active:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           >
-            Berikutnya →
+            Berikutnya <span aria-hidden="true">→</span>
           </button>
         </div>
       </div>

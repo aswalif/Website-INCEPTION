@@ -34,8 +34,8 @@ const Home = () => {
       <Suspense fallback={null}>
         <Profil />
       </Suspense>
-      <VisiMisi />
       <AkreditasiSection />
+      <VisiMisi />
       <Suspense fallback={null}>
         <Jurusan />
       </Suspense>
