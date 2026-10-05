@@ -188,13 +188,6 @@ const filterOptions: FilterOption[] = [
   { key: "ekskul", label: "Ekskul", ikon: ikonEkskul },
 ];
 
-const badgeLabel: Record<Anggota["kategori"], string> = {
-  bph: "BPH / INTI",
-  it: "IT SUPPORT",
-  ekraf: "EKONOMI KREATIF",
-  ekskul: "EKSKUL",
-};
-
 const kategoriAksen: Record<
   Anggota["kategori"],
   { dot: string; text: string }
@@ -274,7 +267,6 @@ function KartuAnggota({
   index: number;
   nomorUrut: number;
   unggulan?: boolean;
-  /** Kartu terakhir yang jomblo di grid 2 kolom (mobile/tablet) dibuat selebar 2 kolom */
   lebar?: boolean;
 }) {
   const aksen = kategoriAksen[anggota.kategori];
@@ -288,13 +280,13 @@ function KartuAnggota({
           ? "col-span-2 lg:col-span-2 lg:row-span-2"
           : lebar
             ? "col-span-2 lg:col-span-1"
-            : ""
+            : "col-span-1"
       }`}
     >
       <div
         className={`relative w-full overflow-hidden ${
           unggulan
-            ? "aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-full"
+            ? "aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[420px]"
             : lebar
               ? "aspect-[4/3] lg:aspect-[3/4]"
               : "aspect-[3/4]"
@@ -320,7 +312,6 @@ function KartuAnggota({
           </div>
         )}
 
-        {/* Nomor urut anggota */}
         <span
           className={`pointer-events-none absolute right-3 top-3 font-mono sm:right-4 sm:top-4 text-xs tracking-widest text-white/70 transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-1 ${
             unggulan ? "lg:text-sm" : ""
@@ -329,10 +320,8 @@ function KartuAnggota({
           {String(nomorUrut).padStart(2, "0")}
         </span>
 
-        {/* Overlay gradient gelap */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent sm:from-black/85 sm:via-black/10 opacity-70 transition-opacity duration-500 ease-out group-hover:opacity-95" />
 
-        {/* Identitas */}
         <div
           className={`absolute inset-x-0 bottom-0 sm:p-5 ${unggulan ? "p-4" : "p-3"}`}
         >
@@ -359,7 +348,6 @@ function KartuAnggota({
             )}
           </h3>
 
-          {/* Mobile: jabatan selalu tampil (tidak ada hover di layar sentuh). Sm ke atas: tetap muncul saat hover. */}
           <div className="mt-1.5 max-h-24 overflow-hidden opacity-100 transition-all duration-500 ease-out sm:mt-2 sm:max-h-0 sm:opacity-0 sm:group-hover:mt-3 sm:group-hover:max-h-20 sm:group-hover:opacity-100">
             <p
               className={`font-medium leading-snug text-red-400 ${
@@ -410,7 +398,6 @@ function SlideDivisi({
   innerRef?: (el: HTMLDivElement | null) => void;
 }) {
   let counter = 0;
-  // Sisa kartu (di luar kartu unggulan BPH) — kalau ganjil, kartu terakhir dilebarkan di mobile
   const sisaKartu = seksi.kategori === "bph" ? anggota.length - 1 : anggota.length;
 
   return (
@@ -420,7 +407,6 @@ function SlideDivisi({
       aria-hidden={!aktif}
     >
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-10 sm:gap-5 lg:grid-cols-12 lg:gap-8">
-        {/* Kiri: nomor, judul, deskripsi */}
         <div className="lg:col-span-8">
           <span className="mb-3 block font-mono text-xs tracking-[0.3em] text-red-600">
             {seksi.nomor}
@@ -435,7 +421,6 @@ function SlideDivisi({
           </p>
         </div>
 
-        {/* Kanan: jumlah anggota */}
         <div className="flex items-end justify-start gap-3 lg:col-span-4 lg:flex-col lg:items-end lg:justify-end lg:text-right">
           <span className="text-5xl font-bold leading-none text-neutral-900 sm:text-6xl">
             {String(anggota.length).padStart(2, "0")}
@@ -449,7 +434,8 @@ function SlideDivisi({
       {anggota.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:auto-rows-fr lg:[grid-auto-flow:dense]">
+        /* DIBERSIHKAN: Hapus lg:auto-rows-fr agar grid menyesuaikan tinggi jumlah kartu sebenarnya */
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {anggota.map((item, index) => {
             counter += 1;
             const unggulan = seksi.kategori === "bph" && index === 0;
@@ -486,13 +472,11 @@ export default function StrukturOrganisasi() {
   const navRef = useRef<HTMLElement | null>(null);
   const navBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [isCompact, setIsCompact] = useState(false); // < lg (HP & tablet)
   const [tinggiAktif, setTinggiAktif] = useState<number | null>(null);
 
   const jumlahAnggota = dataAnggota.length;
   const jumlahDivisi = seksiKategori.length;
 
-  // Deteksi preferensi reduced motion
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mq.matches);
@@ -501,33 +485,21 @@ export default function StrukturOrganisasi() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Deteksi layar HP/tablet (di bawah breakpoint lg)
+  // DIUBAH: Penyesuaian tinggi otomatis (Dynamic Height) berlaku di SEMUA UKURAN LAYAR (Mobile, Tablet & Desktop)
+  // Ini memastikan saat divisi hanya berisi 2 anggota, tinggi area carousel langsung menyusut dan menghemat tempat
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1023px)");
-    setIsCompact(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsCompact(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  // Di HP: tinggi carousel mengikuti slide aktif, supaya tidak ada ruang kosong
-  // di bawah slide yang kartunya lebih sedikit. Desktop tidak dipengaruhi.
-  useEffect(() => {
-    if (!isCompact) {
-      setTinggiAktif(null);
-      return;
-    }
     const el = slideRefs.current[activeIndex];
     if (!el) return;
+    
     const ukur = () => setTinggiAktif(el.offsetHeight);
     ukur();
+    
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(ukur);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [isCompact, activeIndex]);
+  }, [activeIndex]);
 
-  // Tab aktif otomatis digeser ke tengah saat nav bisa di-scroll (HP)
   useEffect(() => {
     const nav = navRef.current;
     const btn = navBtnRefs.current[activeIndex];
@@ -538,7 +510,6 @@ export default function StrukturOrganisasi() {
     });
   }, [activeIndex, reducedMotion]);
 
-  // Autoplay carousel
   useEffect(() => {
     if (reducedMotion || isHovering) return;
     const id = window.setInterval(() => {
@@ -580,16 +551,14 @@ export default function StrukturOrganisasi() {
     const deltaX = e.changedTouches[0].clientX - touchState.current.startX;
     const deltaY = e.changedTouches[0].clientY - touchState.current.startY;
     const AMBANG = 45;
-    // Abaikan gesture yang dominan vertikal (user sedang scroll halaman)
     if (Math.abs(deltaY) > Math.abs(deltaX)) return;
     if (deltaX <= -AMBANG) {
-      gotoSlide(activeIndex + 1); // swipe kiri → berikutnya
+      gotoSlide(activeIndex + 1);
     } else if (deltaX >= AMBANG) {
-      gotoSlide(activeIndex - 1); // swipe kanan → sebelumnya
+      gotoSlide(activeIndex - 1);
     }
   }
 
-  // Tombol Sebelumnya/Berikutnya di bawah (HP): pindah slide lalu kembali ke atas carousel
   function pindahDariBawah(idx: number) {
     gotoSlide(idx);
     navRef.current?.scrollIntoView({
@@ -601,7 +570,7 @@ export default function StrukturOrganisasi() {
   return (
     <section
       id="struktur-organisasi"
-      className="w-full bg-[#F8F8F6] px-4 py-14 sm:px-8 sm:py-28 lg:px-14"
+      className="w-full bg-[#F8F8F6] px-4 py-14 sm:px-8 sm:py-28 lg:px-14 transition-all duration-500"
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -766,13 +735,14 @@ export default function StrukturOrganisasi() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
+          {/* DITAMBAHKAN: Animasi perubahan tinggi yang mulus (smooth height transition) */}
           <div
-            className="touch-pan-y overflow-hidden"
+            className="touch-pan-y overflow-hidden transition-[height] duration-500 ease-out"
             style={
-              isCompact && tinggiAktif !== null
+              tinggiAktif !== null
                 ? {
                     height: tinggiAktif,
-                    transition: reducedMotion ? "none" : "height 500ms ease",
+                    transition: reducedMotion ? "none" : "height 500ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }
                 : undefined
             }
@@ -780,11 +750,10 @@ export default function StrukturOrganisasi() {
             onTouchEnd={handleTouchEnd}
           >
             <div
-              className="osis-track flex"
+              className="osis-track flex items-start"
               style={{
                 transform: `translateX(-${activeIndex * 100}%)`,
                 transitionDuration: reducedMotion ? "0ms" : "700ms",
-                alignItems: isCompact ? "flex-start" : undefined,
               }}
             >
               {seksiKategori.map((seksi, idx) => (
@@ -872,7 +841,7 @@ export default function StrukturOrganisasi() {
           </div>
         </div>
 
-        {/* Tombol Sebelumnya/Berikutnya — hanya HP, target sentuh besar */}
+        {/* Tombol Sebelumnya/Berikutnya — hanya HP */}
         <div className="mt-5 grid grid-cols-2 gap-3 sm:hidden">
           <button
             type="button"
