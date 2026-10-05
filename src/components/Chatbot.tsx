@@ -23,21 +23,113 @@ type NewsItem = {
 type ChatMsg = { id: number; role: 'user' | 'bot'; text: string };
 
 type SampleTurn = { role: 'user' | 'assistant'; content: string };
-type SampleResult = { text: string; truncated?: boolean; modelTierApplied?: string };
-type SampleFn = (
-  input: string | SampleTurn[],
-  options?: {
-    modelTier?: 'quick' | 'default' | 'complex';
-    cache?: boolean;
-    signal?: AbortSignal;
-    onText?: (chunk: { text: string }) => void;
-  }
-) => Promise<SampleResult>;
 
-declare global {
-  interface Window {
-    claude?: { use: (name: 'sample') => Promise<SampleFn | null> };
+// ---------- Koneksi ke OpenRouter ----------
+// Isi di file .env: VITE_OPENROUTER_API_KEY=sk-or-v1-xxxx (Vite) atau REACT_APP_OPENROUTER_API_KEY=... (Create React App)
+// PERINGATAN: tanpa backend, key ikut ke bundle JS dan bisa dilihat lewat DevTools.
+// Pakai key khusus dengan credit limit kecil di dashboard OpenRouter.
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+declare const process: any; // dipakai kalau project-nya Create React App
+function readApiKey(): string | undefined {
+  // Vite: VITE_OPENROUTER_API_KEY
+  try {
+    const v = (import.meta as any).env?.VITE_OPENROUTER_API_KEY;
+    if (v) return v as string;
+  } catch { /* bukan Vite */ }
+  // Create React App: REACT_APP_OPENROUTER_API_KEY
+  try {
+    const v = process.env.REACT_APP_OPENROUTER_API_KEY;
+    if (v) return v as string;
+  } catch { /* bukan CRA */ }
+  return undefined;
+}
+const OPENROUTER_KEY = readApiKey();
+const OPENROUTER_MODEL = 'google/gemma-4-31b-it'; // Google: Gemma 4 31B (ganti di sini kalau mau model lain)
+const MAX_HISTORY = 10; // batasi riwayat obrolan yang dikirim supaya hemat token
+
+// Nanti kalau sudah pakai backend/proxy: isi URL-nya di sini, key di atas tidak dipakai lagi.
+// Proxy menerima { system, messages } dan meneruskan respons streaming OpenRouter apa adanya.
+const PROXY_URL = '';
+
+class ChatError extends Error {
+  code?: string;
+  constructor(code: string) {
+    super(code);
+    this.code = code;
   }
+}
+
+async function askOpenRouter(
+  system: string,
+  turns: SampleTurn[],
+  onText: (t: string) => void
+): Promise<string> {
+  const history = turns.slice(-MAX_HISTORY);
+  let res: Response;
+
+  if (PROXY_URL) {
+    res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system, messages: history }),
+    });
+  } else {
+    if (!OPENROUTER_KEY) {
+      console.error('[Chatbot] API key tidak terbaca. Cek file .env (di root project, sejajar package.json): Vite pakai VITE_OPENROUTER_API_KEY, Create React App pakai REACT_APP_OPENROUTER_API_KEY. Lalu restart dev server.');
+      throw new ChatError('not_granted');
+    }
+    res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_KEY}`,
+        'Content-Type': 'application/json',
+        'X-Title': 'Chatbot SMK Telkom Medan 1',
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        stream: true,
+        max_tokens: 400,
+        messages: [{ role: 'system', content: system }, ...history],
+      }),
+    });
+  }
+
+  if (!res.ok) {
+    const detail = await res.clone().text().catch(() => '');
+    console.error('[Chatbot] OpenRouter error', res.status, detail);
+  }
+  if (res.status === 429) throw new ChatError('rate_limited');
+  if (res.status === 401 || res.status === 402 || res.status === 403) throw new ChatError('not_granted');
+  if (!res.ok || !res.body) throw new ChatError('http_' + res.status);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let full = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const rows = buffer.split('\n');
+    buffer = rows.pop() ?? '';
+    for (const row of rows) {
+      const l = row.trim();
+      if (!l.startsWith('data:')) continue; // abaikan komentar seperti ": OPENROUTER PROCESSING"
+      const payload = l.slice(5).trim();
+      if (payload === '[DONE]') return full;
+      try {
+        const delta = JSON.parse(payload).choices?.[0]?.delta?.content;
+        if (delta) {
+          full += delta;
+          onText(full);
+        }
+      } catch {
+        /* potongan JSON belum lengkap, lewati */
+      }
+    }
+  }
+  return full;
 }
 
 type MenuAction =
@@ -309,17 +401,13 @@ export default function Chatbot() {
     };
 
     try {
-      const sample = await window.claude?.use('sample');
-      if (!sample) {
-        updateBot(UNAVAILABLE_MSG);
-        return;
-      }
-
-      const { text: reply } = await sample(
-        [{ role: 'user', content: ASSISTANT_RULES + newsContext(news) }, ...turnsRef.current],
-        { modelTier: 'quick', cache: false, onText: ({ text: t }) => updateBot(t) }
+      const reply = await askOpenRouter(
+        ASSISTANT_RULES + newsContext(news),
+        turnsRef.current,
+        updateBot
       );
 
+      if (!reply.trim()) throw new ChatError('empty');
       updateBot(reply);
       turnsRef.current.push({ role: 'assistant', content: reply });
       succeeded = true;
