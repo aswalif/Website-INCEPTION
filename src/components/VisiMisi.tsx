@@ -50,7 +50,7 @@ function QuoteMark() {
   return (
     <span
       aria-hidden="true"
-      className="block text-6xl font-black leading-none text-red-500/60 sm:text-7xl"
+      className="block text-5xl font-black leading-none text-red-500/60 sm:text-7xl"
       style={{ fontFamily: HEADING_FONT_STACK }}
     >
       &ldquo;
@@ -64,7 +64,10 @@ function QuoteMark() {
 
 export default function VisiMisi() {
   const sectionRef = useRef<HTMLElement>(null);
+  const misiRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [misiVisible, setMisiVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); // < md (satu kolom)
 
   // Muat font Plus Jakarta Sans (body) & Fraunces (judul) — cek dulu agar tidak dobel
   // jika sudah dimuat oleh Navbar/Hero.
@@ -85,10 +88,21 @@ export default function VisiMisi() {
     }
   }, []);
 
+  // Deteksi layar HP (layout satu kolom)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   // Trigger animasi sekali saat section mulai masuk viewport ketika di-scroll.
   useEffect(() => {
     const node = sectionRef.current;
     if (!node) return undefined;
+    // Di HP section sangat tinggi, jadi ambang 20% bisa terlalu sulit tercapai.
+    const threshold = window.matchMedia('(max-width: 767px)').matches ? 0.05 : 0.2;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -97,18 +111,41 @@ export default function VisiMisi() {
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.2, rootMargin: '0px 0px -10% 0px' },
+      { threshold, rootMargin: '0px 0px -10% 0px' },
     );
 
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
 
+  // Di HP, card Misi berada jauh di bawah Visi: animasinya dipicu sendiri
+  // saat card itu benar-benar terlihat. Desktop tetap memakai trigger section.
+  useEffect(() => {
+    if (!isMobile) return undefined;
+    const node = misiRef.current;
+    if (!node) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMisiVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -10% 0px' },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  const misiTampil = isMobile ? misiVisible : isVisible;
+
   return (
     <section
       ref={sectionRef}
       id="visi-misi"
-      className="relative overflow-hidden bg-white px-6 py-20 sm:py-28"
+      className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 sm:py-28"
       style={{ fontFamily: BODY_FONT_STACK }}
     >
       {/* Elemen dekoratif kaca yang lembut (konsisten dengan Hero) */}
@@ -141,13 +178,13 @@ export default function VisiMisi() {
         </div>
 
         {/* Grid Visi & Misi */}
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:mt-14 md:grid-cols-2 md:gap-8">
           {/* Card Visi */}
           <div
             style={{ transitionDelay: isVisible ? '150ms' : '0ms' }}
-            className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white/70 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-xl ring-1 ring-inset ring-black/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-red-500/30 hover:shadow-2xl hover:shadow-red-100 sm:p-10 ${reveal(
+            className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl ring-1 ring-inset ring-black/5 transition-all duration-300 sm:hover:-translate-y-1.5 hover:border-red-500/30 hover:shadow-2xl hover:shadow-red-100 sm:p-10 ${reveal(
               isVisible,
-              'opacity-0 -translate-x-6',
+              'opacity-0 translate-y-6 md:translate-y-0 md:-translate-x-6',
             )}`}
           >
             <span
@@ -157,24 +194,25 @@ export default function VisiMisi() {
             <div className="relative">
               <QuoteMark />
               <h3
-                className="mt-5 text-xl font-bold text-slate-900 sm:text-2xl"
+                className="mt-3 text-xl font-bold text-slate-900 sm:mt-5 sm:text-2xl"
                 style={{ fontFamily: HEADING_FONT_STACK }}
               >
                 Visi
               </h3>
-              <p className="mt-4 text-lg italic leading-relaxed text-slate-700 sm:text-xl">
+              <p className="mt-3 text-base italic leading-relaxed text-slate-700 min-[400px]:text-lg sm:mt-4 sm:text-xl">
                 &ldquo;{VISI}&rdquo;
               </p>
             </div>
-            <div className="relative mt-8 h-px w-full bg-gradient-to-r from-red-500/40 via-red-500/10 to-transparent" />
+            <div className="relative mt-6 h-px w-full sm:mt-8 bg-gradient-to-r from-red-500/40 via-red-500/10 to-transparent" />
           </div>
 
           {/* Card Misi */}
           <div
-            style={{ transitionDelay: isVisible ? '250ms' : '0ms' }}
-            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/70 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-xl ring-1 ring-inset ring-black/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-red-500/30 hover:shadow-2xl hover:shadow-red-100 sm:p-10 ${reveal(
-              isVisible,
-              'opacity-0 translate-x-6',
+            ref={misiRef}
+            style={{ transitionDelay: misiTampil ? '250ms' : '0ms' }}
+            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl ring-1 ring-inset ring-black/5 transition-all duration-300 sm:hover:-translate-y-1.5 hover:border-red-500/30 hover:shadow-2xl hover:shadow-red-100 sm:p-10 ${reveal(
+              misiTampil,
+              'opacity-0 translate-y-6 md:translate-y-0 md:translate-x-6',
             )}`}
           >
             <span
@@ -188,14 +226,14 @@ export default function VisiMisi() {
               Misi
             </h3>
 
-            <ol className="relative mt-6 flex flex-col gap-5">
+            <ol className="relative mt-5 flex flex-col gap-4 sm:mt-6 sm:gap-5">
               {MISI.map((item, index) => (
                 <li
                   key={item}
                   style={{
-                    transitionDelay: isVisible ? `${350 + index * 100}ms` : '0ms',
+                    transitionDelay: misiTampil ? `${350 + index * 100}ms` : '0ms',
                   }}
-                  className={`flex items-start gap-4 ${reveal(isVisible, 'opacity-0 translate-y-4')}`}
+                  className={`flex items-start gap-3 sm:gap-4 ${reveal(misiTampil, 'opacity-0 translate-y-4')}`}
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-sm font-bold text-red-600 backdrop-blur-md transition-colors duration-300 group-hover:border-red-500/50">
                     {String(index + 1).padStart(2, '0')}

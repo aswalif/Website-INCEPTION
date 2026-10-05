@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight } from "lucide-react";
 
 // Daftarkan plugin ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
@@ -20,35 +19,35 @@ const fasilitasData: FasilitasData[] = [
     id: 1,
     title: "Milenial class",
     category: "Laboratorium",
-    image: "/public/fasilitas/Milenialclass.webp",
+    image: "/fasilitas/Milenialclass.webp",
     gridClass: "md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
     title: "Studio DKV & Podcast",
     category: "Studio",
-    image: "/public/fasilitas/Dkvstudio.webp",
+    image: "/fasilitas/Dkvstudio.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 3,
     title: "Lab Jaringan (TKJ)",
     category: "Laboratorium",
-    image: "/public/fasilitas/Labtkj.webp",
+    image: "/fasilitas/Labtkj.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 4,
     title: "Dapur Praktik Kuliner",
     category: "Praktikum",
-    image: "/public/fasilitas/dapurkuliner.webp",
+    image: "/fasilitas/dapurkuliner.webp",
     gridClass: "md:col-span-2 md:row-span-1",
   },
   {
     id: 5,
     title: "Perpustakaan Digital",
     category: "Fasilitas Umum",
-    image: "/public/fasilitas/perpustakaan.webp",
+    image: "/fasilitas/perpustakaan.webp",
     gridClass: "md:col-span-1 md:row-span-2",
   },
   {
@@ -63,7 +62,7 @@ const fasilitasData: FasilitasData[] = [
     id: 7,
     title: "Masjid Raya Sekolah",
     category: "Ibadah",
-    image: "/public/fasilitas/masjid.webp",
+    image: "/fasilitas/masjid.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
@@ -78,49 +77,49 @@ const fasilitasData: FasilitasData[] = [
     id: 9,
     title: "Kantin Sehat & Bersih",
     category: "Fasilitas Umum",
-    image: "/public/fasilitas/kantin.webp",
+    image: "/fasilitas/kantin.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 10,
     title: " Teaching Factory TKJ",
     category: "Studio",
-    image: "/public/fasilitas/tefatkj.webp",
+    image: "/fasilitas/tefatkj.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 11,
     title: "Teaching Factory RPL & DKV",
     category: "Laboratorium",
-    image: "/public/fasilitas/tefarpldv.webp",
+    image: "/fasilitas/tefarpldv.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 12,
     title: "UKS Sekolah",
     category: "Kesehatan",
-    image: "/public/fasilitas/uks.webp",
+    image: "/fasilitas/uks.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 13,
     title: "Asrama",
     category: "Infrastruktur",
-    image: "/public/fasilitas/asrama.webp",
+    image: "/fasilitas/asrama.webp",
     gridClass: "md:col-span-2 md:row-span-1",
   },
   {
     id: 14,
     title: "Ruang Musik",
     category: "Fasilitas Staf",
-    image: "/public/fasilitas/mustel.webp",
+    image: "/fasilitas/mustel.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 15,
     title: "Ruang Kelas 1",
     category: "Layanan",
-    image: "/public/fasilitas/ruang1.webp",
+    image: "/fasilitas/ruang1.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
@@ -135,21 +134,21 @@ const fasilitasData: FasilitasData[] = [
     id: 17,
     title: "Ruang Kelas 2",
     category: "Olahraga",
-    image: "/public/fasilitas/ruang2.webp",
+    image: "/fasilitas/ruang2.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 18,
     title: "Area Parkir Mobil",
     category: "Studio",
-    image: "/public/fasilitas/parkirmobil.webp",
+    image: "/fasilitas/parkirmobil.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
     id: 19,
     title: "Area Parkir Motor",
     category: "Fasilitas Staf",
-    image: "/public/fasilitas/Areamotor.webp",
+    image: "/fasilitas/Areamotor.webp",
     gridClass: "md:col-span-1 md:row-span-1",
   },
   {
@@ -175,67 +174,120 @@ const Fasilitas: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // 1. Animasi Header (Fade In & Slide Up)
-      gsap.fromTo(
-        ".header-text",
-        { y: 100, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1.2,
-          stagger: 0.2,
-          ease: "power4.out",
-          scrollTrigger: {
-            trigger: headerRef.current,
-            start: "top 80%",
-          },
-        },
-      );
+  // useLayoutEffect: state awal animasi dipasang sebelum browser menggambar
+  // sehingga tidak ada kedipan, dan posisi ScrollTrigger dihitung dengan benar.
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
 
-      // 2. Animasi Grid (Staggered Reveal)
+    // Hormati pengguna yang mematikan animasi: konten langsung tampil.
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduceMotion) return;
+
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+
+    const observers: IntersectionObserver[] = [];
+
+    const ctx = gsap.context(() => {
+      const headerEls = gsap.utils.toArray<HTMLElement>(".header-text");
       const cards = gsap.utils.toArray<HTMLElement>(".fasilitas-card");
 
-      cards.forEach((card, i) => {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 50, scale: 0.95 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: "expo.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%", // Animasi akan tertrigger saat kartu masuk 85% layar
-              toggleActions: "play none none reverse",
-            },
-          },
-        );
-      });
+      // State awal (disembunyikan sebelum browser menggambar)
+      gsap.set(headerEls, { y: 60, autoAlpha: 0 });
+      gsap.set(cards, { y: 40, autoAlpha: 0 });
 
-      // 3. Animasi Parallax ringan pada background gambar saat di scroll
-      cards.forEach((card) => {
-        const img = card.querySelector("img");
-        if (img) {
-          gsap.to(img, {
-            yPercent: 15, // Gambar bergeser ke bawah seiring scroll
-            ease: "none",
-            scrollTrigger: {
-              trigger: card,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            },
+      // Reveal memakai IntersectionObserver (bawaan browser), BUKAN ScrollTrigger.
+      // Cara ini tidak bergantung pada posisi scroll yang dihitung GSAP, jadi
+      // konten pasti muncul walau layout halaman berubah atau ada komponen lain
+      // yang mengganggu ScrollTrigger. GSAP tetap dipakai untuk animasinya.
+
+      // 1. Header
+      if (headerRef.current) {
+        const headerIO = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((e) => e.isIntersecting)) return;
+            headerIO.disconnect();
+            ctx.add(() => {
+              gsap.to(headerEls, {
+                y: 0,
+                autoAlpha: 1,
+                duration: 1,
+                stagger: 0.15,
+                ease: "power3.out",
+              });
+            });
+          },
+          { threshold: 0.1 },
+        );
+        headerIO.observe(headerRef.current);
+        observers.push(headerIO);
+      }
+
+      // 2. Kartu grid: yang masuk layar bersamaan di-stagger
+      const cardIO = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .map((e) => e.target as HTMLElement);
+          if (visible.length === 0) return;
+          visible.forEach((el) => cardIO.unobserve(el));
+          ctx.add(() => {
+            gsap.to(visible, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.9,
+              ease: "power3.out",
+              stagger: 0.08,
+              overwrite: "auto",
+              clearProps: "transform,opacity,visibility",
+            });
           });
-        }
-      });
+        },
+        { threshold: 0.05, rootMargin: "0px 0px -5% 0px" },
+      );
+      cards.forEach((card) => cardIO.observe(card));
+      observers.push(cardIO);
+
+      // 3. Parallax ringan (hanya dekorasi, md ke atas). Target = layer pembungkus,
+      //    bukan <img>, agar tidak bentrok dengan hover scale Tailwind.
+      //    Jika ScrollTrigger bermasalah, konten tetap tampil.
+      if (isDesktop) {
+        cards.forEach((card) => {
+          const layer = card.querySelector<HTMLElement>(".parallax-layer");
+          if (!layer) return;
+
+          gsap.fromTo(
+            layer,
+            { yPercent: -7 },
+            {
+              yPercent: 7,
+              ease: "none",
+              scrollTrigger: {
+                trigger: card,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            },
+          );
+        });
+      }
     }, sectionRef);
 
+    // Hitung ulang posisi parallax sekali saja setelah semua aset selesai dimuat.
+    const onLoad = () => ScrollTrigger.refresh();
+    if (document.readyState !== "complete") {
+      window.addEventListener("load", onLoad, { once: true });
+    }
+
     // Cleanup untuk mencegah memory leak
-    return () => ctx.revert();
+    return () => {
+      window.removeEventListener("load", onLoad);
+      observers.forEach((o) => o.disconnect());
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -288,13 +340,17 @@ const Fasilitas: React.FC = () => {
               key={fasilitas.id}
               className={`fasilitas-card group relative rounded-2xl overflow-hidden cursor-pointer ${fasilitas.gridClass}`}
             >
-              {/* Gambar Background (Dengan wrapper untuk parallax GSAP & transform Hover) */}
+              {/* Wrapper gambar → layer parallax (GSAP) → img (hover scale Tailwind) */}
               <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <img
-                  src={fasilitas.image}
-                  alt={fasilitas.title}
-                  className="w-full h-[120%] object-cover -top-[10%] relative transition-transform duration-1000 ease-out group-hover:scale-105"
-                />
+                <div className="parallax-layer relative w-full h-[120%] -top-[10%]">
+                  <img
+                    src={fasilitas.image}
+                    alt={fasilitas.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+                  />
+                </div>
               </div>
 
               {/* Overlay Gradient (Dark Mode Contrast) */}
@@ -313,9 +369,6 @@ const Fasilitas: React.FC = () => {
                   {/* Garis Aksen & Tombol Arrow */}
                   <div className="flex items-center gap-4 mt-4">
                     <div className="h-[1px] w-0 bg-[#E30613] transition-all duration-700 ease-out group-hover:w-12" />
-                    <div className="w-10 h-10 rounded-full bg-[#E30613] text-white flex items-center justify-center opacity-0 -translate-x-4 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-x-0">
-                      <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
-                    </div>
                   </div>
                 </div>
               </div>

@@ -40,6 +40,7 @@ const MENU: NavEntry[] = [
       { label: "Hubungan Industri(Hubin)", href: "/kemitraan" },
       { label: "Prestasi", href: "/prestasi" },
       { label: "Fasilitas", href: "#fasilitas" },
+      { label: "Profil Guru", href: "/profil-guru" }
     ],
   },
   { type: "link", label: "Jurusan", href: "#jurusan" },
@@ -50,11 +51,9 @@ const MENU: NavEntry[] = [
     items: [
       { label: "Akademi Mikrotik", href: "/mikrotik-academy" },
       { label: "Akademi Cisco", href: "/cisco-academy" },
-      { label: "Karya Siswa P5", href: "#struktur-organisasi" },
-      { label: "Pameran Jurusan", href: "#akreditasi" },
     ],
   },
-  { type: "link", label: "Kontak", href: "#kontak" },
+  { type: "link", label: "Kontak", href: "#Footer" },
 ];
 
 const WIDE_LABEL_LENGTH = 12;

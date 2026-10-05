@@ -8,12 +8,13 @@ import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
+import Contact from "./components/Contact";
 
 // Import Scroll Helper
 import ScrollToHashElement from "./components/ScrollToHashElement";
 
 // Lazy Loading Komponen Landing Page
-const Profil = lazy(() => import("./components/Profil"));
+import Profil from "./components/Profil";
 const Jurusan = lazy(() => import("./components/Jurusan"));
 const Fasilitas = lazy(() => import("./components/Fasilitas"));
 
@@ -23,7 +24,9 @@ const PrestasiDetail = lazy(() => import("./components/PrestasiDetail"));
 const HubinPage = lazy(() => import("./components/HubinPage"));
 const HubinDetail = lazy(() => import("./components/HubinDetail"));
 const CiscoAcademyPage = lazy(() => import("./components/CiscoAcademyPage"));
-const MikrotikAcademyPage = lazy(() => import("./components/MikrotikAcademyPage"));
+const MikrotikAcademyPage = lazy(
+  () => import("./components/MikrotikAcademyPage"),
+);
 const ProfilGuruPage = lazy(() => import("./components/ProfilGuruPage"));
 
 // Komponen Landing Page Utama
@@ -34,16 +37,17 @@ const Home = () => {
       <Suspense fallback={null}>
         <Profil />
       </Suspense>
+      <AkreditasiSection />
       <VisiMisi />
       <Suspense fallback={null}>
         <Jurusan />
       </Suspense>
       <StrukturOrganisasi />
-      <AkreditasiSection />
       <Suspense fallback={null}>
         <Fasilitas />
       </Suspense>
       <Alumni />
+      <Contact />
     </>
   );
 };

@@ -182,3 +182,7 @@ y.counter {
     border-right-color: var(--border);
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
