@@ -5,7 +5,12 @@ import Hero from "./components/Hero";
 import VisiMisi from "./components/VisiMisi";
 import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
+<<<<<<< HEAD
 const Chatbot = lazy(() => import('./components/Chatbot')); import Footer from "./components/Footer";
+=======
+import Chatbot from "./components/Chatbot";
+import Footer from "./components/Footer";
+>>>>>>> 65de5819150aee37e712d7d703912f9f0a0424ed
 
 // Import Scroll Helper
 import ScrollToHashElement from "./components/ScrollToHashElement";

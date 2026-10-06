@@ -319,15 +319,10 @@ function CredentialCard({
       <div className="relative flex flex-1 flex-col justify-between gap-12">
         <div
           style={step(100)}
-          className={`flex items-center justify-between gap-4 transition-all duration-1000 ${
+          className={`flex items-center justify-end gap-4 transition-all duration-1000 ${
             inView ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"
           }`}
         >
-          <span
-            className={`rounded-full px-4 py-1.5 text-xs font-bold sm:text-sm ${t.pill}`}
-          >
-            {item.label}
-          </span>
           <span className="pf-display text-xl sm:text-3xl">
             {index + 1}/{total}
           </span>
@@ -383,8 +378,6 @@ export default function Profil({
     heroImageUrl || new URL("../assets/profil-16PQAoLO.webp", import.meta.url).href;
 
   useEffect(() => {
-    // Judul: animasi masuk jalan saat user pertama kali membuka web (jika
-    // section ini di atas) ATAU saat user scroll dari hero menuju section ini.
     const titleObs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -411,7 +404,6 @@ export default function Profil({
     };
   }, []);
 
-  // Satu listener scroll (rAF) untuk: progress bar, parallax, badge, teks statement
   useEffect(() => {
     let raf = 0;
     const update = () => {
@@ -427,15 +419,16 @@ export default function Profil({
 
       if (heroMediaRef.current && heroImgRef.current) {
         const r = heroMediaRef.current.getBoundingClientRect();
-        const offset = (r.top + r.height / 2 - vh / 2) / vh; // -1..1
+        const offset = (r.top + r.height / 2 - vh / 2) / vh;
         heroImgRef.current.style.transform = `scale(1.08) translateY(${offset * -28}px)`;
       }
 
-      if (badgeRef.current) {
-        badgeRef.current.style.transform = `translateY(${window.scrollY * -0.06}px)`;
+      if (badgeRef.current && heroMediaRef.current) {
+        const r = heroMediaRef.current.getBoundingClientRect();
+        const offset = (r.top + r.height / 2 - vh / 2) / vh;
+        badgeRef.current.style.transform = `translateY(${offset * -40}px)`;
       }
 
-      // Judul hero: tiap baris bergeser berlawanan arah + miring + memudar saat scroll
       if (heroTitleRef.current) {
         const reduce = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
@@ -444,7 +437,7 @@ export default function Profil({
         const p = reduce
           ? 0
           : Math.min(1, Math.max(0, (120 - r.top) / r.height));
-        const eased = p * p * (3 - 2 * p); // smoothstep
+        const eased = p * p * (3 - 2 * p);
         heroTitleRef.current
           .querySelectorAll<HTMLElement>("[data-pf-line]")
           .forEach((el, idx) => {
@@ -561,16 +554,7 @@ export default function Profil({
       </div>
 
       {/* ============================ HERO ============================ */}
-      <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-20 sm:px-8 md:pt-28">
-        <div
-          style={{ transitionTimingFunction: EASE }}
-          className={`transition-all duration-700 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-          }`}
-        >
-          <Pill>Profil sekolah</Pill>
-        </div>
-
+      <div className="mx-auto max-w-[1400px] px-5 pb-4 pt-20 sm:px-8 md:pt-28">
         <h2
           ref={heroTitleRef}
           className="pf-display mt-6 text-[clamp(3.75rem,16vw,15rem)] leading-[0.88]"
@@ -591,134 +575,6 @@ export default function Profil({
             </MaskLine>
           </div>
         </h2>
-
-        <div
-          style={{ transitionTimingFunction: EASE }}
-          className={`mt-8 flex flex-col gap-6 transition-all duration-1000 delay-500 md:flex-row md:items-end md:justify-between ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <p className="max-w-md text-lg font-medium leading-7 text-neutral-700 md:text-xl">
-            Membangun generasi profesional, kompeten, dan berkarakter di era
-            digital.
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            {["Akreditasi A", "ISO 9001", "Spesialisasi TIK"].map((t, i) => (
-              <span
-                key={t}
-                style={{
-                  transitionDelay: `${700 + i * 120}ms`,
-                  transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                }}
-                className={`rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-700 hover:-translate-y-1 hover:bg-red-600 ${
-                  isVisible ? "scale-100 opacity-100" : "scale-50 opacity-0"
-                }`}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Hero media */}
-        <div ref={heroMediaRef} className="relative mt-12 md:mt-16">
-          <div
-            ref={badgeRef}
-            className="absolute -top-8 right-2 z-10 h-24 w-24 sm:-top-10 sm:right-6 sm:h-32 sm:w-32 md:-top-16 md:right-12 md:h-44 md:w-44"
-            aria-hidden="true"
-          >
-            <div
-              className={`h-full w-full ${mediaIn ? "pf-badge-in" : "opacity-0"}`}
-            >
-              <div className="pf-spin-slow h-full w-full transition-transform duration-500 hover:scale-110">
-                <svg viewBox="0 0 200 200" className="h-full w-full">
-                  <defs>
-                    <path
-                      id="pf-badge-path"
-                      d="M 100,100 m -76,0 a 76,76 0 1,1 152,0 a 76,76 0 1,1 -152,0"
-                    />
-                  </defs>
-                  <circle cx="100" cy="100" r="98" fill="#0a0a0a" />
-                  <text
-                    fill="#fff"
-                    fontSize="21"
-                    fontFamily="'Anton', Impact, sans-serif"
-                    letterSpacing="2"
-                  >
-                    <textPath
-                      href="#pf-badge-path"
-                      textLength="470"
-                      lengthAdjust="spacing"
-                    >
-                      AKREDITASI A + ISO 9001 + TIK +
-                    </textPath>
-                  </text>
-                  <circle cx="100" cy="100" r="50" fill="#E31E24" />
-                  <text
-                    x="100"
-                    y="122"
-                    textAnchor="middle"
-                    fill="#fff"
-                    fontSize="66"
-                    fontFamily="'Anton', Impact, sans-serif"
-                  >
-                    A
-                  </text>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {!imageError ? (
-            <div
-              style={{
-                transitionTimingFunction: EASE,
-                clipPath: mediaIn
-                  ? "inset(0% 0% 0% 0% round 36px)"
-                  : "inset(18% 12% 18% 12% round 80px)",
-              }}
-              className={`relative overflow-hidden border-2 border-neutral-950 bg-neutral-100 transition-all duration-[1600ms] ${
-                mediaIn ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <img
-                ref={heroImgRef}
-                src={imagePath}
-                alt="Profil SMK Telkom Medan"
-                onError={() => setImageError(true)}
-                style={{ transform: "scale(1.08)", willChange: "transform" }}
-                className="block h-auto w-full object-contain"
-              />
-
-              <div
-                style={{
-                  transitionDelay: "1100ms",
-                  transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                }}
-                className={`absolute bottom-4 left-4 rounded-2xl border-2 border-neutral-950 bg-white px-4 py-2.5 transition-all duration-1000 sm:bottom-6 sm:left-6 ${
-                  isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
-              >
-                <p className="text-xs font-bold sm:text-sm">SMK Telkom Medan</p>
-                <p className="mt-0.5 text-[11px] font-medium text-neutral-600 sm:text-xs">
-                  Pendidikan teknologi &amp; karakter
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex aspect-[4/3] items-center justify-center rounded-[36px] border-2 border-dashed border-neutral-400 bg-neutral-50 text-center">
-              <div>
-                <p className="pf-display text-3xl">SMK Telkom Medan</p>
-                <p className="mt-1 text-sm font-medium text-neutral-500">
-                  Gambar profil tidak ditemukan
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* =========================== MARQUEE =========================== */}
@@ -783,10 +639,93 @@ export default function Profil({
 
         <div className="mt-16 grid gap-10 md:mt-24 lg:grid-cols-12 lg:gap-16">
           <Reveal className="lg:col-span-5" from="left">
-            <Pill>Mengenal lebih dekat</Pill>
             <h3 className="pf-display mt-5 text-4xl leading-[0.95] sm:text-5xl md:text-6xl">
               Membangun generasi unggul di era digital
             </h3>
+
+            <div ref={heroMediaRef} className="relative mt-8 md:mt-10">
+              <div
+                ref={badgeRef}
+                className="absolute -right-2 -top-8 z-10 h-20 w-20 sm:h-24 sm:w-24 md:-right-4 md:-top-10 md:h-28 md:w-28"
+                aria-hidden="true"
+              >
+                <div
+                  className={`h-full w-full ${mediaIn ? "pf-badge-in" : "opacity-0"}`}
+                >
+                  <div className="pf-spin-slow h-full w-full transition-transform duration-500 hover:scale-110">
+                    <svg viewBox="0 0 200 200" className="h-full w-full">
+                      <defs>
+                        <path
+                          id="pf-badge-path"
+                          d="M 100,100 m -76,0 a 76,76 0 1,1 152,0 a 76,76 0 1,1 -152,0"
+                        />
+                      </defs>
+                      <circle cx="100" cy="100" r="98" fill="#0a0a0a" />
+                      <text
+                        fill="#fff"
+                        fontSize="21"
+                        fontFamily="'Anton', Impact, sans-serif"
+                        letterSpacing="2"
+                      >
+                        <textPath
+                          href="#pf-badge-path"
+                          textLength="470"
+                          lengthAdjust="spacing"
+                        >
+                          AKREDITASI A + ISO 9001 + TIK +
+                        </textPath>
+                      </text>
+                      <circle cx="100" cy="100" r="50" fill="#E31E24" />
+                      <text
+                        x="100"
+                        y="122"
+                        textAnchor="middle"
+                        fill="#fff"
+                        fontSize="66"
+                        fontFamily="'Anton', Impact, sans-serif"
+                      >
+                        A
+                      </text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {!imageError ? (
+                <div
+                  style={{
+                    transitionTimingFunction: EASE,
+                    clipPath: mediaIn
+                      ? "inset(0% 0% 0% 0% round 24px)"
+                      : "inset(18% 12% 18% 12% round 60px)",
+                  }}
+                  className={`relative overflow-hidden border-2 border-neutral-950 bg-neutral-100 transition-all duration-[1600ms] ${
+                    mediaIn ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <img
+                    ref={heroImgRef}
+                    src={imagePath}
+                    alt="Profil SMK Telkom Medan"
+                    onError={() => setImageError(true)}
+                    style={{
+                      transform: "scale(1.08)",
+                      willChange: "transform",
+                    }}
+                    className="block aspect-[4/3] h-auto w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex aspect-[4/3] items-center justify-center rounded-[24px] border-2 border-dashed border-neutral-400 bg-neutral-50 text-center">
+                  <div>
+                    <p className="pf-display text-3xl">SMK Telkom Medan</p>
+                    <p className="mt-1 text-sm font-medium text-neutral-500">
+                      Gambar profil tidak ditemukan
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </Reveal>
 
           <div className="space-y-5 text-base font-medium leading-8 text-neutral-700 md:text-lg lg:col-span-7">
@@ -841,9 +780,6 @@ export default function Profil({
 
       {/* ====================== CREDENTIAL STACK ====================== */}
       <div className="mx-auto mt-28 max-w-[1400px] px-5 sm:px-8 md:mt-44">
-        <Reveal>
-          <Pill>Kredensial</Pill>
-        </Reveal>
         <h3 className="pf-display mt-5 text-[clamp(3rem,11vw,10rem)] leading-[0.9]">
           <ScrollMask delay={100}>Unggul</ScrollMask>
           <ScrollMask delay={200}>
@@ -883,8 +819,6 @@ export default function Profil({
           <div className="pf-spin-slow absolute -bottom-16 left-[38%] h-40 w-40 rotate-45 border-2 border-white/30 md:h-64 md:w-64" />
 
           <div className="relative">
-            <Pill tone="dark">Moto utama sekolah</Pill>
-
             <h3 className="pf-display mt-6 flex text-[clamp(7rem,34vw,30rem)] leading-[0.85]">
               <span className="sr-only">AINO</span>
               {"AINO".split("").map((l, i) => (
@@ -930,9 +864,7 @@ export default function Profil({
 
       {/* =========================== D'REAL ICT ========================= */}
       <div className="mx-auto max-w-[1400px] px-5 pb-24 pt-24 sm:px-8 md:pb-36 md:pt-40">
-        <Reveal>
-          <Pill>Karakter siswa</Pill>
-        </Reveal>
+        <Reveal></Reveal>
         <h3 className="pf-display mt-5 text-[clamp(3.25rem,13vw,12rem)] leading-[0.9]">
           <ScrollMask delay={100}>
             D&apos;<span className="text-red-600">REAL</span> ICT
@@ -1041,7 +973,6 @@ export default function Profil({
                   </span>
                 </button>
 
-                {/* Accordion halus: tinggi dianimasikan lewat grid-rows */}
                 <div
                   id={`dreal-panel-${item.letter}`}
                   role="region"

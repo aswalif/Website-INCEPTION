@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-import { Award, CalendarCheck, Maximize2, ShieldCheck, X } from 'lucide-react';
-import fotoSertifikat from '../assets/sertifikat-akreditasi.jpg';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Award, CalendarCheck, Maximize2, ShieldCheck, X } from "lucide-react";
+import fotoSertifikat from "../assets/sertifikat-akreditasi.jpg";
 
-const CERT_ALT = 'Sertifikat Akreditasi BAN-SM SMKS Telkom Sandhy Putra Medan';
+const CERT_ALT = "Sertifikat Akreditasi BAN-SM SMKS Telkom Sandhy Putra Medan";
 const SCORE = 96;
 const RING_R = 52;
 const RING_C = 2 * Math.PI * RING_R;
 
 const prefersReducedMotion = (): boolean =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** True sekali saat elemen masuk viewport (25% terlihat). */
 function useInView<T extends HTMLElement>() {
@@ -19,7 +20,7 @@ function useInView<T extends HTMLElement>() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+    if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
       setInView(true);
       return;
     }
@@ -63,13 +64,13 @@ function useCountUp(target: number, active: boolean, duration = 1600): number {
   return value;
 }
 
-type Direction = 'up' | 'left' | 'right' | 'scale';
+type Direction = "up" | "left" | "right" | "scale";
 
 const HIDDEN: Record<Direction, string> = {
-  up: 'translate-y-8 opacity-0',
-  left: '-translate-x-10 opacity-0',
-  right: 'translate-x-10 opacity-0',
-  scale: 'scale-90 opacity-0',
+  up: "translate-y-8 opacity-0",
+  left: "-translate-x-10 opacity-0",
+  right: "translate-x-10 opacity-0",
+  scale: "scale-90 opacity-0",
 };
 
 interface RevealProps {
@@ -80,12 +81,20 @@ interface RevealProps {
   children: ReactNode;
 }
 
-function Reveal({ show, delay = 0, from = 'up', className = '', children }: RevealProps) {
+function Reveal({
+  show,
+  delay = 0,
+  from = "up",
+  className = "",
+  children,
+}: RevealProps) {
   return (
     <div
-      style={{ transitionDelay: show ? `${delay}ms` : '0ms' }}
+      style={{ transitionDelay: show ? `${delay}ms` : "0ms" }}
       className={`transition-all duration-700 ease-out motion-reduce:transition-none ${
-        show ? 'translate-x-0 translate-y-0 scale-100 opacity-100' : HIDDEN[from]
+        show
+          ? "translate-x-0 translate-y-0 scale-100 opacity-100"
+          : HIDDEN[from]
       } ${className}`}
     >
       {children}
@@ -101,8 +110,19 @@ function ScoreRing({ active }: { active: boolean }) {
       role="img"
       aria-label={`Nilai akreditasi ${SCORE} dari 100`}
     >
-      <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
-        <circle cx="60" cy="60" r={RING_R} fill="none" strokeWidth="8" className="stroke-slate-200" />
+      <svg
+        viewBox="0 0 120 120"
+        className="h-full w-full -rotate-90"
+        aria-hidden="true"
+      >
+        <circle
+          cx="60"
+          cy="60"
+          r={RING_R}
+          fill="none"
+          strokeWidth="8"
+          className="stroke-slate-200"
+        />
         <circle
           cx="60"
           cy="60"
@@ -126,8 +146,8 @@ function ScoreRing({ active }: { active: boolean }) {
 }
 
 const STATS = [
-  { icon: ShieldCheck, value: 'A', label: 'Terakreditasi (Unggul)' },
-  { icon: CalendarCheck, value: '31 Des 2026', label: 'Masa Berlaku' },
+  { icon: ShieldCheck, value: "A", label: "Terakreditasi (Unggul)" },
+  { icon: CalendarCheck, value: "31 Des 2026", label: "Masa Berlaku" },
 ] as const;
 
 export default function AkreditasiSection() {
@@ -136,13 +156,14 @@ export default function AkreditasiSection() {
 
   useEffect(() => {
     if (!isCertificateOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsCertificateOpen(false);
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && setIsCertificateOpen(false);
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener("keydown", onKey);
     };
   }, [isCertificateOpen]);
 
@@ -157,13 +178,13 @@ export default function AkreditasiSection() {
       <div
         aria-hidden="true"
         className={`absolute -left-24 top-0 -z-10 h-80 w-80 rounded-full bg-red-500/10 blur-3xl transition-all duration-[1500ms] motion-reduce:transition-none ${
-          inView ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
+          inView ? "scale-100 opacity-100" : "scale-50 opacity-0"
         }`}
       />
       <div
         aria-hidden="true"
         className={`absolute inset-0 -z-10 [background-image:radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent_70%)] transition-opacity duration-[1500ms] motion-reduce:transition-none ${
-          inView ? 'opacity-40' : 'opacity-0'
+          inView ? "opacity-40" : "opacity-0"
         }`}
       />
 
@@ -175,7 +196,7 @@ export default function AkreditasiSection() {
               <span
                 aria-hidden="true"
                 className={`h-px bg-red-600 transition-all duration-1000 motion-reduce:transition-none ${
-                  inView ? 'w-12' : 'w-0'
+                  inView ? "w-12" : "w-0"
                 }`}
               />
               <span className="rounded-full border border-red-100 bg-red-50 px-3 py-1 text-xs font-semibold tracking-widest text-red-600">
@@ -195,7 +216,8 @@ export default function AkreditasiSection() {
 
           <Reveal show={inView} delay={240}>
             <p className="mt-4 max-w-lg leading-relaxed text-slate-600 sm:text-lg">
-              SMKS Telkom Sandhy Putra Medan memperoleh nilai akreditasi 96/100 berdasarkan penetapan BAN-SM.
+              SMKS Telkom Sandhy Putra Medan memperoleh nilai akreditasi 96/100
+              berdasarkan penetapan BAN-SM.
             </p>
           </Reveal>
 
@@ -246,13 +268,16 @@ export default function AkreditasiSection() {
             <span
               aria-hidden="true"
               className={`pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-[1400ms] ease-out motion-reduce:hidden ${
-                inView ? 'translate-x-[400%]' : 'translate-x-0'
+                inView ? "translate-x-[400%]" : "translate-x-0"
               }`}
-              style={{ transitionDelay: inView ? '900ms' : '0ms' }}
+              style={{ transitionDelay: inView ? "900ms" : "0ms" }}
             />
             <span className="absolute inset-0 flex items-center justify-center bg-slate-900/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
               <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-md">
-                <Maximize2 className="h-4 w-4 text-red-600" aria-hidden="true" />
+                <Maximize2
+                  className="h-4 w-4 text-red-600"
+                  aria-hidden="true"
+                />
                 Lihat Sertifikat Penuh
               </span>
             </span>
@@ -261,12 +286,16 @@ export default function AkreditasiSection() {
           {/* Badge melayang yang muncul belakangan */}
           <div
             aria-hidden="true"
-            style={{ transitionDelay: inView ? '1100ms' : '0ms' }}
+            style={{ transitionDelay: inView ? "1100ms" : "0ms" }}
             className={`absolute -bottom-4 left-4 rounded-2xl border border-red-100 bg-white px-4 py-2 shadow-md transition-all duration-700 motion-reduce:transition-none sm:-left-4 ${
-              inView ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-4 scale-75 opacity-0'
+              inView
+                ? "translate-y-0 scale-100 opacity-100"
+                : "translate-y-4 scale-75 opacity-0"
             }`}
           >
-            <p className="text-xs font-semibold text-slate-500">Dikeluarkan oleh</p>
+            <p className="text-xs font-semibold text-slate-500">
+              Dikeluarkan oleh
+            </p>
             <p className="text-sm font-bold text-red-600">BAN-SM</p>
           </div>
         </Reveal>
@@ -274,35 +303,35 @@ export default function AkreditasiSection() {
 
       {/* Lightbox: di-portal ke <body> supaya di atas navbar */}
       {createPortal(
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Sertifikat akreditasi ukuran penuh"
-        aria-hidden={!isCertificateOpen}
-        onClick={() => setIsCertificateOpen(false)}
-        className={`fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm transition-opacity duration-300 sm:p-8 ${
-          isCertificateOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-      >
-        <button
-          type="button"
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sertifikat akreditasi ukuran penuh"
+          aria-hidden={!isCertificateOpen}
           onClick={() => setIsCertificateOpen(false)}
-          tabIndex={isCertificateOpen ? 0 : -1}
-          aria-label="Tutup tampilan sertifikat"
-          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-md transition-all duration-200 hover:bg-red-600 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 active:scale-95 sm:right-6 sm:top-6"
-        >
-          <X className="h-5 w-5" aria-hidden="true" />
-        </button>
-        <img
-          src={fotoSertifikat}
-          alt={CERT_ALT}
-          onClick={(e) => e.stopPropagation()}
-          className={`max-h-full max-w-full rounded-xl bg-white object-contain shadow-2xl transition-all duration-300 motion-reduce:transition-none ${
-            isCertificateOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          className={`fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm transition-opacity duration-300 sm:p-8 ${
+            isCertificateOpen ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
-        />
-      </div>,
-      document.body,
+        >
+          <button
+            type="button"
+            onClick={() => setIsCertificateOpen(false)}
+            tabIndex={isCertificateOpen ? 0 : -1}
+            aria-label="Tutup tampilan sertifikat"
+            className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-md transition-all duration-200 hover:bg-red-600 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 active:scale-95 sm:right-6 sm:top-6"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <img
+            src={fotoSertifikat}
+            alt={CERT_ALT}
+            onClick={(e) => e.stopPropagation()}
+            className={`max-h-full max-w-full rounded-xl bg-white object-contain shadow-2xl transition-all duration-300 motion-reduce:transition-none ${
+              isCertificateOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
+          />
+        </div>,
+        document.body,
       )}
     </section>
   );
