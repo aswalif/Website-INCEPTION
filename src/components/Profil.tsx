@@ -373,9 +373,9 @@ export default function Profil({
 
   const [ainoRef, ainoIn] = useInView<HTMLDivElement>(0.3);
   const [listRef, listIn] = useInView<HTMLDivElement>(0.1);
-   
+
   const imagePath =
-    heroImageUrl || new URL("../assets/kom1.webp", import.meta.url).href;
+    heroImageUrl || new URL("../assets/profil.png", import.meta.url).href;
 
   useEffect(() => {
     const titleObs = new IntersectionObserver(
