@@ -380,7 +380,7 @@ export default function Profil({
   const [listRef, listIn] = useInView<HTMLDivElement>(0.1);
 
   const imagePath =
-    heroImageUrl || new URL("../assets/profil.png", import.meta.url).href;
+    heroImageUrl || new URL("../assets/profil-16PQAoLO.webp", import.meta.url).href;
 
   useEffect(() => {
     // Judul: animasi masuk jalan saat user pertama kali membuka web (jika

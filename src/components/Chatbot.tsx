@@ -182,10 +182,10 @@ const INITIAL_NEWS: NewsItem[] = [
     link: 'https://smktelkom1medan.sch.id/site/news', image: pkl,
   },
   {
-    tag: 'Muharram', emoji: '📝', date :'16 juni 2026',
+    tag: 'Muharram', emoji: '📝', date: '16 juni 2026',
     title: 'Selamat Menyambut Tahun Baru Islam 1 Muharram 1448 H',
     body: 'Tahun Baru Islam 1 Muharram 1448 Hijriah menjadi momen yang penuh makna bagi umat Muslim untuk melakukan refleksi diri, memperkuat...',
-    link: 'https://smktelkom1medan.sch.id',  image: muharam,
+    link: 'https://smktelkom1medan.sch.id', image: muharam,
   },
   {
     tag: 'pancasila', emoji: '🇯🇵', date: '1 juni 2026',
@@ -264,6 +264,8 @@ function NewsCard({ item }: { item: NewsItem }) {
           <img
             src={item.image}
             alt={item.title}
+            loading="lazy"
+            decoding="async"
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgFailed(true)}
           />
@@ -318,7 +320,7 @@ export default function Chatbot() {
       .then((data: NewsItem[] | null) => {
         if (Array.isArray(data) && data.length) setNews(data);
       })
-      .catch(() => {}); // tetap pakai daftar bawaan kalau gagal
+      .catch(() => { }); // tetap pakai daftar bawaan kalau gagal
   }, []);
 
   // Geser topik cepat pakai roda mouse

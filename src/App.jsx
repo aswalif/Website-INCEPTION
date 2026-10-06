@@ -5,9 +5,7 @@ import Hero from "./components/Hero";
 import VisiMisi from "./components/VisiMisi";
 import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
-import Chatbot from "./components/Chatbot";
-import Footer from "./components/Footer";
-import Contact from "./components/Contact";
+const Chatbot = lazy(() => import('./components/Chatbot')); import Footer from "./components/Footer";
 
 // Import Scroll Helper
 import ScrollToHashElement from "./components/ScrollToHashElement";
@@ -52,7 +50,6 @@ const Home = () => {
         <GaleriSection />
       </Suspense>
       <Alumni />
-      <Contact />
     </>
   );
 };
@@ -146,7 +143,9 @@ export default function App() {
             }
           />
         </Routes>
-        <Chatbot />
+        <Suspense fallback={null}>
+          <Chatbot />
+        </Suspense>
         <Footer />
       </div>
     </Router>
