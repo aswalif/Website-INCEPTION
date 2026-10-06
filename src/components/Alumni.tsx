@@ -20,8 +20,7 @@ const testimonials: Testimonial[] = [
     role: "Branch Supervisor Biznet",
     quote:
       "Sebuah kebanggaan menjadi alumni SMK Telkom Medan. Ilmu-ilmu yang didapatkan dari para guru terbaik dan berpengalaman dapat langsung diaplikasikan pada dunia profesional !",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
+    avatar: "/public/Alumni/biznet.webp",
     rating: 5,
   },
   {
@@ -31,8 +30,7 @@ const testimonials: Testimonial[] = [
     role: "Designprenuer",
     quote:
       "SMK Telkom Medan menjadi fondasi kuat bagi saya untuk menjadi seorang designpreneur. Ilmu yang saya dapatkan di sini sangat relevan dengan dunia kerja, terutama dalam bidang desain. Terima kasih SMK Telkom Medan!",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800",
+    avatar: "/public/Alumni/dsg.webp",
     rating: 5,
   },
   {
@@ -42,8 +40,7 @@ const testimonials: Testimonial[] = [
     role: "Huawei",
     quote:
       "Terima kasih untuk guru guru SMK Telkom Medan yang sangat friendly , yang mau mengajari saya detail tentang dunia telekomunikasi, pesan untuk adik-adik selalu semangat bersekolah di SMK Telkom Medan karna itu penting !",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800",
+    avatar: "/public/Alumni/huawei.webp",
     rating: 5,
   },
   {
@@ -53,19 +50,17 @@ const testimonials: Testimonial[] = [
     role: "Basarnas",
     quote:
       "Saya merasa senang dan banyak ilmu yang saya dapatkan dari bersosial ke guru, lingkungan sekolah, dan banyak pengalaman yang saya dapatkan selama bersekolah di SMK Telkom Medan !",
-    avatar:
-      "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=800",
+    avatar: "/public/Alumni/basarnas.webp",
     rating: 5,
   },
   {
     id: 5,
-    name: "Muhanisya Putri",
+    name: "Antoni Bangun",
     company: "McDermott",
     role: "PT. McDermott Indonesia",
     quote:
       "Merupakan kebanggaan bisa bersekolah di SMK Telkom Medan, sekolah unggulan yang memiliki guru-guru yang kompeten dibidangnya dan selalu memberikan yang terbaik bagi para siswanya !",
-    avatar:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
+    avatar: "/public/Alumni/Mcdermot.webp",
     rating: 5,
   },
 ];

@@ -5,7 +5,7 @@ import Hero from "./components/Hero";
 import VisiMisi from "./components/VisiMisi";
 import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
-const Chatbot = lazy(() => import('./components/Chatbot')); 
+const Chatbot = lazy(() => import("./components/Chatbot"));
 import Footer from "./components/Footer";
 
 // Import Scroll Helper
@@ -27,7 +27,9 @@ const MikrotikAcademyPage = lazy(
   () => import("./components/MikrotikAcademyPage"),
 );
 const ProfilGuruPage = lazy(() => import("./components/ProfilGuruPage"));
-const StrukturOrganisasiPage = lazy(() => import("./components/StrukturOrganisasiPage"));
+const StrukturOrganisasiPage = lazy(
+  () => import("./components/StrukturOrganisasiPage"),
+);
 const GaleriDetail = lazy(() => import("./components/GaleriDetail"));
 
 // Komponen Landing Page Utama (Tampilkan GaleriSection di sini)
@@ -67,14 +69,17 @@ export default function App() {
           <Route
             path="/galeri"
             element={
-              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
-              </Suspense>
+              <Suspense
+                fallback={<div className="min-h-screen bg-[#F8F8F6]" />}
+              ></Suspense>
             }
           />
           <Route
             path="/galeri/:slug"
             element={
-              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
+              <Suspense
+                fallback={<div className="min-h-screen bg-[#F8F8F6]" />}
+              >
                 <GaleriDetail />
               </Suspense>
             }
@@ -82,7 +87,9 @@ export default function App() {
           <Route
             path="/struktur-organisasi"
             element={
-              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
+              <Suspense
+                fallback={<div className="min-h-screen bg-[#F8F8F6]" />}
+              >
                 <StrukturOrganisasiPage />
               </Suspense>
             }
