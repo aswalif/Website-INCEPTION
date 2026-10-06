@@ -139,7 +139,7 @@ const findPhotos = (prefix: string): string[] => {
 /** Fallback: bangun URL dari folder public/galeri/foto/ */
 const publicPhotos = (prefix: string, count: number, plain?: boolean): string[] =>
   Array.from({ length: count }, (_, i) =>
-    encodeURI(`/galeri/foto/${prefix}${plain ? i + 1 : `(${i + 1})`}.jpg`)
+    encodeURI(`/galeri/foto/${prefix}${plain ? i + 1 : `(${i + 1})`}.webp`)
   );
 
 export const ALBUMS: Album[] = ALBUM_CONFIG.map(({ coverFile, prefix, count, plain, ...rest }) => {

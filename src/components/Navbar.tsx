@@ -581,27 +581,71 @@ export default function Navbar() {
   useEffect(() => {
     if (!isHomePage) return undefined;
 
-    const targets = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      (element): element is HTMLElement => element !== null,
-    );
-    if (targets.length === 0) return undefined;
+    // Scroll-spy berbasis posisi. Elemen section di-query ulang setiap kali
+    // dihitung, sehingga section yang baru muncul belakangan (React.lazy /
+    // Suspense / data async saat kunjungan pertama) tetap terdeteksi.
+    let frame = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (spyLockRef.current) return;
-        const visibleEntry = entries.find((entry) => entry.isIntersecting);
-        if (visibleEntry) {
-          setActiveHref(`#${visibleEntry.target.id}`);
+    const compute = () => {
+      frame = 0;
+      if (spyLockRef.current) return;
+
+      const probeLine = window.innerHeight * 0.35;
+      const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+        (element): element is HTMLElement => element !== null,
+      );
+      if (sections.length === 0) return;
+
+      let nextId: string | null = null;
+
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 4;
+
+      if (atBottom) {
+        // Mentok di bawah: aktifkan section paling bawah (mis. Footer / Kontak)
+        let lowestTop = -Infinity;
+        sections.forEach((el) => {
+          const top = el.getBoundingClientRect().top;
+          if (top > lowestTop) {
+            lowestTop = top;
+            nextId = el.id;
+          }
+        });
+      } else {
+        for (const el of sections) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= probeLine && rect.bottom > probeLine) {
+            nextId = el.id;
+            break;
+          }
         }
-      },
-      { 
-        rootMargin: "-48% 0px -48% 0px", 
-        threshold: 0 
-      },
-    );
+      }
 
-    targets.forEach((target) => observer.observe(target));
-    return () => observer.disconnect();
+      if (nextId) {
+        const href = `#${nextId}`;
+        setActiveHref((current) => (current === href ? current : href));
+      }
+    };
+
+    const schedule = () => {
+      if (frame === 0) frame = window.requestAnimationFrame(compute);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    // Hitung ulang ketika ada section baru yang masuk ke DOM
+    const mutationObserver = new MutationObserver(schedule);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      mutationObserver.disconnect();
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+    };
   }, [isHomePage]);
 
   useEffect(() => {
