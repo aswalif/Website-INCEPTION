@@ -8,7 +8,6 @@ import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
-import Contact from "./components/Contact";
 
 // Import Scroll Helper
 import ScrollToHashElement from "./components/ScrollToHashElement";
@@ -47,7 +46,6 @@ const Home = () => {
         <Fasilitas />
       </Suspense>
       <Alumni />
-      <Contact />
     </>
   );
 };
