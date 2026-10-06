@@ -32,6 +32,7 @@ export default function MitraLogo({ mitra, className = '', large = false }: Mitr
           src={src}
           alt={`Logo ${mitra.name}`}
           loading="lazy"
+          decoding="async"
           onError={() => setFailed(true)}
           className="h-full w-full object-contain object-left"
         />
@@ -47,9 +48,8 @@ export default function MitraLogo({ mitra, className = '', large = false }: Mitr
       className={`flex items-center gap-3 ${className}`}
     >
       <span
-        className={`flex shrink-0 items-center justify-center border border-slate-300 bg-slate-50 font-serif font-semibold tracking-wide text-slate-800 ${
-          large ? 'h-20 w-20 rounded-2xl text-3xl' : 'h-14 w-14 rounded-xl text-xl'
-        }`}
+        className={`flex shrink-0 items-center justify-center border border-slate-300 bg-slate-50 font-serif font-semibold tracking-wide text-slate-800 ${large ? 'h-20 w-20 rounded-2xl text-3xl' : 'h-14 w-14 rounded-xl text-xl'
+          }`}
       >
         {getInitials(mitra.name)}
       </span>

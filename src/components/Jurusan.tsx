@@ -277,6 +277,8 @@ const JurusanDetailModal: React.FC<JurusanDetailModalProps> = ({
             <img
               src={data.image}
               alt={`Ilustrasi jurusan ${data.nama}`}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
@@ -394,6 +396,7 @@ const JurusanCard: React.FC<JurusanCardProps> = ({
             src={data.image}
             alt={`Ilustrasi jurusan ${data.nama}`}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
           {/* Gradient overlay */}

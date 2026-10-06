@@ -186,6 +186,7 @@ function Photo({ g, className = '' }: { g: Guru; className?: string }) {
       src={getGuruPhoto(g.foto, name)}
       alt={`Foto ${g.nama}`}
       loading="lazy"
+      decoding="async"
       onError={(e) => {
         const img = e.currentTarget;
         const fb = fallbackAvatar(name);
@@ -213,9 +214,8 @@ function Badge({
     <Tag
       {...(onOpen ? { onClick: onOpen, type: 'button' as const } : {})}
       style={{ ['--tone' as string]: tone }}
-      className={`pg-badge group relative flex h-full w-full flex-col overflow-hidden rounded-[22px] border border-[var(--ink)] bg-white text-left ${
-        onOpen ? 'cursor-pointer' : ''
-      }`}
+      className={`pg-badge group relative flex h-full w-full flex-col overflow-hidden rounded-[22px] border border-[var(--ink)] bg-white text-left ${onOpen ? 'cursor-pointer' : ''
+        }`}
     >
       {/* strip warna + lubang lanyard */}
       <div className="relative flex h-9 items-center bg-[var(--tone)] px-4">
@@ -455,9 +455,8 @@ export default function ProfilGuruPage() {
             {[...ribbon, ...ribbon].map((g, i) => (
               <span
                 key={i}
-                className={`pg-display shrink-0 px-6 text-3xl ${
-                  g.tipe === 'produktif' ? 'text-[var(--red)]' : 'pg-outline'
-                }`}
+                className={`pg-display shrink-0 px-6 text-3xl ${g.tipe === 'produktif' ? 'text-[var(--red)]' : 'pg-outline'
+                  }`}
               >
                 {splitNama(g.nama).name}
               </span>

@@ -494,7 +494,8 @@ function PrestasiCard({
             <img
               src={item.image}
               alt={item.title}
-              loading={index < 4 ? "eager" : "lazy"}
+              loading="lazy"
+              decoding="async"
               onError={() => setImageError(true)}
               className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
             />

@@ -275,34 +275,33 @@ function KartuAnggota({
 
   return (
     <div
-      className={`${delayKelas} osis-fade-up group relative flex flex-col overflow-hidden bg-[#111111] ${
-        unggulan
-          ? "col-span-2 lg:col-span-2 lg:row-span-2"
-          : lebar
-            ? "col-span-2 lg:col-span-1"
-            : "col-span-1"
-      }`}
+      className={`${delayKelas} osis-fade-up group relative flex flex-col overflow-hidden bg-[#111111] ${unggulan
+        ? "col-span-2 lg:col-span-2 lg:row-span-2"
+        : lebar
+          ? "col-span-2 lg:col-span-1"
+          : "col-span-1"
+        }`}
     >
       <div
-        className={`relative w-full overflow-hidden ${
-          unggulan
-            ? "aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[420px]"
-            : lebar
-              ? "aspect-[4/3] lg:aspect-[3/4]"
-              : "aspect-[3/4]"
-        }`}
+        className={`relative w-full overflow-hidden ${unggulan
+          ? "aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[420px]"
+          : lebar
+            ? "aspect-[4/3] lg:aspect-[3/4]"
+            : "aspect-[3/4]"
+          }`}
       >
         {anggota.foto ? (
           <img
             src={anggota.foto}
             alt={`Foto ${anggota.nama}, ${anggota.jabatan}`}
-            className={`h-full w-full object-cover transition-transform duration-700 ease-out sm:grayscale-[15%] sm:motion-safe:group-hover:scale-[1.045] sm:motion-safe:group-hover:grayscale-0 ${
-              unggulan
-                ? "object-[50%_20%] lg:absolute lg:inset-0 lg:object-center"
-                : lebar
-                  ? "object-[50%_25%] lg:object-center"
-                  : ""
-            }`}
+            loading="lazy"
+            decoding="async"
+            className={`h-full w-full object-cover transition-transform duration-700 ease-out sm:grayscale-[15%] sm:motion-safe:group-hover:scale-[1.045] sm:motion-safe:group-hover:grayscale-0 ${unggulan
+              ? "object-[50%_20%] lg:absolute lg:inset-0 lg:object-center"
+              : lebar
+                ? "object-[50%_25%] lg:object-center"
+                : ""
+              }`}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-neutral-800">
@@ -313,9 +312,8 @@ function KartuAnggota({
         )}
 
         <span
-          className={`pointer-events-none absolute right-3 top-3 font-mono sm:right-4 sm:top-4 text-xs tracking-widest text-white/70 transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-1 ${
-            unggulan ? "lg:text-sm" : ""
-          }`}
+          className={`pointer-events-none absolute right-3 top-3 font-mono sm:right-4 sm:top-4 text-xs tracking-widest text-white/70 transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-1 ${unggulan ? "lg:text-sm" : ""
+            }`}
         >
           {String(nomorUrut).padStart(2, "0")}
         </span>
@@ -326,18 +324,16 @@ function KartuAnggota({
           className={`absolute inset-x-0 bottom-0 sm:p-5 ${unggulan ? "p-4" : "p-3"}`}
         >
           <span
-            className={`mb-2 block h-px w-6 bg-red-600 sm:mb-3 transition-all duration-500 ease-out group-hover:w-12 ${
-              unggulan ? "w-10" : ""
-            }`}
+            className={`mb-2 block h-px w-6 bg-red-600 sm:mb-3 transition-all duration-500 ease-out group-hover:w-12 ${unggulan ? "w-10" : ""
+              }`}
           />
           <h3
-            className={`break-words font-semibold uppercase leading-[1.05] tracking-tight text-white ${
-              unggulan
-                ? "text-3xl sm:text-4xl"
-                : lebar
-                  ? "text-lg sm:text-xl"
-                  : "text-sm min-[400px]:text-base sm:text-xl"
-            }`}
+            className={`break-words font-semibold uppercase leading-[1.05] tracking-tight text-white ${unggulan
+              ? "text-3xl sm:text-4xl"
+              : lebar
+                ? "text-lg sm:text-xl"
+                : "text-sm min-[400px]:text-base sm:text-xl"
+              }`}
           >
             {barisAtas}
             {barisBawah && (
@@ -350,13 +346,12 @@ function KartuAnggota({
 
           <div className="mt-1.5 max-h-24 overflow-hidden opacity-100 transition-all duration-500 ease-out sm:mt-2 sm:max-h-0 sm:opacity-0 sm:group-hover:mt-3 sm:group-hover:max-h-20 sm:group-hover:opacity-100">
             <p
-              className={`font-medium leading-snug text-red-400 ${
-                unggulan
-                  ? "text-sm sm:text-base"
-                  : lebar
-                    ? "text-sm"
-                    : "text-xs sm:text-sm"
-              }`}
+              className={`font-medium leading-snug text-red-400 ${unggulan
+                ? "text-sm sm:text-base"
+                : lebar
+                  ? "text-sm"
+                  : "text-xs sm:text-sm"
+                }`}
             >
               {anggota.jabatan}
             </p>
@@ -490,10 +485,10 @@ export default function StrukturOrganisasi() {
   useEffect(() => {
     const el = slideRefs.current[activeIndex];
     if (!el) return;
-    
+
     const ukur = () => setTinggiAktif(el.offsetHeight);
     ukur();
-    
+
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(ukur);
     ro.observe(el);
@@ -690,9 +685,8 @@ export default function StrukturOrganisasi() {
                 className="group relative flex shrink-0 items-center gap-2 whitespace-nowrap pb-2 text-left focus-visible:outline-none"
               >
                 <span
-                  className={`font-mono text-[11px] tracking-widest transition-colors duration-300 ${
-                    aktif ? "text-red-600" : "text-neutral-400"
-                  }`}
+                  className={`font-mono text-[11px] tracking-widest transition-colors duration-300 ${aktif ? "text-red-600" : "text-neutral-400"
+                    }`}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -701,28 +695,27 @@ export default function StrukturOrganisasi() {
                     src={opsi.ikon}
                     alt=""
                     aria-hidden="true"
-                    className={`h-4 w-4 rounded-full object-cover transition-opacity duration-300 ${
-                      aktif
-                        ? "opacity-100"
-                        : "opacity-40 grayscale group-hover:opacity-70"
-                    }`}
+                    loading="lazy"
+                    decoding="async"
+                    className={`h-4 w-4 rounded-full object-cover transition-opacity duration-300 ${aktif
+                      ? "opacity-100"
+                      : "opacity-40 grayscale group-hover:opacity-70"
+                      }`}
                   />
                 )}
                 <span
-                  className={`text-sm font-semibold uppercase tracking-wide transition-colors duration-300 sm:text-base ${
-                    aktif
-                      ? "text-neutral-900"
-                      : "text-neutral-400 group-hover:text-neutral-600"
-                  }`}
+                  className={`text-sm font-semibold uppercase tracking-wide transition-colors duration-300 sm:text-base ${aktif
+                    ? "text-neutral-900"
+                    : "text-neutral-400 group-hover:text-neutral-600"
+                    }`}
                 >
                   {opsi.label}
                 </span>
                 <span
-                  className={`absolute -bottom-[1px] left-0 h-[2px] bg-red-600 transition-all duration-300 ease-out ${
-                    aktif
-                      ? "w-full"
-                      : "w-0 group-hover:w-full group-hover:bg-neutral-300"
-                  }`}
+                  className={`absolute -bottom-[1px] left-0 h-[2px] bg-red-600 transition-all duration-300 ease-out ${aktif
+                    ? "w-full"
+                    : "w-0 group-hover:w-full group-hover:bg-neutral-300"
+                    }`}
                 />
               </button>
             );
@@ -741,9 +734,9 @@ export default function StrukturOrganisasi() {
             style={
               tinggiAktif !== null
                 ? {
-                    height: tinggiAktif,
-                    transition: reducedMotion ? "none" : "height 500ms cubic-bezier(0.22, 1, 0.36, 1)",
-                  }
+                  height: tinggiAktif,
+                  transition: reducedMotion ? "none" : "height 500ms cubic-bezier(0.22, 1, 0.36, 1)",
+                }
                 : undefined
             }
             onTouchStart={handleTouchStart}
@@ -831,11 +824,10 @@ export default function StrukturOrganisasi() {
                 onClick={() => gotoSlide(idx)}
                 aria-label={`Ke divisi ${seksi.judul} ${seksi.subjudul}`}
                 aria-current={idx === activeIndex ? "true" : undefined}
-                className={`relative h-1.5 rounded-full transition-all duration-300 ease-out before:absolute before:-inset-x-1.5 before:-inset-y-3 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${
-                  idx === activeIndex
-                    ? "w-7 bg-red-600"
-                    : "w-1.5 bg-neutral-300 hover:bg-neutral-400"
-                }`}
+                className={`relative h-1.5 rounded-full transition-all duration-300 ease-out before:absolute before:-inset-x-1.5 before:-inset-y-3 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${idx === activeIndex
+                  ? "w-7 bg-red-600"
+                  : "w-1.5 bg-neutral-300 hover:bg-neutral-400"
+                  }`}
               />
             ))}
           </div>
