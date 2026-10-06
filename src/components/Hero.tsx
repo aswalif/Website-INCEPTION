@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react';
 
-// Font untuk Hero Section: gabungan Satoshi, Figtree, dan Space Grotesk
-const GOOGLE_FONT_ID = 'hero-figtree-space-grotesk-font';
-const GOOGLE_FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+// ---------------------------------------------------------------------------
+// FONT
+// Hanya font yang benar-benar dipakai di Hero yang dimuat:
+// - Satoshi        -> teks isi (badge, tombol, label)
+// - Fraunces 900   -> judul (semua judul memakai font-black)
+// - Bebas Neue     -> sub-judul "jadilah bagian dari"
+// Figtree & Space Grotesk dulu hanya fallback di FONT_STACK yang hampir tidak
+// pernah tampil, tetapi tetap diunduh -> sekarang dihapus (1 request CSS +
+// beberapa file font lebih sedikit).
+// ---------------------------------------------------------------------------
 const SATOSHI_FONT_ID = 'hero-satoshi-font';
 const SATOSHI_FONT_HREF =
-  'https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap';
-const FONT_STACK =
-  "'Satoshi', 'Figtree', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif";
+  'https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap';
+
+const HEADLINE_FONT_ID = 'hero-headline-font';
+const HEADLINE_FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Bebas+Neue&display=swap';
+
+// Origin tempat FILE font (woff2) disimpan. Koneksinya dibuka lebih awal
+// (preconnect) selagi file CSS font masih diunduh.
+const FONT_FILE_ORIGINS = [
+  'https://fonts.gstatic.com',
+  'https://cdn.fontshare.com',
+];
+
+const FONT_STACK = "'Satoshi', ui-sans-serif, system-ui, sans-serif";
 
 // Kombinasi font khusus untuk judul besar Hero (terinspirasi dari pasangan
 // Baskerville Old Face + Haettenschweiler): serif display dramatis dipadukan
 // dengan condensed caps yang tegas sebagai aksen.
-const HEADLINE_FONT_ID = 'hero-headline-font';
-const HEADLINE_FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Bebas+Neue&display=swap';
 const HEADLINE_SERIF_STACK = "'Fraunces', Georgia, 'Times New Roman', serif";
 const HEADLINE_CONDENSED_STACK =
   "'Bebas Neue', 'Haettenschweiler', 'Arial Narrow', sans-serif";
@@ -27,20 +41,72 @@ const SIZE_TITLE = 'clamp(1.75rem, 1.1rem + 3vw, 3.5rem)';
 const SIZE_SUBTITLE = 'clamp(1.125rem, 0.85rem + 1.4vw, 1.875rem)';
 const SIZE_HIGHLIGHT = 'clamp(1.875rem, 1.1rem + 3.4vw, 3.75rem)';
 
-const CTA_CLASS =
-  'inline-flex min-h-11 items-center justify-center rounded-full border border-white/25 bg-gradient-to-r from-red-600/90 to-red-500/90 px-6 py-3 text-center text-sm font-bold text-white shadow-lg shadow-red-900/40 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-red-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 motion-reduce:transition-none motion-reduce:hover:scale-100 sm:px-8';
+// Durasi auto-play carousel (ms)
+const AUTOPLAY_MS = 6000;
 
-const SOCIAL_CLASS =
-  'flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-red-400/50 hover:bg-red-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 motion-reduce:transition-none motion-reduce:hover:scale-100';
+// Ukuran asli gambar background. GANTI dengan ukuran file sebenarnya
+// (lihat Properties file di /public). Karena gambar memakai h-full w-full
+// object-cover, angka ini hanya menjadi petunjuk rasio untuk browser dan
+// TIDAK mengubah tampilan.
+const IMAGE_WIDTH = 1920;
+const IMAGE_HEIGHT = 1080;
 
-const ARROW_CLASS =
-  'pointer-events-auto flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-white/10 font-bold text-white shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:border-red-300/50 hover:bg-red-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 sm:h-12 sm:w-12';
+// Hanya properti yang benar-benar berubah saat hover/focus/active yang
+// di-transisikan (menggantikan transition-all). Tampilan sama persis.
+const TRANSITION_CLASS =
+  'transition-[transform,box-shadow,background-color,border-color] duration-300';
+
+const CTA_CLASS = `inline-flex min-h-11 items-center justify-center rounded-full border border-white/25 bg-gradient-to-r from-red-600/90 to-red-500/90 px-6 py-3 text-center text-sm font-bold text-white shadow-lg shadow-red-900/40 backdrop-blur-md ${TRANSITION_CLASS} hover:scale-105 hover:shadow-red-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 motion-reduce:transition-none motion-reduce:hover:scale-100 sm:px-8`;
+
+const SOCIAL_CLASS = `flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs backdrop-blur-md ${TRANSITION_CLASS} hover:scale-110 hover:border-red-400/50 hover:bg-red-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 motion-reduce:transition-none motion-reduce:hover:scale-100`;
+
+const ARROW_CLASS = `pointer-events-auto flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-white/10 font-bold text-white shadow-lg shadow-black/20 backdrop-blur-xl ${TRANSITION_CLASS} hover:scale-110 hover:border-red-300/50 hover:bg-red-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 sm:h-12 sm:w-12`;
+
+// CSS animasi dibuat sekali di luar komponen (bukan string baru di tiap render).
+// Semua animasi hanya memakai transform & opacity -> dikerjakan compositor,
+// tidak memicu layout.
+const HERO_CSS = `
+  @keyframes hero-content-in {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-hero-in {
+    animation: hero-content-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes orb-float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(0, -22px); }
+  }
+
+  /* will-change hanya untuk 2 orb yang beranimasi terus-menerus */
+  .animate-orb-float {
+    animation: orb-float 9s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .animate-orb-float-slow {
+    animation: orb-float 13s ease-in-out infinite;
+    animation-delay: -4s;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-hero-in,
+    .animate-orb-float,
+    .animate-orb-float-slow {
+      animation: none;
+      will-change: auto;
+    }
+  }
+`;
 
 const SLIDES = [
   // Slide 1: Pendaftaran
   {
     type: 'pendaftaran',
-    image: '/hero-bg.jpg',
+    image: '/hero-bg.webp',
     title: 'Daftar Sekarang!!',
     subtitle: 'jadilah bagian dari',
     highlight: 'Generasi Masa Depan!',
@@ -52,7 +118,7 @@ const SLIDES = [
   // Slide 2: Selamat Datang
   {
     type: 'welcome',
-    image: '/gedung-baru.jpg',
+    image: '/gedung-baru.webp',
     welcomeText: 'Selamat Datang di',
     title: 'Website SMK Telkom Medan',
     badge:
@@ -62,53 +128,63 @@ const SLIDES = [
   },
 ];
 
+// Menambahkan <link> ke <head> hanya jika belum ada (aman dipanggil berulang)
+function addHeadLink(id: string, attrs: Record<string, string>) {
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  Object.entries(attrs).forEach(([key, value]) => link.setAttribute(key, value));
+  document.head.appendChild(link);
+}
+
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = SLIDES;
+  // Gambar slide berikutnya baru ikut diunduh setelah gambar slide 1 selesai
+  // dimuat, supaya tidak berebut bandwidth dengan gambar yang menentukan LCP.
+  const [imagesReady, setImagesReady] = useState(false);
 
-  // Load font "Satoshi" (Fontshare) + "Figtree" & "Space Grotesk" (Google Fonts) untuk Hero Section
+  // Load font Hero. Stylesheet yang disisipkan lewat JS tidak memblokir render,
+  // dan display=swap membuat teks langsung tampil dengan font fallback.
   useEffect(() => {
-    if (!document.getElementById(SATOSHI_FONT_ID)) {
-      const link = document.createElement('link');
-      link.id = SATOSHI_FONT_ID;
-      link.rel = 'stylesheet';
-      link.href = SATOSHI_FONT_HREF;
-      document.head.appendChild(link);
-    }
+    FONT_FILE_ORIGINS.forEach((origin) => {
+      addHeadLink(`hero-preconnect-${origin}`, {
+        rel: 'preconnect',
+        href: origin,
+        crossorigin: 'anonymous',
+      });
+    });
 
-    if (!document.getElementById(GOOGLE_FONT_ID)) {
-      const link = document.createElement('link');
-      link.id = GOOGLE_FONT_ID;
-      link.rel = 'stylesheet';
-      link.href = GOOGLE_FONT_HREF;
-      document.head.appendChild(link);
-    }
+    addHeadLink(SATOSHI_FONT_ID, {
+      rel: 'stylesheet',
+      href: SATOSHI_FONT_HREF,
+    });
 
-    if (!document.getElementById(HEADLINE_FONT_ID)) {
-      const link = document.createElement('link');
-      link.id = HEADLINE_FONT_ID;
-      link.rel = 'stylesheet';
-      link.href = HEADLINE_FONT_HREF;
-      document.head.appendChild(link);
-    }
+    addHeadLink(HEADLINE_FONT_ID, {
+      rel: 'stylesheet',
+      href: HEADLINE_FONT_HREF,
+    });
   }, []);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
   };
 
-  // Auto-play: timer di-reset setiap slide berganti (termasuk saat tombol panah diklik)
+  // Auto-play: satu timer sekali jalan (setTimeout) per slide. Setiap slide
+  // berganti (otomatis maupun lewat tombol panah) timer lama dibersihkan dan
+  // dihitung ulang 6 detik dari awal -> perilaku sama seperti sebelumnya.
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const timer = window.setTimeout(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 6000);
+    }, AUTOPLAY_MS);
 
-    return () => window.clearInterval(timer);
+    return () => window.clearTimeout(timer);
   }, [currentSlide]);
+
+  const current = SLIDES[currentSlide];
 
   return (
     <section
@@ -125,56 +201,35 @@ export default function Hero() {
       className="relative flex min-h-[clamp(32rem,100svh,56rem)] w-full select-none flex-col overflow-hidden bg-slate-950"
       style={{ fontFamily: FONT_STACK }}
     >
-      <style>{`
-        @keyframes hero-content-in {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-hero-in {
-          animation: hero-content-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
-        }
-
-        @keyframes orb-float {
-          0%, 100% { transform: translate(0, 0); }
-          50% { transform: translate(0, -22px); }
-        }
-
-        .animate-orb-float {
-          animation: orb-float 9s ease-in-out infinite;
-        }
-
-        .animate-orb-float-slow {
-          animation: orb-float 13s ease-in-out infinite;
-          animation-delay: -4s;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .animate-hero-in,
-          .animate-orb-float,
-          .animate-orb-float-slow {
-            animation: none;
-          }
-        }
-      `}</style>
+      <style>{HERO_CSS}</style>
 
       {/* Carousel Gambar Background dengan Animasi Pergerakan (Zoom & Scale Effect) */}
-      {slides.map((slide, index) => (
+      {SLIDES.map((slide, index) => (
         <div
           key={index}
+          aria-hidden={index !== currentSlide}
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
             index === currentSlide ? 'z-10 opacity-100' : 'z-0 opacity-0'
           }`}
         >
-          <img
-            src={slide.image}
-            alt={`Slide ${index + 1}`}
-            className={`h-full w-full object-cover object-center transition-transform duration-[7000ms] ease-out motion-reduce:scale-100 motion-reduce:transition-none ${
-              index === currentSlide
-                ? 'translate-y-2 scale-110'
-                : 'translate-y-0 scale-100'
-            }`}
-          />
+          {/* Slide 1 selalu dirender dan diprioritaskan (LCP). Slide lain baru
+              dirender setelah slide 1 selesai dimuat, atau saat slide itu aktif. */}
+          {(index === 0 || imagesReady || index === currentSlide) && (
+            <img
+              src={slide.image}
+              alt={`Slide ${index + 1}`}
+              width={IMAGE_WIDTH}
+              height={IMAGE_HEIGHT}
+              decoding="async"
+              fetchPriority={index === 0 ? 'high' : 'low'}
+              onLoad={index === 0 ? () => setImagesReady(true) : undefined}
+              className={`h-full w-full object-cover object-center transition-transform duration-[7000ms] ease-out motion-reduce:scale-100 motion-reduce:transition-none ${
+                index === currentSlide
+                  ? 'translate-y-2 scale-110'
+                  : 'translate-y-0 scale-100'
+              }`}
+            />
+          )}
 
           {/* Overlay gradien berlapis agar kartu kaca tetap terbaca dan terasa dalam (depth) */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20" />
@@ -194,7 +249,7 @@ export default function Hero() {
       />
 
       {/* Slide 1: Tampilan Pendaftaran */}
-      {slides[currentSlide].type === 'pendaftaran' && (
+      {current.type === 'pendaftaran' && (
         <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 items-center justify-end px-4 pb-24 pt-24 text-right sm:px-6 sm:pb-28 lg:px-8 lg:pb-14">
           <div
             key={`pendaftaran-${currentSlide}`}
@@ -208,7 +263,7 @@ export default function Hero() {
                   fontSize: SIZE_TITLE,
                 }}
               >
-                {slides[currentSlide].title} <br />
+                {current.title} <br />
 
                 <span
                   className="font-normal tracking-wider text-gray-200"
@@ -217,7 +272,7 @@ export default function Hero() {
                     fontSize: SIZE_SUBTITLE,
                   }}
                 >
-                  {slides[currentSlide].subtitle}
+                  {current.subtitle}
                 </span>{' '}
                 <br />
 
@@ -225,22 +280,22 @@ export default function Hero() {
                   className="font-black text-red-500 drop-shadow-md"
                   style={{ fontSize: SIZE_HIGHLIGHT }}
                 >
-                  {slides[currentSlide].highlight}
+                  {current.highlight}
                 </span>
               </h1>
 
               <p className="pt-1 text-sm font-semibold text-slate-200/90 sm:pt-2 sm:text-base">
-                {slides[currentSlide].badge}
+                {current.badge}
               </p>
 
               <div className="flex justify-end pt-2 sm:pt-3">
                 <a
-                  href={slides[currentSlide].link}
+                  href={current.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={CTA_CLASS}
                 >
-                  {slides[currentSlide].buttonText}
+                  {current.buttonText}
                 </a>
               </div>
 
@@ -310,7 +365,7 @@ export default function Hero() {
       )}
 
       {/* Slide 2: Tampilan Ucapan Selamat Datang */}
-      {slides[currentSlide].type === 'welcome' && (
+      {current.type === 'welcome' && (
         <div className="relative z-20 mx-auto flex w-full max-w-4xl flex-1 items-center justify-center px-4 pb-24 pt-24 text-center sm:px-6 sm:pb-28 lg:pb-14">
           <div
             key={`welcome-${currentSlide}`}
@@ -318,7 +373,7 @@ export default function Hero() {
           >
             <div className="space-y-3 text-white sm:space-y-4">
               <span className="inline-block rounded-full border border-white/20 bg-red-600/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
-                {slides[currentSlide].welcomeText}
+                {current.welcomeText}
               </span>
 
               <h1
@@ -328,16 +383,16 @@ export default function Hero() {
                   fontSize: SIZE_TITLE,
                 }}
               >
-                {slides[currentSlide].title}
+                {current.title}
               </h1>
 
               <p className="mx-auto max-w-2xl text-sm font-medium text-slate-200/90 sm:text-base">
-                {slides[currentSlide].badge}
+                {current.badge}
               </p>
 
               <div className="pt-2 sm:pt-4">
-                <a href={slides[currentSlide].link} className={CTA_CLASS}>
-                  {slides[currentSlide].buttonText}
+                <a href={current.link} className={CTA_CLASS}>
+                  {current.buttonText}
                 </a>
               </div>
             </div>

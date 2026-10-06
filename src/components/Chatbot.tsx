@@ -39,7 +39,7 @@ const OPENROUTER_MODEL = 'google/gemma-4-31b-it'; // Google: Gemma 4 31B
 const MAX_HISTORY = 10; // batasi riwayat obrolan yang dikirim supaya hemat token
 
 // Nanti kalau sudah pakai backend/proxy: isi URL-nya di sini, key di atas tidak dipakai lagi.
-const PROXY_URL = '';
+const PROXY_URL = 'https://frosty-wave-7c4bwebsite-inception-chatbot.tegar17774.workers.dev/api/chat';
 
 class ChatError extends Error {
   code?: string;
