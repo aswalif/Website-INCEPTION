@@ -276,9 +276,8 @@ function Reveal({
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-        inView ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-      } ${className}`}
+      className={`transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${inView ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+        } ${className}`}
     >
       {children}
     </div>
@@ -370,6 +369,7 @@ function CertificateVisual({
         src={certificateSrc}
         alt={CERTIFICATE_ALT}
         loading="lazy"
+        decoding="async"
         onError={() => setFailed(true)}
         className={imageClassName}
       />
@@ -420,15 +420,13 @@ function CertificateModal({
       aria-label="Preview sertifikat Cisco Networking Academy"
       aria-hidden={!open}
       onClick={onClose}
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#1B1416]/70 p-4 backdrop-blur-md transition-[opacity,visibility] duration-300 sm:p-8 ${
-        open ? "visible opacity-100" : "invisible opacity-0"
-      }`}
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#1B1416]/70 p-4 backdrop-blur-md transition-[opacity,visibility] duration-300 sm:p-8 ${open ? "visible opacity-100" : "invisible opacity-0"
+        }`}
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className={`w-full max-w-5xl transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          open ? "scale-100" : "scale-95"
-        }`}
+        className={`w-full max-w-5xl transition-transform duration-300 ease-out motion-reduce:transition-none ${open ? "scale-100" : "scale-95"
+          }`}
       >
         <div className="mb-3 flex items-center justify-between gap-4">
           <p className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
@@ -521,9 +519,8 @@ function CurriculumItem({
           className={`group flex w-full items-start gap-4 py-6 text-left sm:gap-6 ${FOCUS}`}
         >
           <span
-            className={`al-display pt-0.5 text-2xl leading-none transition-colors duration-300 sm:text-3xl ${
-              isOpen ? "text-[#E31E24]" : "text-slate-300"
-            }`}
+            className={`al-display pt-0.5 text-2xl leading-none transition-colors duration-300 sm:text-3xl ${isOpen ? "text-[#E31E24]" : "text-slate-300"
+              }`}
           >
             {String(index + 1).padStart(2, "0")}
           </span>
@@ -536,17 +533,15 @@ function CurriculumItem({
             </span>
           </span>
           <span
-            className={`mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
-              isOpen
+            className={`mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${isOpen
                 ? "border-[#E31E24] bg-[#E31E24]/5"
                 : "border-slate-200 group-hover:border-slate-300"
-            }`}
+              }`}
           >
             <ChevronDown
               aria-hidden="true"
-              className={`h-4 w-4 transition-transform duration-300 ${
-                isOpen ? "rotate-180 text-[#E31E24]" : "text-slate-500"
-              }`}
+              className={`h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#E31E24]" : "text-slate-500"
+                }`}
             />
           </span>
         </button>
@@ -556,9 +551,8 @@ function CurriculumItem({
         id={panelId}
         role="region"
         aria-labelledby={buttonId}
-        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none ${
-          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        }`}
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
       >
         <div className="overflow-hidden">
           <div className="grid gap-8 pb-8 pl-0 sm:pl-[3.75rem] md:grid-cols-2">

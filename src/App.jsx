@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import VisiMisi from "./components/VisiMisi";
-import StrukturOrganisasi from "./components/StrukturOrganisasi";
 import AkreditasiSection from "./components/AkreditasiSection";
 import Alumni from "./components/Alumni";
 import Chatbot from "./components/Chatbot";
@@ -16,6 +15,7 @@ import ScrollToHashElement from "./components/ScrollToHashElement";
 import Profil from "./components/Profil";
 const Jurusan = lazy(() => import("./components/Jurusan"));
 const Fasilitas = lazy(() => import("./components/Fasilitas"));
+const GaleriSection = lazy(() => import("./components/GaleriSection")); // <-- TAMBAHKAN INI
 
 // Lazy Loading Halaman Multi-Page
 const PrestasiPage = lazy(() => import("./components/PrestasiPage"));
@@ -27,8 +27,10 @@ const MikrotikAcademyPage = lazy(
   () => import("./components/MikrotikAcademyPage"),
 );
 const ProfilGuruPage = lazy(() => import("./components/ProfilGuruPage"));
+const StrukturOrganisasiPage = lazy(() => import("./components/StrukturOrganisasiPage"));
+const GaleriDetail = lazy(() => import("./components/GaleriDetail"));
 
-// Komponen Landing Page Utama
+// Komponen Landing Page Utama (Tampilkan GaleriSection di sini)
 const Home = () => {
   return (
     <>
@@ -41,9 +43,12 @@ const Home = () => {
       <Suspense fallback={null}>
         <Jurusan />
       </Suspense>
-      <StrukturOrganisasi />
       <Suspense fallback={null}>
         <Fasilitas />
+      </Suspense>
+      {/* SEKSI PREVIEW GALERI DI LANDING PAGE UTAMA */}
+      <Suspense fallback={null}>
+        <GaleriSection />
       </Suspense>
       <Alumni />
     </>
@@ -59,6 +64,29 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route
+            path="/galeri"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
+              </Suspense>
+            }
+          />
+          <Route
+            path="/galeri/:slug"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
+                <GaleriDetail />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/struktur-organisasi"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-[#F8F8F6]" />}>
+                <StrukturOrganisasiPage />
+              </Suspense>
+            }
+          />
           <Route
             path="/prestasi"
             element={

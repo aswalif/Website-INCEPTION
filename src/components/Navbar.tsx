@@ -35,12 +35,13 @@ const MENU: NavEntry[] = [
     items: [
       { label: "Profil Sekolah", href: "#profil" },
       { label: "Visi dan Misi", href: "#visi-misi" },
-      { label: "Struktur Organisasi", href: "#struktur-organisasi" },
+      { label: "Struktur Organisasi", href: "/struktur-organisasi" },
       { label: "Akreditasi", href: "#akreditasi" },
       { label: "Hubungan Industri(Hubin)", href: "/kemitraan" },
       { label: "Prestasi", href: "/prestasi" },
+      { label: "Galeri Sekolah", href: "#galeri" },
       { label: "Fasilitas", href: "#fasilitas" },
-      { label: "Profil Guru", href: "/profil-guru" }
+      { label: "Profil Guru", href: "/profil-guru" },
     ],
   },
   { type: "link", label: "Jurusan", href: "#jurusan" },
@@ -92,7 +93,7 @@ function isItemActive(
   isHomePage: boolean,
 ): boolean {
   if (href !== activeHref) return false;
-  if (!href.startsWith("#")) return true; // rute halaman (/prestasi, dll)
+  if (!href.startsWith("#")) return true; // rute halaman (/prestasi, /galeri, dll)
   return isHomePage && HASH_OWNER.get(href) === ownerId;
 }
 
@@ -422,6 +423,9 @@ export default function Navbar() {
     if (location.pathname.startsWith("/prestasi")) return "/prestasi";
     if (location.pathname.startsWith("/kemitraan")) return "/kemitraan";
     if (location.pathname.startsWith("/cisco-academy")) return "/cisco-academy";
+    if (location.pathname.startsWith("/galeri")) return "/galeri";
+    if (location.pathname.startsWith("/profil-guru")) return "/profil-guru";
+    if (location.pathname.startsWith("/struktur-organisasi")) return "/struktur-organisasi";
     return location.hash || "#hero";
   });
 
@@ -435,9 +439,7 @@ export default function Navbar() {
     setMobileExpanded(null);
   }, []);
 
-  // Kunci scroll-spy selama scroll otomatis (klik menu -> scroll ke section tujuan).
-  // Tanpa ini, IntersectionObserver ikut menyala di setiap section yang DILEWATI
-  // (mis. #profil, #akreditasi), sehingga menu "Tentang"/"Program" ikut berubah merah.
+  // Kunci scroll-spy selama scroll otomatis
   const spyLockRef = useRef(false);
   const spyTimerRef = useRef(0);
 
@@ -450,7 +452,6 @@ export default function Navbar() {
 
   const lockScrollSpy = useCallback(() => {
     spyLockRef.current = true;
-    // Fallback: jika ternyata tidak ada scroll, kunci dilepas otomatis.
     releaseSpyLock(SPY_LOCK_FALLBACK_MS);
   }, [releaseSpyLock]);
 
@@ -478,22 +479,25 @@ export default function Navbar() {
       setActiveHref("/kemitraan");
     } else if (location.pathname.startsWith("/cisco-academy")) {
       setActiveHref("/cisco-academy");
+    } else if (location.pathname.startsWith("/galeri")) {
+      setActiveHref("/galeri");
+    } else if (location.pathname.startsWith("/profil-guru")) {
+      setActiveHref("/profil-guru");
+    } else if (location.pathname.startsWith("/struktur-organisasi")) {
+      setActiveHref("/struktur-organisasi");
     } else if (isHomePage) {
       if (location.hash) {
-        // Datang dari halaman lain / klik hash: langsung tandai tujuan
-        // dan kunci scroll-spy sampai scroll otomatis selesai.
         lockScrollSpy();
         setActiveHref(location.hash);
       } else {
         setActiveHref("#hero");
       }
     } else {
-      // Rute lain yang tidak ada di menu: jangan pertahankan highlight lama.
       setActiveHref("");
     }
   }, [location.pathname, location.hash, isHomePage, lockScrollSpy]);
 
-  // Format link hash agar mengarah ke beranda lebih dulu (misal /#jurusan) saat di luar beranda
+  // Format link hash agar mengarah ke beranda lebih dulu saat di luar beranda
   const getHref = useCallback(
     (href: string) => {
       if (href.startsWith("#") && !isHomePage) {
@@ -524,7 +528,6 @@ export default function Navbar() {
     };
 
     const onScroll = () => {
-      // Selama scroll otomatis berjalan, perpanjang kunci; lepas saat scroll berhenti.
       if (spyLockRef.current) {
         releaseSpyLock(SPY_LOCK_IDLE_MS);
       }
@@ -575,32 +578,74 @@ export default function Navbar() {
     };
   }, [closeAll]);
 
-  // PERBAIKAN BUG INTERSECTION OBSERVER:
-  // Menggunakan rootMargin (-48%) agar hanya memicu berpindah aktif ketika bagian tengah layar persis menyentuh section target.
   useEffect(() => {
     if (!isHomePage) return undefined;
 
-    const targets = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      (element): element is HTMLElement => element !== null,
-    );
-    if (targets.length === 0) return undefined;
+    // Scroll-spy berbasis posisi. Elemen section di-query ulang setiap kali
+    // dihitung, sehingga section yang baru muncul belakangan (React.lazy /
+    // Suspense / data async saat kunjungan pertama) tetap terdeteksi.
+    let frame = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (spyLockRef.current) return; // sedang scroll otomatis, abaikan section yang dilewati
-        const visibleEntry = entries.find((entry) => entry.isIntersecting);
-        if (visibleEntry) {
-          setActiveHref(`#${visibleEntry.target.id}`);
+    const compute = () => {
+      frame = 0;
+      if (spyLockRef.current) return;
+
+      const probeLine = window.innerHeight * 0.35;
+      const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(
+        (element): element is HTMLElement => element !== null,
+      );
+      if (sections.length === 0) return;
+
+      let nextId: string | null = null;
+
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 4;
+
+      if (atBottom) {
+        // Mentok di bawah: aktifkan section paling bawah (mis. Footer / Kontak)
+        let lowestTop = -Infinity;
+        sections.forEach((el) => {
+          const top = el.getBoundingClientRect().top;
+          if (top > lowestTop) {
+            lowestTop = top;
+            nextId = el.id;
+          }
+        });
+      } else {
+        for (const el of sections) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= probeLine && rect.bottom > probeLine) {
+            nextId = el.id;
+            break;
+          }
         }
-      },
-      { 
-        rootMargin: "-48% 0px -48% 0px", 
-        threshold: 0 
-      },
-    );
+      }
 
-    targets.forEach((target) => observer.observe(target));
-    return () => observer.disconnect();
+      if (nextId) {
+        const href = `#${nextId}`;
+        setActiveHref((current) => (current === href ? current : href));
+      }
+    };
+
+    const schedule = () => {
+      if (frame === 0) frame = window.requestAnimationFrame(compute);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    // Hitung ulang ketika ada section baru yang masuk ke DOM
+    const mutationObserver = new MutationObserver(schedule);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      mutationObserver.disconnect();
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+    };
   }, [isHomePage]);
 
   useEffect(() => {

@@ -260,6 +260,7 @@ export default function MikrotikAcademyPage() {
                         src={c.src}
                         alt={`Sertifikat ${c.track} atas nama ${c.name}`}
                         loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-contain p-3 transition duration-500 group-hover:scale-[1.03]"
                       />
                     ) : (
@@ -279,9 +280,8 @@ export default function MikrotikAcademyPage() {
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
-                        c.track === 'MTCRE' ? 'bg-[var(--red)] text-white' : 'bg-slate-900 text-white'
-                      }`}
+                      className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${c.track === 'MTCRE' ? 'bg-[var(--red)] text-white' : 'bg-slate-900 text-white'
+                        }`}
                     >
                       {c.track}
                     </span>
@@ -305,16 +305,14 @@ export default function MikrotikAcademyPage() {
               return (
                 <article
                   key={p.title}
-                  className={`group relative overflow-hidden rounded-3xl border p-7 transition-colors duration-300 ${p.span} ${
-                    featured
-                      ? 'border-[var(--ink)] bg-[var(--ink)] text-white'
-                      : 'border-slate-200 bg-white hover:border-[var(--red)]'
-                  }`}
+                  className={`group relative overflow-hidden rounded-3xl border p-7 transition-colors duration-300 ${p.span} ${featured
+                    ? 'border-[var(--ink)] bg-[var(--ink)] text-white'
+                    : 'border-slate-200 bg-white hover:border-[var(--red)]'
+                    }`}
                 >
                   <span
-                    className={`grid h-12 w-12 place-items-center rounded-2xl ${
-                      featured ? 'bg-[var(--red)] text-white' : 'bg-red-50 text-[var(--red)] group-hover:bg-[var(--red)] group-hover:text-white'
-                    } transition-colors`}
+                    className={`grid h-12 w-12 place-items-center rounded-2xl ${featured ? 'bg-[var(--red)] text-white' : 'bg-red-50 text-[var(--red)] group-hover:bg-[var(--red)] group-hover:text-white'
+                      } transition-colors`}
                   >
                     <Icon size={24} />
                   </span>
@@ -350,11 +348,10 @@ export default function MikrotikAcademyPage() {
                     aria-selected={active}
                     aria-controls="module-panel"
                     onClick={() => setActiveModule(i)}
-                    className={`flex shrink-0 items-center gap-3 rounded-2xl border px-5 py-4 text-left text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--red)] lg:text-base ${
-                      active
-                        ? 'border-[var(--red)] bg-[var(--red)] text-white shadow-lg shadow-red-500/20'
-                        : 'border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-400'
-                    }`}
+                    className={`flex shrink-0 items-center gap-3 rounded-2xl border px-5 py-4 text-left text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--red)] lg:text-base ${active
+                      ? 'border-[var(--red)] bg-[var(--red)] text-white shadow-lg shadow-red-500/20'
+                      : 'border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-400'
+                      }`}
                   >
                     <Icon size={20} />
                     {m.title}
@@ -455,6 +452,8 @@ export default function MikrotikAcademyPage() {
               <img
                 src={current.src}
                 alt={`Sertifikat ${current.track} atas nama ${current.name}`}
+                loading="lazy"
+                decoding="async"
                 className="max-h-full max-w-full rounded-lg bg-white object-contain shadow-2xl"
               />
             )}

@@ -25,30 +25,20 @@ type ChatMsg = { id: number; role: 'user' | 'bot'; text: string };
 type SampleTurn = { role: 'user' | 'assistant'; content: string };
 
 // ---------- Koneksi ke OpenRouter ----------
-// Isi di file .env: VITE_OPENROUTER_API_KEY=sk-or-v1-xxxx (Vite) atau REACT_APP_OPENROUTER_API_KEY=... (Create React App)
-// PERINGATAN: tanpa backend, key ikut ke bundle JS dan bisa dilihat lewat DevTools.
-// Pakai key khusus dengan credit limit kecil di dashboard OpenRouter.
+// URL endpoint lengkap OpenRouter untuk pengiriman pesan chat
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-declare const process: any; // dipakai kalau project-nya Create React App
+
 function readApiKey(): string | undefined {
-  // Vite: VITE_OPENROUTER_API_KEY
-  try {
-    const v = (import.meta as any).env?.VITE_OPENROUTER_API_KEY;
-    if (v) return v as string;
-  } catch { /* bukan Vite */ }
-  // Create React App: REACT_APP_OPENROUTER_API_KEY
-  try {
-    const v = process.env.REACT_APP_OPENROUTER_API_KEY;
-    if (v) return v as string;
-  } catch { /* bukan CRA */ }
+  const v = (import.meta as any).env.VITE_OPENROUTER_API_KEY;
+  if (v) return v as string;
   return undefined;
 }
+
 const OPENROUTER_KEY = readApiKey();
-const OPENROUTER_MODEL = 'google/gemma-4-31b-it'; // Google: Gemma 4 31B (ganti di sini kalau mau model lain)
+const OPENROUTER_MODEL = 'google/gemma-4-31b-it'; // Google: Gemma 4 31B
 const MAX_HISTORY = 10; // batasi riwayat obrolan yang dikirim supaya hemat token
 
 // Nanti kalau sudah pakai backend/proxy: isi URL-nya di sini, key di atas tidak dipakai lagi.
-// Proxy menerima { system, messages } dan meneruskan respons streaming OpenRouter apa adanya.
 const PROXY_URL = '';
 
 class ChatError extends Error {
@@ -75,7 +65,7 @@ async function askOpenRouter(
     });
   } else {
     if (!OPENROUTER_KEY) {
-      console.error('[Chatbot] API key tidak terbaca. Cek file .env (di root project, sejajar package.json): Vite pakai VITE_OPENROUTER_API_KEY, Create React App pakai REACT_APP_OPENROUTER_API_KEY. Lalu restart dev server.');
+      console.error('[Chatbot] API key tidak terbaca. Cek file .env (di root project, sejajar package.json): Vite pakai VITE_OPENROUTER_API_KEY. Lalu restart dev server.');
       throw new ChatError('not_granted');
     }
     res = await fetch(OPENROUTER_URL, {
@@ -83,16 +73,19 @@ async function askOpenRouter(
       headers: {
         Authorization: `Bearer ${OPENROUTER_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:5173', // Ditambahkan untuk lolos dari blokir CORS OpenRouter di sisi frontend
         'X-Title': 'Chatbot SMK Telkom Medan 1',
       },
       body: JSON.stringify({
         model: OPENROUTER_MODEL,
         stream: true,
-        max_tokens: 400,
+        max_tokens: 800,
+        reasoning: { enabled: false }, // matikan mode berpikir agar jawaban tidak habis di token reasoning
         messages: [{ role: 'system', content: system }, ...history],
       }),
     });
   }
+
 
   if (!res.ok) {
     const detail = await res.clone().text().catch(() => '');
