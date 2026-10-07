@@ -20,7 +20,7 @@ const testimonials: Testimonial[] = [
     role: "Branch Supervisor Biznet",
     quote:
       "Sebuah kebanggaan menjadi alumni SMK Telkom Medan. Ilmu-ilmu yang didapatkan dari para guru terbaik dan berpengalaman dapat langsung diaplikasikan pada dunia profesional !",
-    avatar: "/public/Alumni/biznet.webp",
+    avatar: "/Alumni/biznet.webp",
     rating: 5,
   },
   {
@@ -30,7 +30,7 @@ const testimonials: Testimonial[] = [
     role: "Designprenuer",
     quote:
       "SMK Telkom Medan menjadi fondasi kuat bagi saya untuk menjadi seorang designpreneur. Ilmu yang saya dapatkan di sini sangat relevan dengan dunia kerja, terutama dalam bidang desain. Terima kasih SMK Telkom Medan!",
-    avatar: "/public/Alumni/dsg.webp",
+    avatar: "/Alumni/dsg.webp",
     rating: 5,
   },
   {
@@ -40,7 +40,7 @@ const testimonials: Testimonial[] = [
     role: "Huawei",
     quote:
       "Terima kasih untuk guru guru SMK Telkom Medan yang sangat friendly , yang mau mengajari saya detail tentang dunia telekomunikasi, pesan untuk adik-adik selalu semangat bersekolah di SMK Telkom Medan karna itu penting !",
-    avatar: "/public/Alumni/huawei.webp",
+    avatar: "/Alumni/huawei.webp",
     rating: 5,
   },
   {
@@ -50,7 +50,7 @@ const testimonials: Testimonial[] = [
     role: "Basarnas",
     quote:
       "Saya merasa senang dan banyak ilmu yang saya dapatkan dari bersosial ke guru, lingkungan sekolah, dan banyak pengalaman yang saya dapatkan selama bersekolah di SMK Telkom Medan !",
-    avatar: "/public/Alumni/basarnas.webp",
+    avatar: "/Alumni/basarnas.webp",
     rating: 5,
   },
   {
@@ -60,7 +60,7 @@ const testimonials: Testimonial[] = [
     role: "PT. McDermott Indonesia",
     quote:
       "Merupakan kebanggaan bisa bersekolah di SMK Telkom Medan, sekolah unggulan yang memiliki guru-guru yang kompeten dibidangnya dan selalu memberikan yang terbaik bagi para siswanya !",
-    avatar: "/public/Alumni/Mcdermot.webp",
+    avatar: "/Alumni/Mcdermot.webp",
     rating: 5,
   },
 ];
@@ -229,6 +229,7 @@ const Alumni: React.FC = () => {
 
   return (
     <section
+      id="alumni"
       ref={rootRef}
       aria-labelledby="alumni-title"
       className="alu relative overflow-hidden bg-[var(--alu-paper)] py-16 text-[var(--alu-ink)] sm:py-24 lg:py-32"
@@ -403,9 +404,8 @@ const Alumni: React.FC = () => {
                 key={item.id}
                 onClick={() => go(i)}
                 aria-current={isActive}
-                className={`group relative min-w-[12rem] shrink-0 snap-start border-t-2 border-[var(--alu-ink)]/15 pt-4 text-left transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--alu-red)] sm:min-w-0 ${
-                  isActive ? "opacity-100" : "opacity-55 hover:opacity-100"
-                }`}
+                className={`group relative min-w-[12rem] shrink-0 snap-start border-t-2 border-[var(--alu-ink)]/15 pt-4 text-left transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--alu-red)] sm:min-w-0 ${isActive ? "opacity-100" : "opacity-55 hover:opacity-100"
+                  }`}
               >
                 {isActive && (
                   <span

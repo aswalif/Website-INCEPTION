@@ -5,11 +5,12 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, Images } from "lucide-react";
 import { ALBUMS, FONT_CSS, type Album } from "./galeriData";
 
-/** Gambar cover dengan fallback aman (tanpa loop onError / placeholder eksternal) */
+/** Cover: coba kandidat satu per satu kalau gagal dimuat, terakhir placeholder ikon */
 function Cover({ album }: { album: Album }) {
-  const [failed, setFailed] = useState(false);
+  const [idx, setIdx] = useState(0);
+  const src = album.coverCandidates[idx];
 
-  if (!album.cover || failed) {
+  if (!src) {
     return (
       <div
         className="absolute inset-0 flex items-center justify-center bg-neutral-200 text-neutral-400"
@@ -22,10 +23,11 @@ function Cover({ album }: { album: Album }) {
 
   return (
     <img
-      src={album.cover}
+      key={src}
+      src={src}
       alt={`Cover album ${album.title}`}
       loading="lazy"
-      onError={() => setFailed(true)}
+      onError={() => setIdx((i) => i + 1)}
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 motion-reduce:transition-none"
     />
   );

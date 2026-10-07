@@ -1,23 +1,18 @@
-// src/pages/galeri/galeriData.ts
-// Auto-import semua aset galeri memakai Vite import.meta.glob.
-// Folder: src/assets/galeri/logo/  dan  src/assets/galeri/foto/
-
-const logoModules = import.meta.glob<string>(
-  '/src/assets/galeri/logo/*.{jpg,jpeg,png,webp,JPG,PNG}',
-  { eager: true, import: 'default', query: '?url' }
-);
-
-const fotoModules = import.meta.glob<string>(
-  '/src/assets/galeri/foto/*.{jpg,jpeg,png,webp,JPG,PNG}',
-  { eager: true, import: 'default', query: '?url' }
-);
+// src/components/galeriData.ts
+// Aset ada di:
+//   public/galeri/logo/  -> cover album
+//   public/galeri/foto/  -> foto album
+// File di public/ dilayani dari root ("/galeri/..."), tanpa import.meta.glob.
 
 export interface Album {
   slug: string;
   title: string;
   tag: string;
   description: string;
+  /** Cover utama (kandidat pertama) */
   cover: string;
+  /** Daftar kandidat cover (beda ekstensi + foto pertama sebagai cadangan terakhir) */
+  coverCandidates: string[];
   photos: string[];
 }
 
@@ -26,13 +21,16 @@ interface AlbumConfig {
   title: string;
   tag: string;
   description: string;
+  /** Nama file cover di public/galeri/logo/ (ekstensi boleh salah, akan dicoba ekstensi lain) */
   coverFile: string;
-  /** Awalan nama file foto, mis. "Pameran-" untuk Pameran-(1).jpg */
+  /** Awalan nama file foto, mis. "Pameran-" untuk Pameran-(1).webp */
   prefix: string;
-  /** Jumlah foto (dipakai jika aset ada di folder public/) */
+  /** Jumlah foto dalam album */
   count: number;
-  /** true jika nama file tanpa kurung, mis. iht-1.jpg */
+  /** true jika nama file tanpa kurung, mis. iht-1.webp */
   plain?: boolean;
+  /** Ekstensi foto, default "webp" */
+  ext?: string;
 }
 
 const ALBUM_CONFIG: AlbumConfig[] = [
@@ -40,7 +38,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'pameran-karya-siswa',
     title: 'Pameran Karya Siswa',
     tag: 'Pameran',
-    description: 'Hasil karya siswa dari berbagai jurusan yang dipamerkan kepada warga sekolah dan tamu undangan.',
+    description:
+      'Hasil karya siswa dari berbagai jurusan yang dipamerkan kepada warga sekolah dan tamu undangan.',
     coverFile: 'Pameran-karya-siswa.jpg',
     prefix: 'Pameran-',
     count: 12,
@@ -49,7 +48,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'omni-sains',
     title: 'OMNI Sains Indonesia',
     tag: 'Kompetisi',
-    description: 'Dokumentasi pelaksanaan Olimpiade OMNI Sains Indonesia bersama peserta dari berbagai sekolah.',
+    description:
+      'Dokumentasi pelaksanaan Olimpiade OMNI Sains Indonesia bersama peserta dari berbagai sekolah.',
     coverFile: 'OMNI-Sains.jpg',
     prefix: 'OMNI-',
     count: 44,
@@ -58,7 +58,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'jambore-aino-2025',
     title: 'Jambore AINO 2025',
     tag: 'Kegiatan',
-    description: 'Kegiatan jambore bersama AINO 2025: kebersamaan, tantangan lapangan, dan pengalaman baru.',
+    description:
+      'Kegiatan jambore bersama AINO 2025: kebersamaan, tantangan lapangan, dan pengalaman baru.',
     coverFile: 'jambore-aino-2025.jpg',
     prefix: 'jambore-',
     count: 36,
@@ -67,7 +68,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'pagelaran-kebudayaan',
     title: 'Pagelaran Kebudayaan',
     tag: 'Budaya',
-    description: 'Pagelaran kebudayaan kelas X yang menampilkan tari, busana, dan tradisi daerah.',
+    description:
+      'Pagelaran kebudayaan kelas X yang menampilkan tari, busana, dan tradisi daerah.',
     coverFile: 'pagelaran-kelas-x.jpg',
     prefix: 'pagelaran-',
     count: 20,
@@ -76,7 +78,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'hut-pgri-79',
     title: 'HUT PGRI Ke-79',
     tag: 'Peringatan',
-    description: 'Peringatan Hari Ulang Tahun PGRI ke-79 bersama bapak dan ibu guru.',
+    description:
+      'Peringatan Hari Ulang Tahun PGRI ke-79 bersama bapak dan ibu guru.',
     coverFile: 'hut-pgri-79.png',
     prefix: 'pgri-',
     count: 29,
@@ -85,7 +88,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'in-house-training-2024',
     title: 'In House Training 2024',
     tag: 'Pelatihan',
-    description: 'Pelatihan internal tenaga pendidik untuk meningkatkan kualitas pembelajaran.',
+    description:
+      'Pelatihan internal tenaga pendidik untuk meningkatkan kualitas pembelajaran.',
     coverFile: 'iht-2024.png',
     prefix: 'iht-',
     count: 5,
@@ -95,7 +99,8 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'sertijab-osis-2024-2025',
     title: 'Pengurus OSIS 2024-2025',
     tag: 'Organisasi',
-    description: 'Serah terima jabatan dan pelantikan pengurus OSIS periode 2024-2025.',
+    description:
+      'Serah terima jabatan dan pelantikan pengurus OSIS periode 2024-2025.',
     coverFile: 'sertijab-osis-2425.jpg',
     prefix: 'sertijab-',
     count: 32,
@@ -104,53 +109,45 @@ const ALBUM_CONFIG: AlbumConfig[] = [
     slug: 'kunjungan-prakerin',
     title: 'Kunjungan Prakerin',
     tag: 'Industri',
-    description: 'Kunjungan guru ke tempat praktik kerja industri untuk memantau siswa prakerin.',
+    description:
+      'Kunjungan guru ke tempat praktik kerja industri untuk memantau siswa prakerin.',
     coverFile: 'kunjungan-prakerin.png',
     prefix: 'prakerin-',
     count: 11,
   },
 ];
 
-const fileName = (path: string) => path.split('/').pop() ?? '';
+const COVER_EXTS = ['webp', 'jpg', 'jpeg', 'png', 'JPG', 'PNG'];
 
-const findCover = (file: string): string => {
-  const hit = Object.entries(logoModules).find(
-    ([path]) => fileName(path).toLowerCase() === file.toLowerCase()
-  );
-  // Fallback: aset di folder public/galeri/logo/
-  return hit ? hit[1] : encodeURI(`/galeri/logo/${file}`);
+/** Kandidat URL cover: file persis dari config dulu, lalu ekstensi lain */
+const coverCandidates = (file: string): string[] => {
+  const base = file.replace(/\.[^.]+$/, '');
+  const list = [file, ...COVER_EXTS.map((e) => `${base}.${e}`)];
+  return [...new Set(list)].map((f) => encodeURI(`/galeri/logo/${f}`));
 };
 
-/** Ambil foto berdasarkan prefix, cocok untuk "prefix(1).jpg" maupun "prefix1.jpg", diurutkan numerik. */
-const findPhotos = (prefix: string): string[] => {
-  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(`^${escaped}\\(?(\\d+)\\)?\\.(jpe?g|png|webp)$`, 'i');
-
-  return Object.entries(fotoModules)
-    .map(([path, url]) => {
-      const match = fileName(path).match(pattern);
-      return match ? { n: Number(match[1]), url } : null;
-    })
-    .filter((x): x is { n: number; url: string } => x !== null)
-    .sort((a, b) => a.n - b.n)
-    .map((x) => x.url);
-};
-
-/** Fallback: bangun URL dari folder public/galeri/foto/ */
-const publicPhotos = (prefix: string, count: number, plain?: boolean): string[] =>
+const photoUrls = (
+  prefix: string,
+  count: number,
+  plain = false,
+  ext = 'webp'
+): string[] =>
   Array.from({ length: count }, (_, i) =>
-    encodeURI(`/galeri/foto/${prefix}${plain ? i + 1 : `(${i + 1})`}.webp`)
+    encodeURI(`/galeri/foto/${prefix}${plain ? i + 1 : `(${i + 1})`}.${ext}`)
   );
 
-export const ALBUMS: Album[] = ALBUM_CONFIG.map(({ coverFile, prefix, count, plain, ...rest }) => {
-  const imported = findPhotos(prefix);
-  return {
-    ...rest,
-    cover: findCover(coverFile),
-    // Pakai hasil import (src/assets) jika ada, kalau tidak pakai folder public
-    photos: imported.length > 0 ? imported : publicPhotos(prefix, count, plain),
-  };
-});
+export const ALBUMS: Album[] = ALBUM_CONFIG.map(
+  ({ coverFile, prefix, count, plain, ext, ...rest }) => {
+    const photos = photoUrls(prefix, count, plain, ext);
+    const candidates = [...coverCandidates(coverFile), photos[0]].filter(Boolean);
+    return {
+      ...rest,
+      cover: candidates[0],
+      coverCandidates: candidates,
+      photos,
+    };
+  }
+);
 
 export const getAlbumBySlug = (slug?: string): Album | undefined =>
   ALBUMS.find((a) => a.slug === slug);

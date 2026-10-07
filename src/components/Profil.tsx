@@ -375,7 +375,7 @@ export default function Profil({
   const [listRef, listIn] = useInView<HTMLDivElement>(0.1);
 
   const imagePath =
-    heroImageUrl || new URL("../assets/profil.png", import.meta.url).href;
+    heroImageUrl || new URL("../assets/profil.webp", import.meta.url).href;
 
   useEffect(() => {
     const titleObs = new IntersectionObserver(
@@ -411,11 +411,7 @@ export default function Profil({
       const vh = window.innerHeight;
       const sec = sectionRef.current;
 
-      if (sec && progressRef.current) {
-        const r = sec.getBoundingClientRect();
-        const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh)));
-        progressRef.current.style.transform = `scaleX(${p})`;
-      }
+
 
       if (heroMediaRef.current && heroImgRef.current) {
         const r = heroMediaRef.current.getBoundingClientRect();
@@ -543,15 +539,6 @@ export default function Profil({
           .pf-aino-letter { transform: none !important; }
         }
       `}</style>
-
-      {/* Progress bar scroll */}
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-50 h-1 bg-transparent">
-        <div
-          ref={progressRef}
-          className="h-full origin-left bg-red-600"
-          style={{ transform: "scaleX(0)" }}
-        />
-      </div>
 
       {/* ============================ HERO ============================ */}
       <div className="mx-auto max-w-[1400px] px-5 pb-4 pt-20 sm:px-8 md:pt-28">

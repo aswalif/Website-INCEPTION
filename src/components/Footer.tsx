@@ -57,11 +57,10 @@ const NAV_LINKS = [
   { label: 'Kemitraan', to: '/kemitraan' },
 ];
 
-// Ganti '#' dengan URL akun resmi sekolah.
 const SOCIALS = [
   {
     label: 'Facebook',
-    href: '"https://www.facebook.com/p/SMK-Telkom-Medan-100063703027473/',
+    href: 'https://www.facebook.com/p/SMK-Telkom-Medan-100063703027473/',
     path: 'M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.78-3.91 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.43-4.92 8.43-9.94z',
   },
   {
@@ -71,7 +70,7 @@ const SOCIALS = [
   },
   {
     label: 'TikTok',
-    href: 'https://www.tiktok.com/@smktelkom_medan#',
+    href: 'https://www.tiktok.com/@smktelkom_medan',
     path: 'M16.6 2h-3.1v13.4a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9.4a6 6 0 1 0 5.1 5.9V8.6a7.5 7.5 0 0 0 4.4 1.4V6.9A4.4 4.4 0 0 1 16.6 2z',
   },
   {
@@ -94,23 +93,31 @@ const DIRECTIONS_URL =
 /* ------------------------------------------------------------------ */
 
 /** Status operasional real-time (WIB / UTC+7): Senin–Jumat, 07.00–16.00 */
+function computeOpen() {
+  const wib = new Date(Date.now() + 7 * 60 * 60 * 1000);
+  const day = wib.getUTCDay(); // 0 = Minggu
+  const minutes = wib.getUTCHours() * 60 + wib.getUTCMinutes();
+  const isWeekday = day >= 1 && day <= 5;
+  return isWeekday && minutes >= 7 * 60 && minutes < 16 * 60;
+}
+
 function useSchoolStatus() {
-  const compute = () => {
-    const wib = new Date(Date.now() + 7 * 60 * 60 * 1000);
-    const day = wib.getUTCDay(); // 0 = Minggu
-    const minutes = wib.getUTCHours() * 60 + wib.getUTCMinutes();
-    const isWeekday = day >= 1 && day <= 5;
-    return isWeekday && minutes >= 7 * 60 && minutes < 16 * 60;
-  };
-  const [open, setOpen] = useState(compute);
+  const [open, setOpen] = useState(computeOpen);
   useEffect(() => {
-    const id = window.setInterval(() => setOpen(compute()), 30_000);
+    const id = window.setInterval(() => setOpen(computeOpen()), 60_000);
     return () => window.clearInterval(id);
   }, []);
   return open;
 }
 
-/** Infinite marquee berbasis requestAnimationFrame + dorongan manual dari panah */
+/**
+ * Infinite marquee berbasis requestAnimationFrame.
+ * - Hanya berjalan saat terlihat di layar & tab aktif
+ * - Lebar track diukur sekali (ResizeObserver), bukan tiap frame
+ * - Konten digandakan COPIES kali
+ */
+const COPIES = 2;
+
 function useMarquee(speed = 45) {
   const trackRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
@@ -124,6 +131,12 @@ function useMarquee(speed = 45) {
     let x = 0;
     let last = performance.now();
     let raf = 0;
+    let visible = false;
+    let setWidth = 0;
+
+    const measure = () => {
+      setWidth = track.scrollWidth / COPIES;
+    };
 
     const tick = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
@@ -142,7 +155,6 @@ function useMarquee(speed = 45) {
         x += step;
       }
 
-      const setWidth = track.scrollWidth / 3; // konten digandakan 3x
       if (setWidth > 0) {
         while (x <= -setWidth) x += setWidth;
         while (x > 0) x -= setWidth;
@@ -151,8 +163,38 @@ function useMarquee(speed = 45) {
       raf = requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const start = () => {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const sync = () => (visible && !document.hidden ? start() : stop());
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(track);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        sync();
+      },
+      { rootMargin: '100px' },
+    );
+    io.observe(track);
+
+    document.addEventListener('visibilitychange', sync);
+
+    return () => {
+      stop();
+      ro.disconnect();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+    };
   }, [speed]);
 
   const nudge = useCallback((dir: 'prev' | 'next') => {
@@ -178,13 +220,17 @@ function ColumnTitle({ children }: { children: ReactNode }) {
   );
 }
 
-function MitraCard({ mitra }: { mitra: Mitra }) {
+function MitraCard({ mitra, hidden }: { mitra: Mitra; hidden?: boolean }) {
   return (
-    <div className="flex h-24 w-44 shrink-0 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-52">
+    <div
+      aria-hidden={hidden || undefined}
+      className="flex h-24 w-44 shrink-0 items-center justify-center rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-52"
+    >
       <img
         src={mitra.src}
-        alt={`Logo ${mitra.name}`}
+        alt={hidden ? '' : `Logo ${mitra.name}`}
         loading="lazy"
+        decoding="async"
         draggable={false}
         className="max-h-full max-w-full object-contain"
       />
@@ -202,8 +248,9 @@ export default function Footer() {
   const isOpen = useSchoolStatus();
   const { trackRef, nudge, setPaused } = useMarquee(45);
 
-  // 3 salinan agar marquee tidak pernah kosong di layar lebar
-  const loop = useMemo(() => [...MITRA, ...MITRA, ...MITRA], []);
+  // Digandakan agar marquee tidak pernah kosong di layar lebar.
+  // Jika logo mitra sedikit (< ±8), naikkan COPIES menjadi 3.
+  const loop = useMemo(() => Array.from({ length: COPIES }, () => MITRA).flat(), []);
 
   const scrollToId = (hash: string) => {
     document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -224,7 +271,6 @@ export default function Footer() {
   return (
     <footer className="footer-root relative overflow-hidden bg-neutral-950 text-slate-300" id="Footer">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         .footer-root { --ink:#1B1416; --red:#E31E24; font-family:'Plus Jakarta Sans',system-ui,sans-serif; }
         .footer-root .font-display { font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-0.01em; }
         @keyframes footer-float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-6px) } }
@@ -233,18 +279,6 @@ export default function Footer() {
         .footer-ping { animation: footer-ping 1.8s cubic-bezier(0,0,.2,1) infinite; }
         @media (prefers-reduced-motion: reduce) { .footer-float, .footer-ping { animation:none } }
       `}</style>
-
-      {/* ============ AMBIENT GLOW ============ */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-48 -right-32 h-[36rem] w-[36rem] rounded-full opacity-40 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #E31E24 0%, rgba(227,30,36,0) 65%)' }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full opacity-20 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #E31E24 0%, rgba(227,30,36,0) 65%)' }}
-      />
 
       {/* ============ MITRA INDUSTRI ============ */}
       <section
@@ -306,9 +340,7 @@ export default function Footer() {
           >
             <div ref={trackRef} className="flex w-max gap-4 will-change-transform">
               {loop.map((m, i) => (
-                <div key={`${m.name}-${i}`} aria-hidden={i >= MITRA.length ? true : undefined}>
-                  <MitraCard mitra={m} />
-                </div>
+                <MitraCard key={`${m.name}-${i}`} mitra={m} hidden={i >= MITRA.length} />
               ))}
             </div>
           </div>
@@ -323,6 +355,7 @@ export default function Footer() {
             <img
               src={logoSekolah}
               alt="Logo SMK Telkom Medan"
+              decoding="async"
               className="h-20 w-auto"
             />
 
@@ -432,7 +465,7 @@ export default function Footer() {
                 src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7964.56256599221!2d98.62224200000001!3d3.522328!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3031257487ec36b7%3A0xf835dac8905a90db!2sSMK%20Telkom%201%20Medan!5e0!3m2!1sid!2sid!4v1791045359534!5m2!1sid!2sid"
                 width="100%"
                 height="100%"
-                style={{ border: 0, filter: 'grayscale(0.85) invert(0.92) contrast(0.9)' }}
+                style={{ border: 0, filter: 'grayscale(1) invert(0.9)' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"

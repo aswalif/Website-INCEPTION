@@ -42,6 +42,7 @@ const MENU: NavEntry[] = [
       { label: "Galeri Sekolah", href: "#galeri" },
       { label: "Fasilitas", href: "#fasilitas" },
       { label: "Profil Guru", href: "/profil-guru" },
+      { label: "Alumni", href: "#alumni" }
     ],
   },
   { type: "link", label: "Jurusan", href: "#jurusan" },

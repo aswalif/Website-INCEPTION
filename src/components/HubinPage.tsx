@@ -1,11 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight,
-  Building2,
-  MapPin,
-  Search,
-} from 'lucide-react';
+import { ArrowRight, Building2, MapPin } from 'lucide-react';
 
 import { MITRA_DATA } from '../data/mitra';
 
@@ -45,30 +40,12 @@ const categories = [
 
 export default function HubinPage() {
   const [activeCategory, setActiveCategory] = useState('Semua');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredMitra = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    if (activeCategory === 'Semua') return MITRA_DATA;
 
-    return MITRA_DATA.filter((mitra) => {
-      const matchesCategory =
-        activeCategory === 'Semua' ||
-        mitra.category === activeCategory;
-
-      if (!query) return matchesCategory;
-
-      const searchableText = [
-        mitra.name,
-        mitra.location,
-        mitra.category,
-        mitra.description,
-      ]
-        .join(' ')
-        .toLowerCase();
-
-      return matchesCategory && searchableText.includes(query);
-    });
-  }, [activeCategory, searchQuery]);
+    return MITRA_DATA.filter((mitra) => mitra.category === activeCategory);
+  }, [activeCategory]);
 
   return (
     <main className="min-h-screen bg-white text-slate-950">
@@ -180,44 +157,19 @@ export default function HubinPage() {
       {/* PARTNER DIRECTORY */}
       <section className="bg-slate-50">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-          <div className="mb-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-            <div>
-              <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-400">
-                03 / Directory
-              </p>
+          <div className="mb-10">
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-400">
+              03 / Directory
+            </p>
 
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Jaringan Mitra
-              </h2>
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+              Jaringan Mitra
+            </h2>
 
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
-                Jelajahi perusahaan dan lembaga yang menjadi bagian dari
-                jaringan hubungan industri.
-              </p>
-            </div>
-
-            <div className="w-full lg:max-w-sm">
-              <label htmlFor="search-mitra" className="sr-only">
-                Cari perusahaan atau lokasi
-              </label>
-
-              <div className="group flex items-center border-b border-slate-300 bg-transparent transition-colors focus-within:border-slate-950">
-                <Search
-                  size={18}
-                  strokeWidth={1.7}
-                  className="mr-3 text-slate-400 transition-colors group-focus-within:text-slate-950"
-                />
-
-                <input
-                  id="search-mitra"
-                  type="search"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Cari nama perusahaan atau lokasi..."
-                  className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-slate-400"
-                />
-              </div>
-            </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">
+              Jelajahi perusahaan dan lembaga yang menjadi bagian dari
+              jaringan hubungan industri.
+            </p>
           </div>
 
           {/* FILTER */}
@@ -245,20 +197,8 @@ export default function HubinPage() {
             </div>
           </div>
 
-          <div className="mb-6 flex items-center justify-between text-xs text-slate-400">
-            <span>
-              {filteredMitra.length} mitra ditemukan
-            </span>
-
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="font-semibold text-slate-700 underline underline-offset-4 hover:text-slate-950"
-              >
-                Reset pencarian
-              </button>
-            )}
+          <div className="mb-6 text-xs text-slate-400">
+            <span>{filteredMitra.length} mitra ditemukan</span>
           </div>
 
           {/* COMPANY GRID */}
@@ -280,6 +220,8 @@ export default function HubinPage() {
                           <img
                             src={logo}
                             alt={`Logo ${mitra.name}`}
+                            loading="lazy"
+                            decoding="async"
                             className="max-h-16 max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
@@ -353,8 +295,7 @@ export default function HubinPage() {
               </h3>
 
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                Tidak ada perusahaan yang sesuai dengan kategori atau kata
-                pencarian yang digunakan.
+                Tidak ada perusahaan pada kategori ini.
               </p>
             </div>
           )}
